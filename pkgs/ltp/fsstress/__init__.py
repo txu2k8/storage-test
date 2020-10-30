@@ -7,6 +7,10 @@
 @Email : tao.xu2008@outlook.com
 """
 
+from .fs_stress import *
+__all__ = ['FSStress']
+
+
 """
 FYI: https://www2.cs.duke.edu/ari/fstress/
 Fstress is a synthetic, flexible, self-scaling NFS file service benchmark 

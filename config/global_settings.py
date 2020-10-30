@@ -1,16 +1,13 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 """
-@file  : __init__.py.py
-@Time  : 2020/10/26 15:07
+@file  : global_settings.py
+@Time  : 2020/10/30 17:30
 @Author: Tao.Xu
 @Email : tao.xu2008@outlook.com
 """
 
-from .tc import *
-
-__all__ = ['SanityTC', 'StressTC']
-
+VERSION = "1.0"
 
 if __name__ == '__main__':
     pass

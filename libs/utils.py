@@ -17,13 +17,11 @@ import string
 import hashlib
 
 from libs.log import log
-from libs.retry import retry_call
+from libs.retry import retry, retry_call
 
 """utils"""
 
-# =============================
 # --- Global Value
-# =============================
 logger = log.get_logger()
 # --- OS constants
 POSIX = os.name == "posix"
@@ -223,6 +221,19 @@ def create_file(path_name, total_size='4k', line_size=128, mode='w+'):
 
     file_md5 = hash_md5(path_name)
     return file_md5
+
+
+def mkdir_path(local_path):
+    """
+    verify the local path exist, if not create it
+    :param local_path:
+    :return:
+    """
+    if not os.path.isdir(local_path):
+        try:
+            os.makedirs(local_path)
+        except OSError as e:
+            raise Exception(e)
 
 
 if __name__ == '__main__':
