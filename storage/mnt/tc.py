@@ -65,6 +65,30 @@ class StressTC(unittest.TestCase):
         fs_stress.stress()
 
 
+class LoadGenTC(unittest.TestCase):
+    """Generate data on a mount point or path"""
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    @staticmethod
+    def test_01_consistency():
+        cst = Consistency()
+        logger.info(cst.__doc__)
+        cst.create('/tmp/consistency/', 500, 1)
+        cst.create('/tmp/dir_2', 500, 1)
+        cst.compare('/tmp/dir_1', '/tmp/dir_2', 500)
+
+    def test_03_fsstress(self):
+        fs_stress = FSStress(TEST_PATH)
+        logger.info(fs_stress.__doc__)
+        fs_stress.stress()
+
+
+
 if __name__ == '__main__':
     # unittest.main()
     suite = unittest.TestLoader().loadTestsFromTestCase(SanityTC)

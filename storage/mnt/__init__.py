@@ -9,7 +9,7 @@
 
 from .tc import *
 
-__all__ = ['SanityTC', 'StressTC']
+__all__ = ['SanityTC', 'StressTC', 'LoadGenTC']
 
 
 if __name__ == '__main__':
