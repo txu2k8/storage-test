@@ -21,11 +21,11 @@ MAIL_TO_SELF = "tao.xu2008@outlook.com"
 MAIL_TO_DEV = "tao.xu2008@outlook.com"
 MAIL_TO_QA = "tao.xu2008@outlook.com"
 MAIL_COUNT = dict(
-    m_from="txu@panzura.com",
+    m_from="txu@xxx.com",
     m_to=MAIL_TO_SELF,  # split to ";"
     host="smtp.gmail.com",
-    user="txu@panzura.com",
-    password="Pass@0614",
+    user="txu@xxx.com",
+    password="password",
     port=465,
     tls=True
 )
