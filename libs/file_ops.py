@@ -15,7 +15,7 @@ import unittest
 
 
 class Consistency(object):
-    """test.sh the file consistency"""
+    """test the file consistency"""
     def __init__(self):
         self.help = """
 Storage-Consistency-Test:

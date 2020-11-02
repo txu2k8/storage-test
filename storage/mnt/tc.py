@@ -7,6 +7,7 @@
 @Email : tao.xu2008@outlook.com
 """
 
+import os
 import unittest
 from libs.file_ops import Consistency
 from pkgs.ltp.fsstress import FSStress
@@ -21,6 +22,7 @@ TEST_PATH = args.test_path
 
 class SanityTC(unittest.TestCase):
     """Sanity test on a mount point or path"""
+    _test_path = args.test_path
 
     def setUp(self):
         pass
@@ -28,22 +30,24 @@ class SanityTC(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @staticmethod
-    def test_01_consistency():
+    def test_consistency(self):
         cst = Consistency()
         logger.info(cst.__doc__)
-        cst.create('/tmp/consistency/', 500, 1)
-        cst.create('/tmp/dir_2', 500, 1)
-        cst.compare('/tmp/dir_1', '/tmp/dir_2', 500)
+        local_path = '/tmp/consistency'
+        test_path = os.path.join(self._test_path, 'consistency')
+        cst.create(local_path, 500, 1)
+        cst.create(test_path, 500, 1)
+        cst.compare(local_path, test_path, 500)
 
-    def test_02_fsstress(self):
-        fs_stress = FSStress(TEST_PATH)
+    def test_fsstress(self):
+        fs_stress = FSStress(self._test_path)
         logger.info(fs_stress.__doc__)
         fs_stress.sanity()
 
 
 class StressTC(unittest.TestCase):
     """Stress test on a mount point or path"""
+    _test_path = args.test_path
 
     def setUp(self):
         pass
@@ -51,22 +55,24 @@ class StressTC(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @staticmethod
-    def test_01_consistency():
+    def test_consistency(self):
         cst = Consistency()
         logger.info(cst.__doc__)
-        cst.create('/tmp/consistency/', 500, 1)
-        cst.create('/tmp/dir_2', 500, 1)
-        cst.compare('/tmp/dir_1', '/tmp/dir_2', 500)
+        local_path = '/tmp/consistency'
+        test_path = os.path.join(self._test_path, 'consistency')
+        cst.create(local_path, 1000, 1)
+        cst.create(test_path, 1000, 1)
+        cst.compare(local_path, test_path, 500)
 
-    def test_03_fsstress(self):
-        fs_stress = FSStress(TEST_PATH)
+    def test_fsstress(self):
+        fs_stress = FSStress(self._test_path)
         logger.info(fs_stress.__doc__)
         fs_stress.stress()
 
 
 class LoadGenTC(unittest.TestCase):
     """Generate data on a mount point or path"""
+    _test_path = args.test_path
 
     def setUp(self):
         pass
@@ -74,19 +80,21 @@ class LoadGenTC(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @staticmethod
-    def test_01_consistency():
+    def test_gen_small_files(self):
+        """
+        Generate small files
+        """
+        logger.info(self.__doc__)
         cst = Consistency()
-        logger.info(cst.__doc__)
-        cst.create('/tmp/consistency/', 500, 1)
-        cst.create('/tmp/dir_2', 500, 1)
-        cst.compare('/tmp/dir_1', '/tmp/dir_2', 500)
+        test_top_path = os.path.join(self._test_path, 'small_files')
+        for x in range(0, 10):
+            test_path = os.path.join(test_top_path, 'dir{0}'.format(x))
+            cst.create(test_path, 10, 1)
 
-    def test_03_fsstress(self):
-        fs_stress = FSStress(TEST_PATH)
+    def test_gen_by_fsstress(self):
+        fs_stress = FSStress(self._test_path)
         logger.info(fs_stress.__doc__)
-        fs_stress.stress()
-
+        fs_stress.sanity()
 
 
 if __name__ == '__main__':

@@ -26,7 +26,7 @@ class FSStress(object):
         if os.name != "posix":
             raise PlatformError("ltp-fsstress just support for linux machine!")
 
-    def run(self, test_path, nops=1000, nproc=50, loops=1):
+    def run(self, test_path, nops=100, nproc=10, loops=1):
         """
         -d dir      specifies the base directory for operations
         -n nops     specifies the no. of operations per process (default 1)
