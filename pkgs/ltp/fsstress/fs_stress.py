@@ -12,7 +12,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 from libs import utils
 from libs.log import log
-from libs.exceptions import PlatformError
+from libs.exceptions import PlatformError, NoSuchDir
 
 # --- Global Value
 logger = log.get_logger()
@@ -23,10 +23,14 @@ class FSStress(object):
 
     def __init__(self, top_path):
         self.top_path = top_path
-        if os.name != "posix":
-            raise PlatformError("ltp-fsstress just support for linux machine!")
 
-    def run(self, test_path, nops=100, nproc=10, loops=1):
+    def verify(self):
+        if os.name != "posix":
+            raise PlatformError("fs_test just support for linux machine!")
+        if not os.path.isdir(self.top_path):
+            raise NoSuchDir(self.top_path)
+
+    def _run(self, test_path, nops=100, nproc=10, loops=1):
         """
         -d dir      specifies the base directory for operations
         -n nops     specifies the no. of operations per process (default 1)
@@ -35,7 +39,7 @@ class FSStress(object):
         -c          specifies not to remove files(cleanup) after execution
         -r          specifies random name padding
         """
-        logger.info(self.run.__doc__)
+        logger.info(self._run.__doc__)
         cur_dir = os.path.dirname(os.path.realpath(__file__))
         fsstress_bin = os.path.join(cur_dir, 'fsstress')
         test_log = os.path.join(self.top_path, 'fsstress.log')
@@ -44,7 +48,7 @@ class FSStress(object):
             fsstress_bin, test_path, str(loops), str(nops),  str(nproc), test_log)
 
         try:
-            # os.system('chmod 777 {0}*'.format(fsstress_cmd))
+            os.system('chmod 777 {0}*'.format(fsstress_bin))
             rc, output = utils.run_cmd(fsstress_cmd)
             logger.info('\n'.format(output.strip('\n')))
             logger.info("PASS: Run fsstress on {0}".format(test_path))
@@ -57,18 +61,20 @@ class FSStress(object):
         return True
 
     def sanity(self):
+        self.verify()
         test_path = os.path.join(self.top_path, "fsstress", "sanity")
         utils.mkdir_path(test_path)
-        self.run(test_path, nops=100, nproc=10, loops=1)
+        return self._run(test_path, nops=100, nproc=10, loops=1)
 
     def stress(self):
+        self.verify()
         stress_path = os.path.join(self.top_path, "fsstress", "stress")
         pool = ThreadPoolExecutor(max_workers=8)
         futures = []
         for x in range(1, 5):
             test_path = os.path.join(stress_path, str(x))
             utils.mkdir_path(test_path)
-            futures.append(pool.submit(self.run, test_path, nops=1000, nproc=50, loops=3))
+            futures.append(pool.submit(self._run, test_path, nops=1000, nproc=50, loops=3))
         pool.shutdown()
         future_result = [future.result() for future in futures]
         result = False if False in future_result else True

@@ -7,10 +7,5 @@
 @Email : tao.xu2008@outlook.com
 """
 
-# from .tc import *
-
-# __all__ = ['SanityTC', 'StressTC', 'LoadGenTC']
-
-
 if __name__ == '__main__':
     pass

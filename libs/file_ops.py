@@ -13,6 +13,10 @@ import os
 import hashlib
 import unittest
 
+from libs.log import log
+
+logger = log.get_logger()
+
 
 class Consistency(object):
     """test the file consistency"""
@@ -61,7 +65,9 @@ Storage-Consistency-Test:
             f.close()
         end = time.time()
         during = end - start
-        print(top_path + ": create " + str(f_num) + " file(s), time:" + str(during) + "(seconds)")
+        logger.info("{0}: create {1} file(s), time: {2}(seconds)".format(
+            top_path, f_num, during))
+        return True
 
     @staticmethod
     def compare(path_1, path_2, f_num):
@@ -78,12 +84,19 @@ Storage-Consistency-Test:
                 if hashlib.sha224(data_path_1.encode()).hexdigest() == hashlib.sha224(data_path_2.encode()).hexdigest():
                     equal_num += 1
             except IOError as e:
-                print(filename + ":file not exist")
+                logger.error(filename + ":file not exist")
+                raise e
         end = time.time()
         during = end - start
         equal_rate = float(equal_num) / int(f_num) * 100
-        print(path_1+"; " + path_2)
-        print("compare " + str(f_num) + " file(s), equal: " + str(equal_rate) + "% time:" + str(during) + "(seconds)")
+        logger.info("Compare path1:{0}; path2: ".format(path_1, path_2))
+        if equal_num <= f_num:
+            logger.error("Compared {0} file(s), equal: {1}% time: {2}(seconds)".format(
+                f_num, equal_rate, during))
+            raise Exception("Consistency Test FAIL")
+        logger.info("Compared {0} file(s), equal: {1}% time: {2}(seconds)".format(
+            f_num, equal_rate, during))
+        return True
 
     def test(self):
         if len(sys.argv) < 2:
@@ -129,9 +142,9 @@ class FileOpsTestCase(unittest.TestCase):
     def test_consistency(self):
         cst = Consistency()
         print(cst.__doc__)
-        cst.create('/tmp/dir_1', 500, 1)
-        cst.create('/tmp/dir_2', 500, 1)
-        cst.compare('/tmp/dir_1', '/tmp/dir_2', 500)
+        self.assertTrue(cst.create('/tmp/dir_1', 500, 1))
+        self.assertTrue(cst.create('/tmp/dir_2', 500, 1))
+        self.assertTrue(cst.compare('/tmp/dir_1', '/tmp/dir_2', 500))
 
 
 if __name__ == '__main__':

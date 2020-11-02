@@ -10,7 +10,8 @@ __all__ = [
     'BaseTestException', 'DecoratorException', 'LoggerException',
     'ResException', 'NoSuchProcess', 'AccessDenied', 'NetException',
     'AsyncMsgError', 'ThreadTermException', 'LockFileError',
-    'NotImplementedYet', 'ConfigError', 'PlatformError'
+    'NotImplementedYet', 'ConfigError', 'PlatformError', 'NoSuchDir',
+    'NoSuchBinary'
 ]
 
 
@@ -163,6 +164,22 @@ class ConfigError(BaseTestException):
 class PlatformError(BaseTestException):
     """
     PlatformError
+    """
+    def __init__(self, msg=''):
+        BaseTestException.__init__(self, msg)
+
+
+class NoSuchDir(BaseTestException):
+    """
+    No such Dir
+    """
+    def __init__(self, msg=''):
+        BaseTestException.__init__(self, msg)
+
+
+class NoSuchBinary(BaseTestException):
+    """
+    No such Binary
     """
     def __init__(self, msg=''):
         BaseTestException.__init__(self, msg)

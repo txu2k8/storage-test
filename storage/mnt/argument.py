@@ -33,7 +33,7 @@ def tc_sanity(action):
                         default=['all'], nargs='+',
                         choices=case_info_dict.keys(),
                         help="default:['all]")
-    parser.set_defaults(func=test_suite_generator, suite='mnt.sanity')
+    parser.set_defaults(func=test_suite_generator, loops=1, suite='mnt.sanity')
 
 
 def tc_stress(action):
