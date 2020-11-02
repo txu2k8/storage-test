@@ -13,6 +13,7 @@ __all__ = ['LockTest']
 """
 locktest
 http://nfsv4.bullopensource.org/tools/tests/locktest.php
+https://github.com/linux-test-project/ltp/tree/master/testcases/network/nfsv4/locks
 ==============
 locktest用于fcntl锁功能的压力测试。运行时，主进程先在指定文件区域设置字节范围的记录锁，
 然后多个从进程尝试在该文件区域执行read, write, 加新锁操作。

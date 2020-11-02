@@ -22,7 +22,7 @@ logger = log.get_logger()
 
 class FileBench(object):
     """
-    FileBench TEST -- Flexible workload generator
+    Filebench - A Model Based File System Workload Generator
     https://github.com/filebench/filebench/wiki
     ===============
     Filebench is a file system and storage benchmark that can generate a large

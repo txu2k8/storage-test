@@ -22,7 +22,7 @@ logger = log.get_logger()
 class LockTest(object):
     """
     lock test: Tries to stress the fcntl locking functions.
-
+    https://github.com/linux-test-project/ltp/tree/master/testcases/network/nfsv4/locks
     EXPECTED RESULTS
     ================
     Here is the table of expected results, depending on :

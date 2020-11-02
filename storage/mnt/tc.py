@@ -11,8 +11,8 @@ import os
 import unittest
 from libs.file_ops import Consistency
 from pkgs.ltp.fsstress import FSStress
-from pkgs.ltp.fstest import FSTest
-from pkgs.ltp.filebench import FileBench
+from pkgs.fstest import FSTest
+from pkgs.filebench import FileBench
 from pkgs.ltp.locktests import LockTest
 from libs.log import log
 from config import const
