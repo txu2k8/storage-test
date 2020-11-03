@@ -7,7 +7,7 @@
 @Email : tao.xu2008@outlook.com
 """
 
-""" This module provide some 3rd part packages """
+""" This module provide some third-party packages """
 
 if __name__ == '__main__':
     pass
