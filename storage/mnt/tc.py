@@ -58,6 +58,11 @@ class SanityTC(unittest.TestCase):
         logger.info(lct.__doc__)
         self.assertTrue(lct.sanity())
 
+    def test_doiotests(self):
+        dio = DoIO(self._test_path)
+        logger.info(dio.__doc__)
+        self.assertTrue(dio.sanity())
+
 
 class StressTC(unittest.TestCase):
     """Stress test on a mount point or path"""
