@@ -45,6 +45,47 @@ class RWTest(DoIO):
         super(RWTest, self).__init__(top_path)
         pass
 
+    def rwtest_cases(self, test_path):
+        """
+        Generate Test case list FYI:
+        https://github.com/linux-test-project/ltp/blob/master/runtest/fs
+        """
+        cur_dir = os.path.dirname(os.path.realpath(__file__))
+        rwtest_bin = os.path.join(cur_dir, 'bin/rwtest')
+
+        tcs = [
+            {
+                "name": "rwtest01",
+                "desc": "rw-sync",
+                "cmd": "{0} -N rwtest01 -c -q -i 60s -f sync 10%25000:{1}/rw-sync-$$".format(rwtest_bin, test_path)
+            },
+            {
+                "name": "rwtest02",
+                "desc": "rw-buffered",
+                "cmd": "{0} -N rwtest02 -c -q -i 60s -f buffered 10%25000:{1}/rw-buffered-$$".format(rwtest_bin, test_path)
+            },
+            {
+                "name": "rwtest03",
+                "desc": "rw-mem-buffered",
+                "cmd": "{0} -N rwtest03 -c -q -i 60s -n 2 -f buffered -s mmread,mmwrite -m random -Dv 10%25000:{1}/mm-buff-$$".format(rwtest_bin, test_path)
+            },
+            {
+                "name": "rwtest04",
+                "desc": "rw-mm-sync",
+                "cmd": "{0} -N rwtest04 -c -q -i 60s -n 2 -f sync -s mmread,mmwrite -m random -Dv 10%25000:{1}/mm-sync-$$".format(rwtest_bin, test_path)
+            },
+            {
+                "name": "rwtest05",
+                "desc": "rw-50-iterations",
+                "cmd": "{0} -N rwtest01 -c -q -i 50 -T 64b 500b:{1}/rwtest01%f".format(rwtest_bin, test_path)
+            },
+            {
+                "name": "rwtest06",
+                "desc": "rw-sync",
+                "cmd": "{0} -N iogen01 -i 120s -s read,write -Da -Dv -n 2 500b:{1}/doio.f1.$$ 1000b:{1}/doio.f2.$$".format(rwtest_bin, test_path)
+            },
+        ]
+
     def run(self, test_path):
         """
         Examples:
