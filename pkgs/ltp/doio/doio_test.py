@@ -172,6 +172,8 @@ class DoIO(object):
             os.system('chmod +x /{0}*'.format(bin_path))
             rc, output = utils.run_cmd(test_cmd)
             logger.info('\n'.format(output.strip('\n')))
+            if "Test failed" in output:
+                raise Exception("FAIL: Run {0} on {1}".format(test_name, test_path))
             logger.info("PASS: Run {0} on {1}".format(test_name, test_path))
         except Exception as e:
             logger.info("FAIL: Run {0} on {1}".format(test_name, test_path))
