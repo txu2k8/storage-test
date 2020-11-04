@@ -8,7 +8,7 @@
 """
 
 from .doio_test import *
-__all__ = ['RWTest', 'GrowFiles', 'IOGen']
+__all__ = ['DoIO']
 
 """
 https://github.com/linux-test-project/ltp/tree/master/testcases/kernel/fs/doio

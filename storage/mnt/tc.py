@@ -14,6 +14,7 @@ from pkgs.ltp.fsstress import FSStress
 from pkgs.fstest import FSTest
 from pkgs.filebench import FileBench
 from pkgs.ltp.locktests import LockTest
+from pkgs.ltp.doio import DoIO
 from libs.log import log
 from config import const
 
@@ -98,6 +99,11 @@ class StressTC(unittest.TestCase):
         lct = LockTest(self._test_path)
         logger.info(lct.__doc__)
         self.assertTrue(lct.stress())
+
+    def test_doiotests(self):
+        dio = DoIO(self._test_path)
+        logger.info(dio.__doc__)
+        self.assertTrue(dio.stress())
 
 
 class LoadGenTC(unittest.TestCase):
