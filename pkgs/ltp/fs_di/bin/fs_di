@@ -197,7 +197,7 @@ $trace_logic
               let "SIZE %= 500"
  	    done
       	fi
-  	create_datafile $SIZE $TCtmp/testfile >/dev/null
+  	${CurPath}/create_datafile $SIZE $TCtmp/testfile >/dev/null
 	  if [ $? != 0 ]; then
 		end_testcase "Could not create testfile of size ${SIZE}Mb"
 	  fi
@@ -249,7 +249,7 @@ $trace_logic
 	if [ $DISK_SIZE == 0 ]; then
 		DISK_SIZE=1
 	fi
-    create_datafile $DISK_SIZE $TCtmp/testfile >/dev/null
+    ${CurPath}/create_datafile $DISK_SIZE $TCtmp/testfile >/dev/null
     retval=$?
     if [ "$retval" != 0 ]; then
         end_testcase "Error in creating data file"
