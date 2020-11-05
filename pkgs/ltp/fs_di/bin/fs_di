@@ -256,7 +256,7 @@ $trace_logic
     fi
 
     #Invoke frag to create 2 fragmented files and copy data file to both the files
-    frag $TCtmp/testfile $TMPBASE
+    ${CurPath}/frag $TCtmp/testfile $TMPBASE
     retval=$?
     if [ "$retval" != 0 ]; then
         end_testcase "Error in creating frag files"
