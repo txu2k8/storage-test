@@ -246,7 +246,7 @@ $trace_logic
     #Create a datafile of size half of the disk size
     ${CurPath}/tst_resm TINFO "Creating fragmented files. Please wait..."
     DISK_SIZE=$(( $DISK_SIZE / 2 ))
-	if [ $DISK_SIZE == 0 ]; then
+	if [ $DISK_SIZE -eq 0 ]; then
 		DISK_SIZE=1
 	fi
     ${CurPath}/create_datafile $DISK_SIZE $TCtmp/testfile >/dev/null
