@@ -58,18 +58,19 @@ class LockTest(object):
         if not os.path.isdir(self.top_path):
             raise NoSuchDir(self.top_path)
 
-    def _run(self, test_path):
+    def run(self, test_path):
         """
         RUN LOCAL:
         ./locktests -n <number of concurent process> -f <test file> [-T]
         eg:
         ./locktests -n 50 -f /file/system/to/test
         """
-        logger.info(self._run.__doc__)
+        logger.info(self.run.__doc__)
+        utils.mkdir_path(test_path)
+
         cur_dir = os.path.dirname(os.path.realpath(__file__))
         locktest_bin = os.path.join(cur_dir, 'fstest')
         test_log = os.path.join(self.top_path, 'fstest.log')
-
         locktest_cmd = '{0} -n 50 -f {1}/locktest.dat | tee -a {2}'.format(
             locktest_bin, test_path, test_log)
 
@@ -88,17 +89,15 @@ class LockTest(object):
 
     def sanity(self):
         self.verify()
-        test_path = os.path.join(self.top_path, "locktests", "sanity")
-        utils.mkdir_path(test_path)
-        return self._run(test_path)
+        test_path = os.path.join(self.top_path, "locktests")
+        return self.run(test_path)
 
     def stress(self):
         self.verify()
-        test_path = os.path.join(self.top_path, "locktests", "stress")
-        utils.mkdir_path(test_path)
-        return self._run(test_path)
+        test_path = os.path.join(self.top_path, "locktests")
+        return self.run(test_path)
 
 
 if __name__ == '__main__':
     lct = LockTest("/tmp")
-    lct.test()
+    lct.sanity()

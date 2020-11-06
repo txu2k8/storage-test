@@ -30,7 +30,7 @@ class FSStress(object):
         if not os.path.isdir(self.top_path):
             raise NoSuchDir(self.top_path)
 
-    def _run(self, test_path, nops=100, nproc=10, loops=1):
+    def run(self, test_path, nops=100, nproc=10, loops=1):
         """
         -d dir      specifies the base directory for operations
         -n nops     specifies the no. of operations per process (default 1)
@@ -39,11 +39,12 @@ class FSStress(object):
         -c          specifies not to remove files(cleanup) after execution
         -r          specifies random name padding
         """
-        logger.info(self._run.__doc__)
-        cur_dir = os.path.dirname(os.path.realpath(__file__))
-        fsstress_bin = os.path.join(cur_dir, 'fsstress')
-        test_log = os.path.join(self.top_path, 'fsstress.log')
+        logger.info(self.run.__doc__)
+        utils.mkdir_path(test_path)
 
+        cur_dir = os.path.dirname(os.path.realpath(__file__))
+        fsstress_bin = os.path.join(cur_dir, 'bin/fsstress')
+        test_log = os.path.join(self.top_path, 'fsstress.log')
         fsstress_cmd = "{0} -d {1} -l {2} -n {3} -p {4} -v -w -r -c | tee -a {5}".format(
             fsstress_bin, test_path, str(loops), str(nops),  str(nproc), test_log)
 
@@ -62,19 +63,18 @@ class FSStress(object):
 
     def sanity(self):
         self.verify()
-        test_path = os.path.join(self.top_path, "fsstress", "sanity")
-        utils.mkdir_path(test_path)
-        return self._run(test_path, nops=100, nproc=10, loops=1)
+        test_path = os.path.join(self.top_path, "fsstress")
+        return self.run(test_path, nops=100, nproc=10, loops=1)
 
     def stress(self):
         self.verify()
-        stress_path = os.path.join(self.top_path, "fsstress", "stress")
+        stress_path = os.path.join(self.top_path, "fsstress")
         pool = ThreadPoolExecutor(max_workers=8)
         futures = []
         for x in range(1, 5):
-            test_path = os.path.join(stress_path, str(x))
+            test_path = os.path.join(stress_path, "dir_".format(x))
             utils.mkdir_path(test_path)
-            futures.append(pool.submit(self._run, test_path, nops=1000, nproc=50, loops=3))
+            futures.append(pool.submit(self.run, test_path, nops=1000, nproc=50, loops=3))
         pool.shutdown()
         future_result = [future.result() for future in futures]
         result = False if False in future_result else True

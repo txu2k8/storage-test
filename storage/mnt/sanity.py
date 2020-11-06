@@ -12,7 +12,6 @@ import os
 import unittest
 from libs.file_ops import Consistency
 from pkgs.ltp.fs_di import FSDataIntegrity
-from pkgs.ltp.fsstress import FSStress
 from pkgs.fstest import FSTest
 from pkgs.ltp.locktests import LockTest
 from pkgs.ltp.doio import DoIO
@@ -27,7 +26,7 @@ TEST_PATH = args.test_path
 
 class SanityTC(unittest.TestCase):
     """Sanity test on a mount point or path"""
-    _test_path = args.test_path
+    _test_path = os.path.join(args.test_path, "sanity")
 
     def setUp(self):
         pass
@@ -36,6 +35,7 @@ class SanityTC(unittest.TestCase):
         pass
 
     def test_consistency(self):
+        """Test the file consistency"""
         cst = Consistency()
         logger.info(cst.__doc__)
         local_path = '/tmp/consistency'
@@ -45,26 +45,25 @@ class SanityTC(unittest.TestCase):
         self.assertTrue(cst.compare(local_path, test_path, 500))
 
     def test_fs_di(self):
+        """Test FileSystem Data Integrity"""
         fdi = FSDataIntegrity(self._test_path)
         logger.info(fdi.__doc__)
         self.assertTrue(fdi.sanity())
 
     def test_fstest(self):
+        """Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink"""
         fs_test = FSTest(self._test_path)
         logger.info(fs_test.__doc__)
         self.assertTrue(fs_test.sanity())
 
-    def test_fsstress(self):
-        fs_stress = FSStress(self._test_path)
-        logger.info(fs_stress.__doc__)
-        self.assertTrue(fs_stress.sanity())
-
     def test_locktests(self):
+        """Test fcntl locking functions"""
         lct = LockTest(self._test_path)
         logger.info(lct.__doc__)
         self.assertTrue(lct.sanity())
 
     def test_doio(self):
+        """base rw test: LTP doio & iogen"""
         dio = DoIO(self._test_path)
         logger.info(dio.__doc__)
         self.assertTrue(dio.iogen_doio())

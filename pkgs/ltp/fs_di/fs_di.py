@@ -18,7 +18,7 @@ logger = log.get_logger()
 
 class FSDataIntegrity(object):
     """
-    FileSystem Data Integrity Test
+    Test FileSystem Data Integrity
     ============
     1. Creates a data file of specified or random size and copies
         the file to a random directory depth on a specified filesystem
@@ -54,6 +54,8 @@ class FSDataIntegrity(object):
 
         """
         logger.info(self.run.__doc__)
+        utils.mkdir_path(test_path)
+
         cur_dir = os.path.dirname(os.path.realpath(__file__))
         bin_path = os.path.join(cur_dir, 'bin')
         fs_di_bin = os.path.join(bin_path, 'fs_di')
@@ -79,15 +81,13 @@ class FSDataIntegrity(object):
 
     def sanity(self):
         self.verify()
-        test_path = os.path.join(self.top_path, "doio", "sanity")
-        utils.mkdir_path(test_path)
+        test_path = os.path.join(self.top_path, "fs_data_integrity")
         assert self.run(test_path, 10, 20, 1)
         return True
 
     def stress(self):
         self.verify()
-        test_path = os.path.join(self.top_path, "doio", "stress")
-        utils.mkdir_path(test_path)
+        test_path = os.path.join(self.top_path, "fs_data_integrity")
         assert self.run(test_path, 100, 200, 20)
         return True
 

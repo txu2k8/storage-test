@@ -7,6 +7,10 @@
 @Email : tao.xu2008@outlook.com
 """
 
+from .create_file import *
+__all__ = ['CreateDataFile']
+
+
 """
 ./create_datafile -h
 =====================

@@ -14,12 +14,13 @@ import hashlib
 import unittest
 
 from libs.log import log
+from libs import utils
 
 logger = log.get_logger()
 
 
 class Consistency(object):
-    """test the file consistency"""
+    """Test the file consistency"""
     def __init__(self):
         self.help = """
 Storage-Consistency-Test:
@@ -55,8 +56,7 @@ Storage-Consistency-Test:
 
     @staticmethod
     def create(top_path, f_num, f_size):
-        if not os.path.exists(top_path):
-            os.makedirs(top_path)
+        utils.mkdir_path(top_path)
         start = time.time()
         for idx in range(0, int(f_num)):
             f = open(top_path + "/test_" + str(idx) + ".txt", "w")

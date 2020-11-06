@@ -40,5 +40,32 @@ def test_path_parser():
     return arg_parser
 
 
+def file_size_parser():
+    arg_parser = argparse.ArgumentParser(add_help=False)
+    arg_parser.add_argument(
+        "--file_size", action="store", dest="file_size", type=int,
+        default=1, help="file size(MB),default:1"
+    )
+    return arg_parser
+
+
+def file_size_range_parser():
+    arg_parser = argparse.ArgumentParser(add_help=False)
+    arg_parser.add_argument(
+        "--file_size_range", action="store", dest="file_size_range",
+        default="1,1", help="file size range(K/MB),default:1,1"
+    )
+    return arg_parser
+
+
+def dir_number_parser():
+    arg_parser = argparse.ArgumentParser(add_help=False)
+    arg_parser.add_argument(
+        "--dir_number", action="store", dest="dir_number", type=int,
+        default=1, help="Sub dir number,default:1"
+    )
+    return arg_parser
+
+
 if __name__ == '__main__':
     pass

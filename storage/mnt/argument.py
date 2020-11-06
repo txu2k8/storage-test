@@ -17,7 +17,10 @@ from storage.argument import case_dict_2_string, test_path_parser
 def tc_sanity(action):
     case_info_dict = {
         'consistency': 'Test the file consistency',
-        'fsstress': 'A simple filesystem stress with LTP tool fsstress',
+        'fs_di': 'Test FileSystem Data Integrity',
+        'fstest': 'Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink',
+        'locktests': 'Test fcntl locking functions',
+        'doio': 'base rw test: LTP doio & iogen',
     }
 
     case_desc = case_dict_2_string(case_info_dict, 25)
@@ -39,7 +42,13 @@ def tc_sanity(action):
 def tc_stress(action):
     case_info_dict = {
         'consistency': 'Test the file consistency',
+        'create_files': 'Creates files of specified size',
+        'fs_di': 'Test FileSystem Data Integrity',
+        'fstest': 'Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink',
         'fsstress': 'filesystem stress with LTP tool fsstress',
+        'filebench': 'File System Workload test',
+        'locktests': 'Test fcntl locking functions',
+        'doio': 'base rw test: LTP doio & iogen',
     }
 
     case_desc = case_dict_2_string(case_info_dict, 25)
@@ -59,19 +68,25 @@ def tc_stress(action):
 
 
 def tc_load(action):
+    from storage.argument import dir_number_parser, file_size_range_parser
     case_info_dict = {
-        'gen_small_files': 'Generate 100(dir)*1000(num)*1kb files',
-        'gen_by_fsstress': 'Generate file by LTP tool fsstress(sanity)',
+        'create_files': 'Creates files of specified size.(default:1dir*1file*1MB)',
+        'small_files': 'Generate small files.(default:1dir*1file*1MB)',
+        'fsstress': 'Generate files by LTP fsstress(deep path/files)',
     }
 
     case_desc = case_dict_2_string(case_info_dict, 25)
 
     parser = action.add_parser(
         'load',
-        help='storage->mnt load data',
+        help='storage->mnt load data files',
         epilog='Test Case List:\n{0}'.format(case_desc),
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        parents=[test_path_parser()]
+        parents=[
+            test_path_parser(),
+            dir_number_parser(),
+            file_size_range_parser(),
+        ]
     )
     parser.add_argument("--case", action="store", dest="case_list",
                         default=['all'], nargs='+',
@@ -85,13 +100,13 @@ def test_suite_generator(args):
     cur_dir = os.path.dirname(os.path.abspath(__file__))
     if args.suite == 'mnt.sanity':
         test_py = os.path.join(cur_dir, 'sanity.py')
-        from storage.mnt import SanityTC as MntTestCase
+        from storage.mnt.sanity import SanityTC as MntTestCase
     elif args.suite == 'mnt.stress':
         test_py = os.path.join(cur_dir, 'stress.py')
-        from storage.mnt import StressTC as MntTestCase
+        from storage.mnt.stress import StressTC as MntTestCase
     elif args.suite == 'mnt.load':
         test_py = os.path.join(cur_dir, 'loadgen.py')
-        from storage.mnt import LoadGenTC as MntTestCase
+        from storage.mnt.loadgen import LoadGenTC as MntTestCase
     else:
         raise Exception("Unknown sub parser suite")
 

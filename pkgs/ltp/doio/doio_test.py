@@ -166,6 +166,7 @@ class DoIO(object):
         bin_path = test.bin_path
         test_log = os.path.join(self.top_path, '{0}.log'.format(test_name))
         test_cmd = "{0} | tee -a {1}".format(test.command, test_log)
+        utils.mkdir_path(test_path)
 
         try:
             os.system('chmod +x {0}/*'.format(bin_path))
@@ -185,7 +186,6 @@ class DoIO(object):
     def rwtest(self):
         self.verify()
         test_path = os.path.join(self.top_path, "rwtest")
-        utils.mkdir_path(test_path)
         for tc in self.rwtest_tcs(test_path):
             assert self.run(tc)
         return True
@@ -193,7 +193,6 @@ class DoIO(object):
     def growfiles(self):
         self.verify()
         test_path = os.path.join(self.top_path, "growfiles")
-        utils.mkdir_path(test_path)
         for tc in self.growfiles_tcs(test_path):
             assert self.run(tc)
         return True
@@ -201,7 +200,6 @@ class DoIO(object):
     def iogen_doio(self):
         self.verify()
         test_path = os.path.join(self.top_path, "iogen_doio")
-        utils.mkdir_path(test_path)
         for tc in self.iogen_doio_tcs(test_path):
             assert self.run(tc)
         return True
