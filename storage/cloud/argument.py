@@ -40,17 +40,17 @@ def tc_sanity(action):
 def test_suite_generator(args):
     cur_dir = os.path.dirname(os.path.abspath(__file__))
     if args.suite == 'mnt.sanity':
-        test_py = os.path.join(cur_dir, 'tc.py')
-        from storage.mnt.tc import SanityTC as MntTestCase
+        test_py = os.path.join(cur_dir, 'stress.py')
+        from storage.mnt.stress import SanityTC as MntTestCase
     elif args.suite == 'mnt.stress':
-        test_py = os.path.join(cur_dir, 'tc.py')
-        from storage.mnt.tc import StressTC as MntTestCase
+        test_py = os.path.join(cur_dir, 'stress.py')
+        from storage.mnt.stress import StressTC as MntTestCase
     elif args.suite == 'mnt.load':
-        test_py = os.path.join(cur_dir, 'tc.py')
-        from storage.mnt.tc import LoadGenTC as MntTestCase
+        test_py = os.path.join(cur_dir, 'stress.py')
+        from storage.mnt.stress import LoadGenTC as MntTestCase
     else:
-        test_py = os.path.join(cur_dir, 'tc.py')
-        from storage.mnt.tc import SanityTC as MntTestCase
+        test_py = os.path.join(cur_dir, 'stress.py')
+        from storage.mnt.stress import SanityTC as MntTestCase
 
     if 'all' in args.case_list:
         # Load all test cases

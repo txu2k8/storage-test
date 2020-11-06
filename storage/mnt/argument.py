@@ -84,17 +84,16 @@ def tc_load(action):
 def test_suite_generator(args):
     cur_dir = os.path.dirname(os.path.abspath(__file__))
     if args.suite == 'mnt.sanity':
-        test_py = os.path.join(cur_dir, 'tc.py')
-        from storage.mnt.tc import SanityTC as MntTestCase
+        test_py = os.path.join(cur_dir, 'sanity.py')
+        from storage.mnt import SanityTC as MntTestCase
     elif args.suite == 'mnt.stress':
-        test_py = os.path.join(cur_dir, 'tc.py')
-        from storage.mnt.tc import StressTC as MntTestCase
+        test_py = os.path.join(cur_dir, 'stress.py')
+        from storage.mnt import StressTC as MntTestCase
     elif args.suite == 'mnt.load':
-        test_py = os.path.join(cur_dir, 'tc.py')
-        from storage.mnt.tc import LoadGenTC as MntTestCase
+        test_py = os.path.join(cur_dir, 'loadgen.py')
+        from storage.mnt import LoadGenTC as MntTestCase
     else:
-        test_py = os.path.join(cur_dir, 'tc.py')
-        from storage.mnt.tc import SanityTC as MntTestCase
+        raise Exception("Unknown sub parser suite")
 
     if 'all' in args.case_list:
         # Load all test cases

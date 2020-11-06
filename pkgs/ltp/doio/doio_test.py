@@ -8,7 +8,6 @@
 """
 
 import os
-from concurrent.futures import ThreadPoolExecutor
 
 from libs import utils
 from libs.log import log
@@ -169,7 +168,7 @@ class DoIO(object):
         test_cmd = "{0} | tee -a {1}".format(test.command, test_log)
 
         try:
-            os.system('chmod +x /{0}*'.format(bin_path))
+            os.system('chmod +x {0}/*'.format(bin_path))
             rc, output = utils.run_cmd(test_cmd)
             logger.info('\n'.format(output.strip('\n')))
             if "Test failed" in output:
@@ -183,25 +182,31 @@ class DoIO(object):
 
         return True
 
-    def sanity(self):
+    def rwtest(self):
         self.verify()
-        test_path = os.path.join(self.top_path, "doio", "sanity")
-        utils.mkdir_path(test_path)
-        for tc in self.iogen_doio_tcs(test_path):
-            assert self.run(tc)
-        return True
-
-    def stress(self):
-        self.verify()
-        test_path = os.path.join(self.top_path, "doio", "stress")
+        test_path = os.path.join(self.top_path, "rwtest")
         utils.mkdir_path(test_path)
         for tc in self.rwtest_tcs(test_path):
             assert self.run(tc)
+        return True
+
+    def growfiles(self):
+        self.verify()
+        test_path = os.path.join(self.top_path, "growfiles")
+        utils.mkdir_path(test_path)
         for tc in self.growfiles_tcs(test_path):
+            assert self.run(tc)
+        return True
+
+    def iogen_doio(self):
+        self.verify()
+        test_path = os.path.join(self.top_path, "iogen_doio")
+        utils.mkdir_path(test_path)
+        for tc in self.iogen_doio_tcs(test_path):
             assert self.run(tc)
         return True
 
 
 if __name__ == '__main__':
     rwt = DoIO("/tmp")
-    rwt.sanity()
+    rwt.rwtest()
