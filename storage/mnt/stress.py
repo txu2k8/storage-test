@@ -18,6 +18,8 @@ from pkgs.ltp.locktests import LockTest
 from pkgs.ltp.doio import DoIO
 from pkgs.ltp.create import CreateDataFile
 from libs.log import log
+from libs.exceptions import NoSuchDir
+from libs import utils
 from config import const
 
 logger = log.get_logger()
@@ -28,10 +30,13 @@ TEST_PATH = args.test_path
 
 class StressTC(unittest.TestCase):
     """Stress test on a mount point or path"""
-    _test_path = args.test_path
+    _fs_path = args.test_path
 
     def setUp(self):
-        pass
+        if not os.path.isdir(self._fs_path):
+            raise NoSuchDir(self._fs_path)
+        self.test_path = os.path.join(self._fs_path, "stress")
+        utils.mkdir_path(self.test_path)
 
     def tearDown(self):
         pass
@@ -42,7 +47,7 @@ class StressTC(unittest.TestCase):
         logger.info(cst.__doc__)
         local_path = '/tmp/consistency'
         self.assertTrue(cst.create(local_path, 1000, 1))
-        test_top_path = os.path.join(self._test_path, 'consistency')
+        test_top_path = os.path.join(self.test_path, 'consistency')
         for x in range(0, 100):
             test_path = os.path.join(test_top_path, 'dir{0}'.format(x))
             self.assertTrue(cst.create(test_path, 1000, 1))
@@ -50,43 +55,43 @@ class StressTC(unittest.TestCase):
 
     def test_create_files(self):
         """Creates files of specified size"""
-        cdf = CreateDataFile(self._test_path)
+        cdf = CreateDataFile(self.test_path)
         logger.info(cdf.__doc__)
         self.assertTrue(cdf.stress())
 
     def test_fs_di(self):
         """Test FileSystem Data Integrity"""
-        fdi = FSDataIntegrity(self._test_path)
+        fdi = FSDataIntegrity(self.test_path)
         logger.info(fdi.__doc__)
         self.assertTrue(fdi.stress())
 
     def test_fstest(self):
         """Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink"""
-        fs_test = FSTest(self._test_path)
+        fs_test = FSTest(self.test_path)
         logger.info(fs_test.__doc__)
         self.assertTrue(fs_test.stress())
 
     def test_fsstress(self):
         """filesystem stress with LTP tool fsstress"""
-        fs_stress = FSStress(self._test_path)
+        fs_stress = FSStress(self.test_path)
         logger.info(fs_stress.__doc__)
         fs_stress.stress()
 
     def test_filebench(self):
         """File System Workload test"""
-        fb = FileBench(self._test_path)
+        fb = FileBench(self.test_path)
         logger.info(fb.__doc__)
         self.assertTrue(fb.stress())
 
     def test_locktests(self):
         """Test fcntl locking functions"""
-        lct = LockTest(self._test_path)
+        lct = LockTest(self.test_path)
         logger.info(lct.__doc__)
         self.assertTrue(lct.stress())
 
     def test_doio(self):
         """base rw test: LTP doio & iogen; growfiles"""
-        dio = DoIO(self._test_path)
+        dio = DoIO(self.test_path)
         logger.info(dio.__doc__)
         self.assertTrue(dio.rwtest())
         self.assertTrue(dio.growfiles())

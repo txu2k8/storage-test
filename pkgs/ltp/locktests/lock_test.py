@@ -69,8 +69,8 @@ class LockTest(object):
         utils.mkdir_path(test_path)
 
         cur_dir = os.path.dirname(os.path.realpath(__file__))
-        locktest_bin = os.path.join(cur_dir, 'fstest')
-        test_log = os.path.join(self.top_path, 'fstest.log')
+        locktest_bin = os.path.join(cur_dir, 'bin/locktests')
+        test_log = os.path.join(self.top_path, 'locktests.log')
         locktest_cmd = '{0} -n 50 -f {1}/locktest.dat | tee -a {2}'.format(
             locktest_bin, test_path, test_log)
 
@@ -78,9 +78,9 @@ class LockTest(object):
             os.system('chmod 777 {0}*'.format(locktest_bin))
             rc, output = utils.run_cmd(locktest_cmd)
             logger.info('\n'.format(output.strip('\n')))
-            logger.info("Complete: Run fstest on {0}".format(test_path))
+            logger.info("Complete: Run locktests on {0}".format(test_path))
         except Exception as e:
-            logger.info("FAIL: Run fstest on {0}".format(test_path))
+            logger.info("FAIL: Run locktests on {0}".format(test_path))
             raise e
         finally:
             pass
