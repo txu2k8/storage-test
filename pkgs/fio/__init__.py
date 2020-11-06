@@ -7,5 +7,9 @@
 @Email : tao.xu2008@outlook.com
 """
 
+from .fio_test import *
+
+__all__ = ['FIO']
+
 if __name__ == '__main__':
     pass

@@ -64,7 +64,7 @@ class FSStress(object):
     def sanity(self):
         self.verify()
         test_path = os.path.join(self.top_path, "fsstress")
-        return self.run(test_path, nops=100, nproc=10, loops=1)
+        return self.run(test_path, nops=10, nproc=4, loops=1)
 
     def stress(self):
         self.verify()

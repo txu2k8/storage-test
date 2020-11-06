@@ -71,7 +71,8 @@ def tc_load(action):
     from storage.argument import dir_number_parser, file_number_parser, file_size_range_parser
     case_info_dict = {
         'create_files': 'Creates files of specified size.(default:1dir*1file*1MB)',
-        'small_files': 'Generate small files.(default:1dir*1file*1MB)',
+        'small_files': 'Generate small files.(default:1dir*1file*1KB)',
+        'empty_files': 'Generate empty files.(default:1dir*1file*0KB)',
         'fsstress': 'Generate files by LTP fsstress(deep path/files)',
     }
 

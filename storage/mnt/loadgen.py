@@ -12,6 +12,7 @@ import random
 import unittest
 from pkgs.ltp.create import CreateDataFile
 from pkgs.ltp.fsstress import FSStress
+from pkgs.fio import FIO
 from libs.file_ops import Consistency
 from libs.log import log
 from libs.exceptions import NoSuchDir
@@ -45,9 +46,7 @@ class LoadGenTC(CustomTestCase):
         logger.info("Generate data on {} complete!".format(cls._fs_path))
 
     def test_create_files(self):
-        """
-        Creates files of specified size
-        """
+        """Creates files of specified size"""
         logger.info(self.__doc__)
         cdf = CreateDataFile(self.test_path)
         cdf.verify()
@@ -59,9 +58,7 @@ class LoadGenTC(CustomTestCase):
             self.assertTrue(cdf.run(test_path, self._file_n, f_size))
 
     def test_small_files(self):
-        """
-        Generate small files by Consistency
-        """
+        """Generate small files by Consistency"""
         logger.info(self.__doc__)
         cst = Consistency()
         test_top_path = os.path.join(self.test_path, 'small_files')
@@ -71,7 +68,27 @@ class LoadGenTC(CustomTestCase):
             f_size = random.randint(f_size_min, f_size_max)
             self.assertTrue(cst.create(test_path, self._file_n, f_size))
 
+    def test_empty_files(self):
+        """Generate empty files by Consistency"""
+        logger.info(self.__doc__)
+        cst = Consistency()
+        test_top_path = os.path.join(self.test_path, 'small_files')
+        for x in range(0, self._dir_n):
+            test_path = os.path.join(test_top_path, 'dir_{0}'.format(x))
+            self.assertTrue(cst.create(test_path, self._file_n, 0))
+
+    def test_seq_files(self):
+        """Creates files of specified size with sequential write(by fio)TODO"""
+        logger.info(self.__doc__)
+        fio = FIO()
+        logger.info(fio.__doc__)
+        test_top_path = os.path.join(self.test_path, 'seq_files')
+        for x in range(0, self._dir_n):
+            test_path = os.path.join(test_top_path, 'dir_{0}'.format(x))
+            # self.assertTrue(fio.write(test_path, self._file_n))
+
     def test_fsstress(self):
+        """Generate sub dirs/files by fsstress"""
         fs_stress = FSStress(self.test_path)
         logger.info(fs_stress.__doc__)
         fs_stress.sanity()
