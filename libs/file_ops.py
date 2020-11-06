@@ -89,8 +89,8 @@ Storage-Consistency-Test:
         end = time.time()
         during = end - start
         equal_rate = float(equal_num) / int(f_num) * 100
-        logger.info("Compare path1:{0}; path2: ".format(path_1, path_2))
-        if equal_num <= f_num:
+        logger.info("Compare path1:{0}; path2: {1}".format(path_1, path_2))
+        if equal_num < f_num:
             logger.error("Compared {0} file(s), equal: {1}% time: {2}(seconds)".format(
                 f_num, equal_rate, during))
             raise Exception("Consistency Test FAIL")
