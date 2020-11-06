@@ -55,9 +55,8 @@ class ReadAll(object):
 
         cur_dir = os.path.dirname(os.path.realpath(__file__))
         readall_bin = os.path.join(cur_dir, 'bin/read_all')
-        test_log = os.path.join(self.top_path, 'stream.log')
-        readall_cmd = "{0} -d {1} -i {2} -I {3} -v | tee {4}".format(
-            readall_bin, test_path, loops, runtime, test_log)
+        readall_cmd = "{0} -d {1} -i {2} -I {3} -v".format(
+            readall_bin, test_path, loops, runtime)
 
         try:
             os.system('chmod +x {0}*'.format(readall_bin))
