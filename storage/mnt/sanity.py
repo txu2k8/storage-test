@@ -15,6 +15,7 @@ from pkgs.ltp.fs_di import FSDataIntegrity
 from pkgs.fstest import FSTest
 from pkgs.ltp.locktests import LockTest
 from pkgs.ltp.doio import DoIO
+from pkgs.ltp.stream import StreamTest
 from libs.log import log
 from libs import utils
 from libs.exceptions import NoSuchDir
@@ -76,6 +77,12 @@ class SanityTC(CustomTestCase):
         dio = DoIO(self.test_path)
         logger.info(dio.__doc__)
         self.assertTrue(dio.iogen_doio())
+
+    def test_stream(self):
+        """LTP file stream test"""
+        stream = StreamTest(self.test_path)
+        logger.info(stream.__doc__)
+        self.assertTrue(stream.sanity())
 
 
 if __name__ == '__main__':

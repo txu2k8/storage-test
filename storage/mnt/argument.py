@@ -21,6 +21,7 @@ def tc_sanity(action):
         'fstest': 'Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink',
         'locktests': 'Test fcntl locking functions',
         'doio': 'base rw test: LTP doio & iogen',
+        'stream': 'LTP file stream test',
     }
 
     case_desc = case_dict_2_string(case_info_dict, 25)
@@ -49,6 +50,7 @@ def tc_stress(action):
         'filebench': 'File System Workload test',
         'locktests': 'Test fcntl locking functions',
         'doio': 'base rw test: LTP doio & iogen',
+        'stream': 'LTP file stream test',
     }
 
     case_desc = case_dict_2_string(case_info_dict, 25)

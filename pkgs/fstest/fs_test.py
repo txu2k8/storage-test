@@ -64,7 +64,9 @@ class FSTest(object):
         try:
             os.system('chmod 777 {0}*'.format(fstest_bin))
             rc, output = utils.run_cmd(fstest_cmd)
-            logger.info('\n'.format(output.strip('\n')))
+            logger.info(output)
+            if "All tests successful" not in output:
+                raise Exception("FAIL: Run fstest on {0}".format(test_path))
             logger.info("Complete: Run fstest on {0}".format(test_path))
         except Exception as e:
             logger.info("FAIL: Run fstest on {0}".format(test_path))
