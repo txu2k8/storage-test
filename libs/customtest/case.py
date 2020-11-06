@@ -44,7 +44,7 @@ class CustomTestCase(unittest.TestCase):
         if len(self.phase_list) == 0:
             return True
         step_table = PrettyTable(['No.', 'TestCase', 'Result', 'Comments'])
-        step_table.align['Step'] = 'l'
+        step_table.align['TestCase'] = 'l'
         step_table.align['Comments'] = 'l'
         for idx, step in enumerate(self.phase_list):
             step_status = [idx + 1] + step

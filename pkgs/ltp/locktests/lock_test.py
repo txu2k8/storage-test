@@ -77,7 +77,7 @@ class LockTest(object):
         try:
             os.system('chmod 777 {0}*'.format(locktest_bin))
             rc, output = utils.run_cmd(locktest_cmd)
-            logger.info('\n'.format(output.strip('\n')))
+            logger.info(output)
             logger.info("Complete: Run locktests on {0}".format(test_path))
         except Exception as e:
             logger.info("FAIL: Run locktests on {0}".format(test_path))
