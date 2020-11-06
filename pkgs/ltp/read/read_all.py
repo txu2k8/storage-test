@@ -60,7 +60,7 @@ class ReadAll(object):
             readall_bin, test_path, loops, runtime, test_log)
 
         try:
-            os.system('chmod +x {0}*'.format(readall_cmd))
+            os.system('chmod +x {0}*'.format(readall_bin))
             rc, output = utils.run_cmd(readall_cmd)
             logger.info(output)
             if "TFAIL" in output:
