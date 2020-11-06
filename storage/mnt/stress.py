@@ -19,6 +19,7 @@ from pkgs.ltp.doio import DoIO
 from pkgs.ltp.create import CreateDataFile
 from libs.log import log
 from libs.exceptions import NoSuchDir
+from libs.customtest import CustomTestCase
 from libs import utils
 from config import const
 
@@ -28,18 +29,21 @@ args = const.get_value('args')
 TEST_PATH = args.test_path
 
 
-class StressTC(unittest.TestCase):
+class StressTC(CustomTestCase):
     """Stress test on a mount point or path"""
     _fs_path = args.test_path
 
-    def setUp(self):
-        if not os.path.isdir(self._fs_path):
-            raise NoSuchDir(self._fs_path)
-        self.test_path = os.path.join(self._fs_path, "stress")
-        utils.mkdir_path(self.test_path)
+    @classmethod
+    def setUpClass(cls):
+        logger.info("Start stress test on {}".format(cls._fs_path))
+        if not os.path.isdir(cls._fs_path):
+            raise NoSuchDir(cls._fs_path)
+        cls.test_path = os.path.join(cls._fs_path, "stress")
+        utils.mkdir_path(cls.test_path)
 
-    def tearDown(self):
-        pass
+    @classmethod
+    def tearDownClass(cls):
+        logger.info("Stress test on {} complete!".format(cls._fs_path))
 
     def test_consistency(self):
         """Test the file consistency"""

@@ -15,6 +15,7 @@ from pkgs.ltp.fsstress import FSStress
 from libs.file_ops import Consistency
 from libs.log import log
 from libs.exceptions import NoSuchDir
+from libs.customtest import CustomTestCase
 from libs import utils
 from config import const
 
@@ -24,21 +25,24 @@ args = const.get_value('args')
 TEST_PATH = args.test_path
 
 
-class LoadGenTC(unittest.TestCase):
+class LoadGenTC(CustomTestCase):
     """Generate data on a mount point or path"""
     _fs_path = args.test_path
     _dir_n = args.dir_number
     _file_n = args.file_number
     _file_size_range = args.file_size_range
 
-    def setUp(self):
-        if not os.path.isdir(self._fs_path):
-            raise NoSuchDir(self._fs_path)
-        self.test_path = os.path.join(self._fs_path, "load")
-        utils.mkdir_path(self.test_path)
+    @classmethod
+    def setUpClass(cls):
+        logger.info("Start generate data on {}".format(cls._fs_path))
+        if not os.path.isdir(cls._fs_path):
+            raise NoSuchDir(cls._fs_path)
+        cls.test_path = os.path.join(cls._fs_path, "load")
+        utils.mkdir_path(cls.test_path)
 
-    def tearDown(self):
-        pass
+    @classmethod
+    def tearDownClass(cls):
+        logger.info("Generate data on {} complete!".format(cls._fs_path))
 
     def test_create_files(self):
         """

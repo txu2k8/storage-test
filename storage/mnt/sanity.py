@@ -18,6 +18,7 @@ from pkgs.ltp.doio import DoIO
 from libs.log import log
 from libs import utils
 from libs.exceptions import NoSuchDir
+from libs.customtest import CustomTestCase
 from config import const
 
 logger = log.get_logger()
@@ -26,18 +27,21 @@ args = const.get_value('args')
 TEST_PATH = args.test_path
 
 
-class SanityTC(unittest.TestCase):
+class SanityTC(CustomTestCase):
     """Sanity test on a mount point or path"""
     _fs_path = args.test_path
 
-    def setUp(self):
-        if not os.path.isdir(self._fs_path):
-            raise NoSuchDir(self._fs_path)
-        self.test_path = os.path.join(self._fs_path, "sanity")
-        utils.mkdir_path(self.test_path)
+    @classmethod
+    def setUpClass(cls):
+        logger.info("Start sanity test on {}".format(cls._fs_path))
+        if not os.path.isdir(cls._fs_path):
+            raise NoSuchDir(cls._fs_path)
+        cls.test_path = os.path.join(cls._fs_path, "sanity")
+        utils.mkdir_path(cls.test_path)
 
-    def tearDown(self):
-        pass
+    @classmethod
+    def tearDownClass(cls):
+        logger.info("Sanity test on {} complete!".format(cls._fs_path))
 
     def test_consistency(self):
         """Test the file consistency"""
