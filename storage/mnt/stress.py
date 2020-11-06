@@ -17,6 +17,7 @@ from pkgs.filebench import FileBench
 from pkgs.ltp.locktests import LockTest
 from pkgs.ltp.doio import DoIO
 from pkgs.ltp.stream import StreamTest
+from pkgs.ltp.read import ReadAll
 from pkgs.ltp.create import CreateDataFile
 from libs.log import log
 from libs.exceptions import NoSuchDir
@@ -106,6 +107,12 @@ class StressTC(CustomTestCase):
         stream = StreamTest(self.test_path)
         logger.info(stream.__doc__)
         self.assertTrue(stream.stress())
+
+    def test_readall(self):
+        """Perform a small read on every file in a directory tree."""
+        readall = ReadAll(self.test_path)
+        logger.info(readall.__doc__)
+        self.assertTrue(readall.stress())
 
 
 if __name__ == '__main__':

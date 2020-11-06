@@ -31,7 +31,7 @@ class StreamTest(object):
 
     def verify(self):
         if os.name != "posix":
-            raise PlatformError("fs_test just support for linux machine!")
+            raise PlatformError("Just support for linux machine!")
         if not os.path.isdir(self.top_path):
             raise NoSuchDir(self.top_path)
 

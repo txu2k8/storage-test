@@ -16,6 +16,7 @@ from pkgs.fstest import FSTest
 from pkgs.ltp.locktests import LockTest
 from pkgs.ltp.doio import DoIO
 from pkgs.ltp.stream import StreamTest
+from pkgs.ltp.read import ReadAll
 from libs.log import log
 from libs import utils
 from libs.exceptions import NoSuchDir
@@ -83,6 +84,12 @@ class SanityTC(CustomTestCase):
         stream = StreamTest(self.test_path)
         logger.info(stream.__doc__)
         self.assertTrue(stream.sanity())
+
+    def test_readall(self):
+        """Perform a small read on every file in a directory tree."""
+        readall = ReadAll(self.test_path)
+        logger.info(readall.__doc__)
+        self.assertTrue(readall.sanity())
 
 
 if __name__ == '__main__':
