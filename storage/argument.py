@@ -58,6 +58,14 @@ def file_size_range_parser():
     return arg_parser
 
 
+def file_number_parser():
+    arg_parser = argparse.ArgumentParser(add_help=False)
+    arg_parser.add_argument(
+        "--file_number", action="store", dest="file_number", type=int,
+        default=1, help="File number,default:1"
+    )
+    return arg_parser
+
 def dir_number_parser():
     arg_parser = argparse.ArgumentParser(add_help=False)
     arg_parser.add_argument(

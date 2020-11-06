@@ -68,7 +68,7 @@ def tc_stress(action):
 
 
 def tc_load(action):
-    from storage.argument import dir_number_parser, file_size_range_parser
+    from storage.argument import dir_number_parser, file_number_parser, file_size_range_parser
     case_info_dict = {
         'create_files': 'Creates files of specified size.(default:1dir*1file*1MB)',
         'small_files': 'Generate small files.(default:1dir*1file*1MB)',
@@ -85,6 +85,7 @@ def tc_load(action):
         parents=[
             test_path_parser(),
             dir_number_parser(),
+            file_number_parser(),
             file_size_range_parser(),
         ]
     )
