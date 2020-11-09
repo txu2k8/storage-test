@@ -75,7 +75,7 @@ class LockTest(object):
             locktest_bin, test_path, test_log)
 
         try:
-            os.system('chmod 777 {0}*'.format(locktest_bin))
+            os.system('chmod +x {0}*'.format(locktest_bin))
             rc, output = utils.run_cmd(locktest_cmd)
             logger.info(output)
             logger.info("Complete: Run locktests on {0}".format(test_path))

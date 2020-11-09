@@ -56,14 +56,14 @@ class FSTest(object):
         logger.info(self.run.__doc__)
         utils.mkdir_path(test_path)
         cur_dir = os.path.dirname(os.path.realpath(__file__))
-        fstest_bin = os.path.join(cur_dir, 'bin/fstest')
+        bin_path = os.path.join(cur_dir, 'bin')
         test_log = os.path.join(self.top_path, 'fstest.log')
 
         fstest_cmd = 'cd {0}; prove -v -f -o -r {1} | tee -a {2}'.format(
-            test_path, fstest_bin, test_log)
+            test_path, bin_path, test_log)
 
         try:
-            os.system('chmod 777 {0}*'.format(fstest_bin))
+            os.system('chmod +x {0}/*'.format(bin_path))
             rc, output = utils.run_cmd(fstest_cmd)
             logger.info(output)
             if "All tests successful" not in output:

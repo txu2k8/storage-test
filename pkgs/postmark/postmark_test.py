@@ -49,7 +49,7 @@ class PostMark(object):
             test_path, fstest_bin, test_log)
 
         try:
-            os.system('chmod 777 {0}*'.format(fstest_bin))
+            os.system('chmod +x {0}*'.format(fstest_bin))
             rc, output = utils.run_cmd(fstest_cmd)
             logger.info('\n'.format(output.strip('\n')))
             logger.info("Complete: Run fstest on {0}".format(test_path))

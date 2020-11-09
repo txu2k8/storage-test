@@ -50,7 +50,7 @@ class FSStress(object):
             fsstress_bin, test_path, str(loops), str(nops),  str(nproc), test_log)
 
         try:
-            os.system('chmod 777 {0}*'.format(fsstress_bin))
+            os.system('chmod +x {0}*'.format(fsstress_bin))
             rc, output = utils.run_cmd(fsstress_cmd)
             logger.info(output)
             logger.info("PASS: Run fsstress on {0}".format(test_path))

@@ -51,7 +51,7 @@ class StreamTest(object):
         test_log = os.path.join(self.top_path, 'stream.log')
 
         try:
-            os.system('chmod +x {0}*'.format(bin_path))
+            os.system('chmod +x {0}/*'.format(bin_path))
             for x in range(1, 6):
                 stream_bin = os.path.join(bin_path, 'stream0{}'.format(x))
                 stream_cmd = "cd {0}; {1} -i {2} -I {3} | tee {4}".format(
