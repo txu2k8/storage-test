@@ -28,6 +28,7 @@ class AclXattr(object):
             raise PlatformError("Just support for linux machine!")
         if not os.path.isdir(self.top_path):
             raise NoSuchDir(self.top_path)
+        utils.run_cmd("which attr", expected_rc=0)
 
     def run(self, test_path):
         """cd <test_path>; ./tacl_xattr.sh """
@@ -44,6 +45,8 @@ class AclXattr(object):
             logger.info(output)
             if rc != 0:
                 raise Exception("tacl_xattr.sh exit with !0")
+            if "FAILED:" in output:
+                raise Exception("FAIL: test acl_xattr on {}".format(test_path))
             logger.info("PASS: test acl_xattr on {}".format(test_path))
         except Exception as e:
             logger.info("FAIL: test acl_xattr on {}".format(test_path))

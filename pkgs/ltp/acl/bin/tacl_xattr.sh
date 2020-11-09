@@ -29,6 +29,7 @@
 #  HISTORY     :
 #      10/23/2003 Kai Zhao (ltcd3@cn.ibm.com)
 #      07/06/2004 Jacky Malcles enable ext3 & clean users home dir.
+#      11/09/2020 Tao Xu enable ext4
 #
 #  CODE COVERAGE:
 #                 76.3% - fs/posix_acl.c
@@ -113,13 +114,12 @@ dd if=/dev/zero of=tacl/blkext2 bs=1k count=10240
 chmod 777 tacl/blkext2
 
 # find a unused loop device
-
 for loopN in {0..10}
 do
-  LOOP_DEV="/dev/loop"{$loopN}
+  LOOP_DEV="/dev/loop"$loopN
   get_loop_dev=$(df -h | grep $LOOP_DEV)
   echo $get_loop_dev
-  if [[ "$get_loop_dev" != "" ]]
+  if [[ "$get_loop_dev" = "" ]]
   then
     losetup $LOOP_DEV tacl/blkext2 >/dev/null 2>&1
     if [ $? != 0 ]
@@ -139,9 +139,9 @@ done
 mount | grep ext2
 if [ $? != 0 ]
 then
-	mkfs -t ext3 $LOOP_DEV
+	mkfs -t ext4 $LOOP_DEV
 	mkdir  -m 777 tacl/mount-ext2
-	mount -t ext3 -o defaults,acl,user_xattr $LOOP_DEV tacl/mount-ext2
+	mount -t ext4 -o defaults,acl,user_xattr $LOOP_DEV tacl/mount-ext2
 	if [ $? != 0 ]
 	then
 		printf "\nFAILED:  [ mount ] Make sure that ACL (Access Control List)\n"
