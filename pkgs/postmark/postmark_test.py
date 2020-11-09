@@ -42,19 +42,19 @@ class PostMark(object):
         """
         logger.info(self.run.__doc__)
         cur_dir = os.path.dirname(os.path.realpath(__file__))
-        fstest_bin = os.path.join(cur_dir, 'fstest')
-        test_log = os.path.join(self.top_path, 'fstest.log')
+        postmark_bin = os.path.join(cur_dir, 'bin/postmark')
+        test_log = os.path.join(self.top_path, 'postmark.log')
 
         fstest_cmd = 'cd {0}; prove -r {1} | tee -a {2}'.format(
-            test_path, fstest_bin, test_log)
+            test_path, postmark_bin, test_log)
 
         try:
-            os.system('chmod +x {0}*'.format(fstest_bin))
+            os.system('chmod +x {0}*'.format(postmark_bin))
             rc, output = utils.run_cmd(fstest_cmd)
             logger.info('\n'.format(output.strip('\n')))
-            logger.info("Complete: Run fstest on {0}".format(test_path))
+            logger.info("Complete: Run postmark on {0}".format(test_path))
         except Exception as e:
-            logger.info("FAIL: Run fstest on {0}".format(test_path))
+            logger.info("FAIL: Run postmark on {0}".format(test_path))
             raise e
         finally:
             pass
@@ -63,13 +63,13 @@ class PostMark(object):
 
     def sanity(self):
         self.verify()
-        test_path = os.path.join(self.top_path, "fstest", "sanity")
+        test_path = os.path.join(self.top_path, "postmark")
         utils.mkdir_path(test_path)
         return self.run(test_path)
 
     def stress(self):
         self.verify()
-        stress_path = os.path.join(self.top_path, "fstest", "stress")
+        stress_path = os.path.join(self.top_path, "postmark")
         pool = ThreadPoolExecutor(max_workers=4)
         futures = []
         for x in range(1, 50):

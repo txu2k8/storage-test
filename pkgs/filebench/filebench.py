@@ -114,7 +114,7 @@ class FileBench(object):
 
     def sanity(self):
         self.verify()
-        test_path = os.path.join(self.top_path, "filebench", "sanity")
+        test_path = os.path.join(self.top_path, "filebench")
         utils.mkdir_path(test_path)
         fb_conf_list = self.get_workload_templates()
         len_conf = len(fb_conf_list)
@@ -125,7 +125,7 @@ class FileBench(object):
         return True
 
     def stress(self):
-        test_path = os.path.join(self.top_path, "filebench", "stress")
+        test_path = os.path.join(self.top_path, "filebench")
         utils.mkdir_path(test_path)
         fb_conf_list = self.get_workload_templates()
         len_conf = len(fb_conf_list)

@@ -79,12 +79,12 @@ class FSTest(object):
 
     def sanity(self):
         self.verify()
-        test_path = os.path.join(self.top_path, "fstest", "sanity")
+        test_path = os.path.join(self.top_path, "fstest")
         return self.run(test_path)
 
     def stress(self):
         self.verify()
-        stress_path = os.path.join(self.top_path, "fstest", "stress")
+        stress_path = os.path.join(self.top_path, "fstest")
         pool = ThreadPoolExecutor(max_workers=4)
         futures = []
         for x in range(1, 50):
