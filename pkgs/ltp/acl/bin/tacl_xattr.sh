@@ -118,9 +118,9 @@ for loopN in {0..10}
 do
   LOOP_DEV="/dev/loop"$loopN
   get_loop_dev=$(df -h | grep $LOOP_DEV)
-  echo $get_loop_dev
   if [[ "$get_loop_dev" = "" ]]
   then
+    echo $LOOP_DEV
     losetup $LOOP_DEV tacl/blkext2 >/dev/null 2>&1
     if [ $? != 0 ]
     then
