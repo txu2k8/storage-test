@@ -9,6 +9,7 @@
 
 
 import os
+import unittest
 
 from libs import utils
 from libs.log import log
@@ -84,5 +85,16 @@ class ReadAll(object):
         return self.run(test_path, 10, 60)
 
 
+class UnitTestCase(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.ra = ReadAll("/mnt/test")
+
+    def test_01(self):
+        self.ra.sanity()
+
+
 if __name__ == '__main__':
-    pass
+    # unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(UnitTestCase)
+    unittest.TextTestRunner(verbosity=2).run(suite)

@@ -7,6 +7,9 @@
 @Email : tao.xu2008@outlook.com
 """
 
+from .acl_test import *
+__all__ = ['AclXattr']
+
 """
 https://github.com/linux-test-project/ltp/tree/master/testcases/kernel/fs/acl
 

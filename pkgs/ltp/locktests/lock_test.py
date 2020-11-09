@@ -9,7 +9,7 @@
 
 
 import os
-from concurrent.futures import ThreadPoolExecutor
+import unittest
 
 from libs import utils
 from libs.log import log
@@ -98,6 +98,16 @@ class LockTest(object):
         return self.run(test_path)
 
 
+class UnitTestCase(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.lct = LockTest("/mnt/test")
+
+    def test_01(self):
+        self.lct.sanity()
+
+
 if __name__ == '__main__':
-    lct = LockTest("/tmp")
-    lct.sanity()
+    # unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(UnitTestCase)
+    unittest.TextTestRunner(verbosity=2).run(suite)

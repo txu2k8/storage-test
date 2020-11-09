@@ -46,6 +46,38 @@ OTHER_PERMISSION=""
 ITEM_OWNER=""
 ITEM_GROUP=""
 
+LOOP_DEV="/dev/loop0"
+
+#usage()
+#{
+#    cat <<-EOF >&2
+#    usage: ./${0##*/} -d TMPDIR
+#    -d TMPDIR       Directory where temporary files will be created.
+#    -h              Help. Prints all available options.
+#    example: ./${0##*/} -d /mnt/test
+#	EOF
+#exit 0
+#}
+
+#TMPDIR=0
+#while getopts d:h arg
+#do
+#  case $arg in
+#        d)  TMPDIR=$OPTARG
+#          ;;
+#        h)  usage
+#          exit 0;;
+#       \?) usage
+#          exit 0;;
+#  esac
+#done
+#
+#if [ $TMPDIR = "0" ]; then
+#  tst_resm TBROK "You must specify the target directory [-d]"
+#  exit 1
+#fi
+
+
 ################################################################
 #
 # Make sure that uid=root is running this script.
@@ -80,20 +112,35 @@ fi
 dd if=/dev/zero of=tacl/blkext2 bs=1k count=10240
 chmod 777 tacl/blkext2
 
-losetup /dev/loop0 tacl/blkext2 >/dev/null 2>&1
-if [ $? != 0 ]
-then
-	printf "\nFAILED:  [ losetup ] Must have loop device support by kernel\n"
-	printf "\t to execute this script\n"
-	exit 1
-fi
+# find a unused loop device
+
+for loopN in {1..10}
+do
+  LOOP_DEV="/dev/loop"{$loopN}
+  get_loop_dev=$(df -h | grep $LOOP_DEV)
+  if [[ "$get_loop_dev" != "" ]]
+  then
+    losetup $LOOP_DEV tacl/blkext2 >/dev/null 2>&1
+    if [ $? != 0 ]
+    then
+      printf "\nFAILED:  [ losetup ] Must have loop device support by kernel\n"
+      printf "\t to execute this script\n"
+      exit 1
+    fi
+    break
+  elif [ $loopN -ge 10 ]
+  then
+    printf "\nFAILED: loop device /dev/loop0~10 all busy"
+    exit 1
+  fi
+done
 
 mount | grep ext2
 if [ $? != 0 ]
 then
-	mkfs -t ext3 /dev/loop0
+	mkfs -t ext3 $LOOP_DEV
 	mkdir  -m 777 tacl/mount-ext2
-	mount -t ext3 -o defaults,acl,user_xattr /dev/loop0 tacl/mount-ext2
+	mount -t ext3 -o defaults,acl,user_xattr $LOOP_DEV tacl/mount-ext2
 	if [ $? != 0 ]
 	then
 		printf "\nFAILED:  [ mount ] Make sure that ACL (Access Control List)\n"
@@ -103,9 +150,9 @@ then
 	fi
 
 else
-	mkfs -t ext2 /dev/loop0
+	mkfs -t ext2 $LOOP_DEV
 	mkdir  -m 777 tacl/mount-ext2
-	mount -t ext2 -o defaults,acl,user_xattr /dev/loop0 tacl/mount-ext2
+	mount -t ext2 -o defaults,acl,user_xattr $LOOP_DEV tacl/mount-ext2
 	if [ $? != 0 ]
 	then
 		printf "\nFAILED:  [ mount ] Make sure that ACL (Access Control List)\n"

@@ -8,6 +8,7 @@
 """
 
 import os
+import unittest
 
 from libs import utils
 from libs.log import log
@@ -92,5 +93,16 @@ class FSDataIntegrity(object):
         return True
 
 
+class UnitTestCase(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.fsdi = FSDataIntegrity("/mnt/test")
+
+    def test_01(self):
+        self.fsdi.sanity()
+
+
 if __name__ == '__main__':
-    pass
+    # unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(UnitTestCase)
+    unittest.TextTestRunner(verbosity=2).run(suite)

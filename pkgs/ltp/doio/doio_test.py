@@ -8,6 +8,7 @@
 """
 
 import os
+import unittest
 
 from libs import utils
 from libs.log import log
@@ -205,6 +206,22 @@ class DoIO(object):
         return True
 
 
+class UnitTestCase(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.doio = DoIO("/mnt/test")
+
+    def test_01(self):
+        self.doio.rwtest()
+
+    def test_02(self):
+        self.doio.growfiles()
+
+    def test_03(self):
+        self.doio.iogen_doio()
+
+
 if __name__ == '__main__':
-    rwt = DoIO("/tmp")
-    rwt.rwtest()
+    # unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(UnitTestCase)
+    unittest.TextTestRunner(verbosity=2).run(suite)

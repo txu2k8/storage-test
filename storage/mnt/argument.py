@@ -22,7 +22,8 @@ def tc_sanity(action):
         'locktests': 'Test fcntl locking functions',
         'doio': 'base rw test: LTP doio & iogen',
         'stream': 'File stream test',
-        'readall': 'Perform a small read on every file in a directory tree.',
+        'readall': 'Perform a small read on every file in a directory tree',
+        'acl': 'Test ACL and Extend Attribute on Linux system',
     }
 
     case_desc = case_dict_2_string(case_info_dict, 25)

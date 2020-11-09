@@ -8,6 +8,7 @@
 """
 
 import os
+import unittest
 from concurrent.futures import ThreadPoolExecutor
 
 from libs import utils
@@ -81,6 +82,16 @@ class FSStress(object):
         return result
 
 
+class UnitTestCase(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.fs_stress = FSStress("/mnt/test")
+
+    def test_01(self):
+        self.fs_stress.sanity()
+
+
 if __name__ == '__main__':
-    fs_stress = FSStress("/tmp")
-    fs_stress.sanity()
+    # unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(UnitTestCase)
+    unittest.TextTestRunner(verbosity=2).run(suite)

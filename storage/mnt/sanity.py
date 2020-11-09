@@ -17,6 +17,7 @@ from pkgs.ltp.locktests import LockTest
 from pkgs.ltp.doio import DoIO
 from pkgs.ltp.stream import StreamTest
 from pkgs.ltp.read import ReadAll
+from pkgs.ltp.acl import AclXattr
 from libs.log import log
 from libs import utils
 from libs.exceptions import NoSuchDir
@@ -90,6 +91,12 @@ class SanityTC(CustomTestCase):
         readall = ReadAll(self.test_path)
         logger.info(readall.__doc__)
         self.assertTrue(readall.sanity())
+
+    def test_acl(self):
+        """Test ACL and Extend Attribute on Linux system"""
+        acl = AclXattr(self.test_path)
+        logger.info(acl.__doc__)
+        self.assertTrue(acl.sanity())
 
 
 if __name__ == '__main__':
