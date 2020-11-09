@@ -33,7 +33,7 @@ def runner(default='StressRunner'):
 def test_path_parser():
     arg_parser = argparse.ArgumentParser(add_help=False)
     arg_parser.add_argument(
-        "--test_path",
+        "--test_path", "-d",
         required=True, action="store", dest="test_path",
         default=None, help="A full path for test,default:None"
     )

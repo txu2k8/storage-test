@@ -114,10 +114,11 @@ chmod 777 tacl/blkext2
 
 # find a unused loop device
 
-for loopN in {1..10}
+for loopN in {0..10}
 do
   LOOP_DEV="/dev/loop"{$loopN}
   get_loop_dev=$(df -h | grep $LOOP_DEV)
+  echo $get_loop_dev
   if [[ "$get_loop_dev" != "" ]]
   then
     losetup $LOOP_DEV tacl/blkext2 >/dev/null 2>&1

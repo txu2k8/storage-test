@@ -9,9 +9,7 @@
 
 
 import os
-import random
 import unittest
-from concurrent.futures import ThreadPoolExecutor
 
 from libs import utils
 from libs.log import log
@@ -38,12 +36,14 @@ class AclXattr(object):
         cur_dir = os.path.dirname(os.path.realpath(__file__))
         bin_path = os.path.join(cur_dir, 'bin')
         acl_bin = os.path.join(bin_path, 'tacl_xattr.sh')
-        acl_cmd = "cd {0}; {1}".format(test_path, acl_bin)
+        acl_cmd = "rm -rf {0}/*; cd {0}; {1}".format(test_path, acl_bin)
 
         try:
             os.system('chmod +x {0}/*'.format(bin_path))
-            rc, output = utils.run_cmd(acl_cmd, expected_rc=0)
+            rc, output = utils.run_cmd(acl_cmd, expected_rc="ignore")
             logger.info(output)
+            if rc != 0:
+                raise Exception("tacl_xattr.sh exit with !0")
             logger.info("PASS: test acl_xattr on {}".format(test_path))
         except Exception as e:
             logger.info("FAIL: test acl_xattr on {}".format(test_path))
