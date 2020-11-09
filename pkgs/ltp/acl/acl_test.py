@@ -37,7 +37,8 @@ class AclXattr(object):
         cur_dir = os.path.dirname(os.path.realpath(__file__))
         bin_path = os.path.join(cur_dir, 'bin')
         acl_bin = os.path.join(bin_path, 'tacl_xattr.sh')
-        acl_cmd = "rm -rf {0}/*; cd {0}; {1}".format(test_path, acl_bin)
+        test_log = os.path.join(self.top_path, 'tacl_xattr.log')
+        acl_cmd = "rm -rf {0}/*; cd {0}; {1} | tee {2}".format(test_path, acl_bin, test_log)
 
         try:
             os.system('chmod +x {0}/*'.format(bin_path))
