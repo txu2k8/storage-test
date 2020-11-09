@@ -41,44 +41,17 @@ def subprocess_popen_cmd(cmd_spec, output=True, timeout=7200):
     :return:
     """
 
+    rc, out_err = 0, ""
     logger.info('Execute: {cmds}'.format(cmds=cmd_spec))
     try:
         p = subprocess.Popen(cmd_spec, stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell=True)
         (out, err) = p.communicate(timeout=timeout)
         rc = p.returncode
-        if rc == 0:
-            out_err = out.decode("utf-8", 'ignore') + err.decode("utf-8", 'ignore') # escape(stdout)
-        else:
-            out_err = err.decode("utf-8", 'ignore')  # escape(stderr)
+        if output:
+            out_err = err.decode("utf-8", 'ignore') + out.decode("utf-8", 'ignore')
+        if rc != 0:
             logger.warning('Output: rc={0}, stdout/stderr:\n{1}'.format(rc, out_err))
         return rc, out_err
-
-        # t_beginning = time.time()
-        #
-        # while True:
-        #     if p.poll() is not None:
-        #         break
-        #     seconds_passed = time.time() - t_beginning
-        #     if timeout and seconds_passed > timeout:
-        #         p.terminate()
-        #         raise TimeoutError('TimeOutError: {0} seconds'.format(timeout))
-        #     time.sleep(0.1)
-        #
-        # rc = p.returncode
-        # if output_file:
-        #     # (stdout, stderr) = p.communicate()
-        #     stdout, stderr = p.stdout.read(), p.stderr.read()
-        #     if rc == 0:
-        #         std_out_err = stdout.decode("utf-8", 'ignore')  # escape(stdout)
-        #     else:
-        #         std_out_err = stderr.decode("utf-8", 'ignore')  # escape(stderr)
-        #         logger.warning('Output: rc={0}, stdout/stderr:\n{1}'.format(rc, std_out_err))
-        # else:
-        #     std_out_err = ''
-        # # p.stdout.close()
-        # # p.stderr.close()
-        # # p.kill()
-        # return rc, std_out_err
     except Exception as e:
         raise Exception('Failed to execute: {0}\n{1}'.format(cmd_spec, e))
 
