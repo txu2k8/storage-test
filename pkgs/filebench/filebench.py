@@ -173,5 +173,9 @@ class FilebenchTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    fb = FileBench("/tmp")
-    fb.sanity()
+    # fb = FileBench("/tmp")
+    # fb.sanity()
+
+    # unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(FilebenchTestCase)
+    unittest.TextTestRunner(verbosity=2).run(suite)

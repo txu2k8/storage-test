@@ -8,6 +8,7 @@
 """
 
 import os
+import unittest
 from concurrent.futures import ThreadPoolExecutor
 
 from libs import utils
@@ -96,6 +97,16 @@ class FSTest(object):
         return result
 
 
+class UnitTestCase(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.fst = FSTest("/mnt/test")
+
+    def test_01(self):
+        self.fst.sanity()
+
+
 if __name__ == '__main__':
-    fs_test = FSTest("/tmp")
-    fs_test.sanity()
+    # unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(UnitTestCase)
+    unittest.TextTestRunner(verbosity=2).run(suite)

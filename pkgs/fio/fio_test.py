@@ -8,7 +8,7 @@
 """
 
 import os
-import random
+import unittest
 from concurrent.futures import ThreadPoolExecutor
 
 from libs import utils
@@ -39,5 +39,16 @@ class FIO(object):
         pass
 
 
+class UnitTestCase(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.fio = FIO("/mnt/test")
+
+    def test_01(self):
+        self.fio.write()
+
+
 if __name__ == '__main__':
-    pass
+    # unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(UnitTestCase)
+    unittest.TextTestRunner(verbosity=2).run(suite)

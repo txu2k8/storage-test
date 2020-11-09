@@ -8,6 +8,7 @@
 """
 
 import os
+import unittest
 from concurrent.futures import ThreadPoolExecutor
 
 from libs import utils
@@ -34,12 +35,12 @@ class PostMark(object):
         if not os.path.isdir(self.top_path):
             raise NoSuchDir(self.top_path)
 
-    def _run(self, test_path):
+    def run(self, test_path):
         """
         cd /path/to/file/system/you/want/to/test/
         prove -r /path/to/fstest/
         """
-        logger.info(self._run.__doc__)
+        logger.info(self.run.__doc__)
         cur_dir = os.path.dirname(os.path.realpath(__file__))
         fstest_bin = os.path.join(cur_dir, 'fstest')
         test_log = os.path.join(self.top_path, 'fstest.log')
@@ -64,7 +65,7 @@ class PostMark(object):
         self.verify()
         test_path = os.path.join(self.top_path, "fstest", "sanity")
         utils.mkdir_path(test_path)
-        return self._run(test_path)
+        return self.run(test_path)
 
     def stress(self):
         self.verify()
@@ -74,13 +75,23 @@ class PostMark(object):
         for x in range(1, 50):
             test_path = os.path.join(stress_path, str(x))
             utils.mkdir_path(test_path)
-            futures.append(pool.submit(self._run, test_path))
+            futures.append(pool.submit(self.run, test_path))
         pool.shutdown()
         future_result = [future.result() for future in futures]
         result = False if False in future_result else True
         return result
 
 
+class UnitTestCase(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.pm = PostMark("/mnt/test")
+
+    def test_01(self):
+        self.pm.sanity()
+
+
 if __name__ == '__main__':
-    pm = PostMark("/tmp")
-    pm.sanity()
+    # unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(UnitTestCase)
+    unittest.TextTestRunner(verbosity=2).run(suite)
