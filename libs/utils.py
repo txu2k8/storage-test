@@ -47,7 +47,7 @@ def subprocess_popen_cmd(cmd_spec, output=True, timeout=7200):
         (out, err) = p.communicate(timeout=timeout)
         rc = p.returncode
         if rc == 0:
-            out_err = out.decode("utf-8", 'ignore')  # escape(stdout)
+            out_err = out.decode("utf-8", 'ignore') + err.decode("utf-8", 'ignore') # escape(stdout)
         else:
             out_err = err.decode("utf-8", 'ignore')  # escape(stderr)
             logger.warning('Output: rc={0}, stdout/stderr:\n{1}'.format(rc, out_err))
