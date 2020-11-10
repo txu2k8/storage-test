@@ -128,5 +128,6 @@ dmypy.json
 # Pycharm
 .idea/
 
-# tmp file
+# tmp/log file
 tmp/
+log/

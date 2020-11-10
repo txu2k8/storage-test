@@ -39,7 +39,7 @@ def tc_sanity(action):
                         default=['all'], nargs='+',
                         choices=case_info_dict.keys(),
                         help="default:['all]")
-    parser.set_defaults(func=test_suite_generator, loops=1, suite='mnt.sanity')
+    parser.set_defaults(func=test_suite_generator, loops=1, suite='sanity')
 
 
 def tc_stress(action):
@@ -69,7 +69,7 @@ def tc_stress(action):
                         default=['all'], nargs='+',
                         choices=case_info_dict.keys(),
                         help="default:['all]")
-    parser.set_defaults(func=test_suite_generator, suite='mnt.stress')
+    parser.set_defaults(func=test_suite_generator, suite='stress')
 
 
 def tc_load(action):
@@ -99,19 +99,19 @@ def tc_load(action):
                         default=['all'], nargs='+',
                         choices=case_info_dict.keys(),
                         help="default:['all]")
-    parser.set_defaults(func=test_suite_generator, loops=1, suite='mnt.load')
+    parser.set_defaults(func=test_suite_generator, loops=1, suite='load')
 
 
 # --- Generate Test suite
 def test_suite_generator(args):
     cur_dir = os.path.dirname(os.path.abspath(__file__))
-    if args.suite == 'mnt.sanity':
+    if args.suite == 'sanity':
         test_py = os.path.join(cur_dir, 'sanity.py')
         from storage.mnt.sanity import SanityTC as MntTestCase
-    elif args.suite == 'mnt.stress':
+    elif args.suite == 'stress':
         test_py = os.path.join(cur_dir, 'stress.py')
         from storage.mnt.stress import StressTC as MntTestCase
-    elif args.suite == 'mnt.load':
+    elif args.suite == 'load':
         test_py = os.path.join(cur_dir, 'loadgen.py')
         from storage.mnt.loadgen import LoadGenTC as MntTestCase
     else:
