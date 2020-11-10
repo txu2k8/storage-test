@@ -660,7 +660,7 @@ class StressRunner(object):
             # eg: send email
 
             # send email
-            if self.mail_info:
+            if self.mail_info and self.mail_info['m_to']:
                 subject = self.title
                 with open(self.report_path, 'rb') as f:
                     content = f.read()

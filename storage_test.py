@@ -45,7 +45,7 @@ def base_parser():
     parser.add_argument("--output", action="store", dest="output",
                         default=None, help="output log dir path, default:None")
     parser.add_argument("--runner", action="store", dest="runner",
-                        default='TextTestRunner',
+                        default='StressRunner',
                         choices=['TextTestRunner', 'StressRunner', 'pytest'],
                         help="Run test case with runner,default:StressRunner")
 
@@ -116,10 +116,7 @@ def init_test_session(args):
     logger.info(command)
     logger.info(args)
     logger.info('{0} End {0} '.format('=' * 15))
-    if args.mail_to:
-        MAIL_COUNT['m_to'] = args.mail_to
-    else:
-        pass
+    MAIL_COUNT['m_to'] = args.mail_to
 
     return logger
 

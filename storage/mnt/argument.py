@@ -99,7 +99,7 @@ def tc_load(action):
                         default=['all'], nargs='+',
                         choices=case_info_dict.keys(),
                         help="default:['all]")
-    parser.set_defaults(func=test_suite_generator, loops=1, suite='load')
+    parser.set_defaults(func=test_suite_generator, loops=1, suite='load', runner="TextTestRunner")
 
 
 # --- Generate Test suite
