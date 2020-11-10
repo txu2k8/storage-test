@@ -1,0 +1,7 @@
+coloredlogs==14.0
+humanfriendly==8.2
+parameterized==0.7.4
+prettytable==1.0.1
+progressbar==2.5
+pyreadline==2.1
+wcwidth==0.2.5
