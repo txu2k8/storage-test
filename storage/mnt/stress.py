@@ -8,6 +8,7 @@
 """
 
 import os
+import time
 import unittest
 from libs.file_ops import Consistency
 from pkgs.ltp.fs_di import FSDataIntegrity
@@ -40,7 +41,8 @@ class StressTC(CustomTestCase):
         logger.info("Start stress test on {}".format(cls._fs_path))
         if not os.path.isdir(cls._fs_path):
             raise NoSuchDir(cls._fs_path)
-        cls.test_path = os.path.join(cls._fs_path, "stress")
+        str_time = str(time.strftime("%Y%m%d%H%M%S", time.localtime()))
+        cls.test_path = os.path.join(cls._fs_path, "stress_"+str_time)
         utils.mkdir_path(cls.test_path)
 
     @classmethod

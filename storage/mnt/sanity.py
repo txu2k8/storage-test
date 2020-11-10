@@ -9,6 +9,7 @@
 
 
 import os
+import time
 import unittest
 from libs.file_ops import Consistency
 from pkgs.ltp.fs_di import FSDataIntegrity
@@ -39,7 +40,8 @@ class SanityTC(CustomTestCase):
         logger.info("Start sanity test on {}".format(cls._fs_path))
         if not os.path.isdir(cls._fs_path):
             raise NoSuchDir(cls._fs_path)
-        cls.test_path = os.path.join(cls._fs_path, "sanity")
+        str_time = str(time.strftime("%Y%m%d%H%M%S", time.localtime()))
+        cls.test_path = os.path.join(cls._fs_path, "sanity_"+str_time)
         utils.mkdir_path(cls.test_path)
 
     @classmethod
