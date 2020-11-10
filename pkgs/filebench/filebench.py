@@ -10,7 +10,6 @@
 import os
 import unittest
 from parameterized import parameterized, param
-from concurrent.futures import ThreadPoolExecutor
 
 from libs import utils
 from libs.log import log
@@ -146,6 +145,15 @@ def custom_name_func():
 
 class FilebenchTestCase(unittest.TestCase):
     _test_path = ""
+    # Verify
+    if os.name != "posix":
+        raise PlatformError("fs_test just support for linux machine!")
+    if not os.path.isdir(_test_path):
+        raise NoSuchDir(_test_path)
+    rc, output = utils.run_cmd('which filebench')
+    if not output.strip("\n") or 'no filebench' in output:
+        logger.warning("yum install filebench -y")
+        raise NoSuchBinary("filebench not installed")
 
     def setUp(self):
         logger.info("Filebench Test Start ...")

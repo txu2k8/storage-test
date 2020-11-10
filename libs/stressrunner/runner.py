@@ -595,7 +595,7 @@ class StressRunner(object):
 
                 if fail_count > 0:
                     retry_flag = False
-                elif self.iteration == 0 or self.iteration > _result.ts_loop:
+                elif self.iteration == 0 or self.iteration >= _result.ts_loop:
                     retry_flag = True
                 else:
                     retry_flag = False
@@ -675,7 +675,7 @@ class StressRunner(object):
             # eg: send email
 
             # send email
-            if self.mail_info:
+            if self.mail_info and self.mail_info['m_to']:
                 subject = self.title
                 with open(self.report_path, 'rb') as f:
                     content = f.read()

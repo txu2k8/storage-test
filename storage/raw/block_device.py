@@ -9,9 +9,8 @@
 
 import re
 
-from tlib.log import log
-from tlib.utils import util
-from tlib.ssh_manager import SSHManager
+from libs import log
+from libs import utils
 
 
 logger = log.get_logger()
@@ -20,13 +19,9 @@ logger = log.get_logger()
 class BlockDevice(object):
     """block device related ops"""
 
-    def __init__(self, ip=None, username=None, password=None, key_file=None):
+    def __init__(self):
         super(BlockDevice, self).__init__()
-        if ip:
-            ssh_mgr = SSHManager(ip, username, password, key_file)
-            self.run_cmd = ssh_mgr.ssh_cmd
-        else:
-            self.run_cmd = util.run_cmd
+        pass
 
     def _mknod_device(self, device):
         """
@@ -37,19 +32,19 @@ class BlockDevice(object):
 
         minor = int(re.search(r'\d+$', device).group())*16
         cmd = 'mknod {0} b 44 {1}'.format(device, minor)
-        rc, output = self.run_cmd(cmd, expected_rc=0)
+        rc, output = utils.run_cmd(cmd, expected_rc=0)
         logger.info(output)
         return rc
 
     def get_all_devices(self, pattern='/dev/*'):
-        rc, output = self.run_cmd('ls %s' % pattern, expected_rc='ignore')
+        rc, output = utils.run_cmd('ls %s' % pattern, expected_rc='ignore')
         logger.info(output)
         device_list = output.strip('\n').split(' ')
         return device_list
 
     def _is_path_exist(self, path):
         ls_cmd = 'ls {0}'.format(path)
-        rc, output = self.run_cmd(ls_cmd, expected_rc='ignore')
+        rc, output = utils.run_cmd(ls_cmd, expected_rc='ignore')
         if 'No such file or directory' in output:
             logger.warning(output)
             return False
@@ -65,7 +60,7 @@ class BlockDevice(object):
         if not self._is_path_exist(directory):
             logger.info('Create a new one')
             mkdir_cmd = 'mkdir -p {0}'.format(directory)
-            self.run_cmd(mkdir_cmd, expected_rc=0)
+            utils.run_cmd(mkdir_cmd, expected_rc=0)
 
     def mkfs_filesystem(self, device, types='ext4',
                         options='-F -b4096 -E nodiscard'):
@@ -79,7 +74,7 @@ class BlockDevice(object):
 
         # mkfs.ext4 -F -b4096 -E nodiscard /dev/dpl1
         cmd = 'mkfs.{0} {1} {2}'.format(types, options, device)
-        rc, output = self.run_cmd(cmd, expected_rc=0)
+        rc, output = utils.run_cmd(cmd, expected_rc=0)
         logger.info(output)
         return rc
 
@@ -96,7 +91,7 @@ class BlockDevice(object):
         # if the mount point path not exist, will create a new one
         self._validate_directory(target)
         cmd = 'mount -t %s -o %s %s %s ' % (types, options, source, target)
-        rc, output = self.run_cmd(cmd, expected_rc=0, tries=3)
+        rc, output = utils.run_cmd(cmd, expected_rc=0, tries=3)
         logger.info(output)
         return rc
 
@@ -109,7 +104,7 @@ class BlockDevice(object):
         """
 
         cmd = 'umount {0} {1}'.format(options, path)
-        rc, output = self.run_cmd(cmd, expected_rc=0, tries=3)
+        rc, output = utils.run_cmd(cmd, expected_rc=0, tries=3)
         logger.info(output)
         return rc
 
@@ -124,5 +119,5 @@ class BlockDevice(object):
 
         cmd = "/bin/mount | grep %s | grep %s | grep %s | awk '{print $3}'" % (
             source, target, types)
-        rc, output = self.run_cmd(cmd, expected_rc='ignore')
+        rc, output = utils.run_cmd(cmd, expected_rc='ignore')
         return output.strip('\n')

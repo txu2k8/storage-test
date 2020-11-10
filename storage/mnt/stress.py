@@ -13,7 +13,7 @@ from libs.file_ops import Consistency
 from pkgs.ltp.fs_di import FSDataIntegrity
 from pkgs.ltp.fsstress import FSStress
 from pkgs.fstest import FSTest
-from pkgs.filebench import FileBench
+# from pkgs.filebench import FileBench
 from pkgs.ltp.locktests import LockTest
 from pkgs.ltp.doio import DoIO
 from pkgs.ltp.stream import StreamTest
@@ -54,7 +54,7 @@ class StressTC(CustomTestCase):
         local_path = '/tmp/consistency'
         self.assertTrue(cst.create(local_path, 1000, 1))
         test_top_path = os.path.join(self.test_path, 'consistency')
-        for x in range(0, 100):
+        for x in range(0, 1):
             test_path = os.path.join(test_top_path, 'dir{0}'.format(x))
             self.assertTrue(cst.create(test_path, 1000, 1))
             self.assertTrue(cst.compare(local_path, test_path, 1000))
@@ -85,6 +85,7 @@ class StressTC(CustomTestCase):
 
     def test_filebench(self):
         """File System Workload test"""
+        from pkgs.filebench import FileBench
         fb = FileBench(self.test_path)
         logger.info(fb.__doc__)
         self.assertTrue(fb.stress())
