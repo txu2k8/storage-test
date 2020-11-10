@@ -164,6 +164,7 @@ Storage-Consistency-Test:
         except Exception as e:
             raise e
 
+
 class FileOps(object):
     """The various file operations"""
     def __init__(self):
@@ -306,7 +307,8 @@ class FileOps(object):
             nested_dir_path = os.path.join(*item)
         return nested_dir_path
 
-    def rename_dir(self, parent_path, dir_list, suffix="_new"):
+    @staticmethod
+    def rename_dirs(parent_path, dir_list, suffix="_new"):
         """Rename the dir by add suffix"""
         new_dir_list =[]
         for the_dir in dir_list:
@@ -344,11 +346,54 @@ class FileOps(object):
             raise Exception("FAIL: All the directories created dont exist")
         print("PASS: All the directories created exist")
 
-    # ==== acls/attributes ops ==== TODO
+    # ==== acls/attributes ops ====
+    @staticmethod
+    def add_attributes(dir_path):
+        """attrib +a/r/h/s"""
+        try:
+            os.system("attrib +a " + dir_path)
+            os.system("attrib +r " + dir_path)
+            os.system("attrib +h " + dir_path)
+            #os.system("attrib +s " +dir_path)
+        except Exception as e:
+            logger.error("Error setting attribute to dir {}".format(dir_path))
+            raise e
+
+    @staticmethod
+    def remove_attributes(dir_path):
+        """attrib -a/r/h/s"""
+        try:
+            os.system("attrib -a " + dir_path)
+            os.system("attrib -r " + dir_path)
+            os.system("attrib -h " + dir_path)
+            #os.system("attrib -s " + dir_path)
+        except Exception as e:
+            logger.error("Error removing attribute to dir {}".format(dir_path))
+            raise e
+
+    @staticmethod
+    def add_acls(dir_path):
+        """icacls /dir /grant Everyone:(OI)(CI)F"""
+        try:
+            # os.system("icacls " + dir_path + " /grant Everyone:f")
+            os.system("icacls " + dir_path + " /grant user63:(OI)(CI)F")
+        except Exception as e:
+            logger.error("Error setting acls to dir {}".format(dir_path))
+            raise e
+
+    @staticmethod
+    def remove_acls(dir_path):
+        """icacls /dir /remove Everyone:g"""
+        try:
+            # os.system("icacls " + dir_path + " /remove Everyone:g")
+            os.system("icacls " + dir_path + " /remove user63:g")
+        except Exception as e:
+            logger.error("Error setting acls to dir {}".format(dir_path))
+            raise e
 
 
 class GlobalMetaFileOps(FileOps):
-    """The various file operations on a Global File System"""
+    """The various file operations on a Global File System TODO"""
     def __init__(self):
         super(GlobalMetaFileOps, self).__init__()
         self.Dirs = []  # this will store all directory names after creation
@@ -367,10 +412,10 @@ class GlobalMetaFileOps(FileOps):
         self.Md5Csum = {}  # dict with filename as the key to hold md5 checksum after file creation
         self.TopLevelDir = "Dir_" + time.strftime("%H%M%S")
 
-    def create_dirs(self, drive, dirs_num):
+    def create_dirs(self, drive, dirs_num, name_prefix="Dir"):
         """method to create number of dirs and save dir_name in a list"""
         for x in range(dirs_num):
-            dir_name = "Dir_{0}_{1}".format(time.strftime("%H%M%S"), x)
+            dir_name = "{0}_{1}_{2}".format(name_prefix, time.strftime("%H%M%S"), x)
             dir_path = os.path.join(drive, dir_name)
             utils.mkdir_path(dir_path)
             self.Dirs.append(dir_name)
@@ -397,7 +442,7 @@ class GlobalMetaFileOps(FileOps):
         tmp_path = os.path.join(parent_dir, sub_dir_name)
         self.SubDirs.append(tmp_path)
 
-    def rename_dir(self, drive, suffix="_new"):
+    def rename_dirs(self, drive, suffix="_new"):
         """Rename the dir by add suffix"""
         for the_dir in self.Dirs:
             dir_path=os.path.join(drive, the_dir)
@@ -446,186 +491,6 @@ class GlobalMetaFileOps(FileOps):
                raise Exception("{0} does not exist".format(dir_path))
 
 
-    def create_filenames(self, parent_dir, f_type, f_num, *threaded):
-        """
-        create file_names with .type extension.
-        arg *threaded is for creating names with timestamps if use multiple threads
-        """
-        for i in range(f_num):
-            if threaded:
-               name = "file" + "-" + str(threaded[0]) + "-"
-            else:
-               name = "file" + "-"
-            file_name = name + str(i) + f_type
-            tmp_path = os.path.join(parent_dir, file_name)
-            self.Files.append(tmp_path)
-
-            # if there is a dir rename need to save in this list FilesAfterDirRename
-            for new_dir in self.NewDirs:
-                tmp_path = os.path.join(new_dir, file_name)
-                self.FilesAfterDirRename.append(tmp_path)
-            # if Subdir exists
-            for sub_dir in self.SubDirs:
-                tmp_path = os.path.join(sub_dir, file_name)
-                self.FilesInSubDir.append(tmp_path)
-            # if NestedDir exists
-            for nested_dir in self.NestedDirs:
-                tmp_path = os.path.join(nested_dir, file_name)
-                self.FilesInNestedDir.append(tmp_path)
-            # if NewNestedDir exists
-            for new_nested_dir in self.NewNestedDirs:
-                tmp_path = os.path.join(new_nested_dir, file_name)
-                self.FilesInNewNestedDir.append(tmp_path)
-
-    def create_files(self, drive, f_size, *threaded):
-        """Create files"""
-        for file in self.Files:
-            try:
-               if threaded:
-                  if str(threaded[0]) in file:
-                     file_path=os.path.join(drive, file)
-                     fl = open(file_path,'w')
-                     rand_bytes = self.random_bytes(f_size)
-                     fl.write(str(rand_bytes))
-                     fl.close()
-                     md5checksum = self.md5(file_path)
-                     self.Md5Csum [file_path] = md5checksum
-               else:
-                  file_path=os.path.join(drive, file)
-                  fl = open(file_path,'w')
-                  rand_bytes = self.random_bytes(f_size)
-                  fl.write(str(rand_bytes))
-                  fl.close()
-                  md5checksum = self.md5(file_path)
-                  self.Md5Csum [file_path] = md5checksum
-                  print " Filename is " + file_path + " and md5_checksum is " + md5checksum
-            except Exception as e:
-                 print "Error creating file " +str(e)
-                 print(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
-                 sys.exit(0)
-        for file in self.FilesAfterDirRename:
-            try:
-                 file_path=os.path.join(drive, file)
-                 fl = open(file_path,'w')
-                 rand_bytes = self.randomBytes(bytes)
-                 fl.write(str(rand_bytes))
-                 fl.close()
-                 md5checksum = self.md5(file_path)
-                 self.Md5Csum [file_path] = md5checksum
-                 print " Filename is " + file_path + " and md5_checksum is " + md5checksum
-            except Exception as e:
-                 print "Error creating file " +str(e)
-                 print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-                 sys.exit(0)
-
-    def create_large_size_file_names(self,drive,dir,type,number_files):
-        for i in range(number_files):
-            new_dir_full_path=os.path.join(drive, dir)
-            name = "file" + "-"
-            file_name=name+str(i)+type
-            file_path=os.path.join(new_dir_full_path, file_name)
-            # save the file_path without the drive label
-            #tmp_path =   file_path[3:]
-            tmp_path = dir + "/" + file_name
-            self.Files.append(tmp_path)
-		#if there is a dir rename need to save in this list FilesAfterDirRename
-            for dir in self.NewDirs:
-                new_dir_full_path=os.path.join(drive, dir)
-                name = "file" + "-"
-                file_name=name+str(i)+type
-                file_path=os.path.join(new_dir_full_path, file_name)
-                # save the file_path without the drive label
-                tmp_path1 =   file_path[3:]
-                self.FilesAfterDirRename.append(tmp_path1)
-
-
-    def modify_files(self,drive,file,bytes):
-           #if there is a dir rename need to save in this list FilesAfterDirRename
-           if self.NewDirs:
-               for dir in self.NewDirs:
-               #taking out file_name, it would just return base file_name
-                  file_name =	 os.path.basename(file)
-                  file_path=os.path.join(dir, file_name)
-                  file_full_path=os.path.join(drive,file_path)
-                  # save the file_path without the drive label
-                  #tmp_path1 =   file_full_path[3:]
-                  tmp_path1 = file_path
-                  #print "Deb77" +tmp_path1
-           elif self.NewNestedDirs:
-               for dir in self.NewNestedDirs:
-               #taking out file_name, it would just return base file_name
-                  file_name =	 os.path.basename(file)
-                  file_path=os.path.join(dir, file_name)
-                  file_full_path=os.path.join(drive,file_path)
-                  # save the file_path without the drive label
-                  #tmp_path1 =   file_full_path[3:]
-                  tmp_path1 = file_path
-                  #print "Deb77" +tmp_path1
-           else:
-               file_full_path=os.path.join(drive, file)
-           try:
-               fl = open(file_full_path,'w')
-               rand_bytes = self.randomBytes(bytes)
-               fl.write(str(rand_bytes))
-               fl.close()
-           except Exception as e:
-               print "Error writing to file {}".format(file)
-               print str(e)
-               print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-               sys.exit(0)
-
-    def add_attributes(self,drive,dir):
-        try:
-           dir_path=os.path.join(drive,dir)
-           os.system("attrib +a " +dir_path)
-           os.system("attrib +r " +dir_path)
-           os.system("attrib +h " +dir_path)
-           #os.system("attrib +s " +file_full_path)
-        except Exception as e:
-           print "Error setting attribute to dir {}".format(dir_path)
-           print str(e)
-           print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-           sys.exit(0)
-
-    def remove_attributes(self,drive,dir):
-        try:
-           dir_path=os.path.join(drive, dir)
-           os.system("attrib -a " +dir_path)
-           os.system("attrib -r " +dir_path)
-           os.system("attrib -h " +dir_path)
-           #os.system("attrib -s " +file_full_path)
-        except Exception as e:
-           print "Error removing attribute to dir {}".format(dir_path)
-           print str(e)
-           print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-           sys.exit(0)
-
-    def add_acls(self,drive,dir):
-        try:
-           dir_path=os.path.join(drive,dir)
-           #os.system("icacls " + dir_path + " /grant Everyone:f")
-           os.system("icacls " + dir_path + " /grant user63:(OI)(CI)F")
-        except Exception as e:
-           print "Error setting acls to dir {}".format(dir_path)
-           print str(e)
-           print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-           sys.exit(0)
-
-    def remove_acls(self,drive,dir):
-        try:
-           dir_path=os.path.join(drive,dir)
-           #os.system("icacls " + dir_path + " /remove Everyone:g")
-           os.system("icacls " + dir_path + " /remove user63:g")
-        except Exception as e:
-           print "Error setting acls to dir {}".format(dir_path)
-           print str(e)
-           print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-           sys.exit(0)
-
-    def __del__(self):
-        self.TopLevelDir = " "
-
-
 class UnitTestCase(unittest.TestCase):
     """file ops test.sh case"""
 
@@ -636,7 +501,7 @@ class UnitTestCase(unittest.TestCase):
         pass
 
     def test_consistency(self):
-        cst = Consistency()
+        cst = Consistency("/tmp/")
         print(cst.__doc__)
         self.assertTrue(cst.create('/tmp/dir_1', 500, 1))
         self.assertTrue(cst.create('/tmp/dir_2', 500, 1))
