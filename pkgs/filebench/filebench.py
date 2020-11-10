@@ -138,7 +138,7 @@ class FileBench(object):
 
 def custom_name_func():
     def custom_naming_func(testcase_func, param_num, param):
-        return '{0}_{1}_{2}'.format(testcase_func.__name__, param_num, parameterized.to_safe_name(param.test_args[0]))
+        return '{0}_{1}_{2}'.format(testcase_func.__name__, param_num, parameterized.to_safe_name(param.args[0]))
         # return testcase_func.__name__ + '_' + parameterized.to_safe_name(param.args[0])
 
     return custom_naming_func
