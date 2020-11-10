@@ -7,7 +7,7 @@
 @Email : tao.xu2008@outlook.com
 """
 
-from .filebench import FileBench
+from .filebench import *
 __all__ = ['FileBench']
 
 """

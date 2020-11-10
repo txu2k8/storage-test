@@ -32,7 +32,7 @@ class AclXattr(object):
             utils.run_cmd("which attr", expected_rc='ignore')
         except Exception as e:
             logger.error(e)
-            raise NoSuchBinary("attr, try install it.(apt-get install attr)")
+            raise NoSuchBinary("attr, try install it.(apt-get install -y attr)")
 
     def run(self, test_path):
         """cd <test_path>; ./tacl_xattr.sh """

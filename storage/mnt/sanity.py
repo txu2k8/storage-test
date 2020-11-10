@@ -11,15 +11,8 @@
 import os
 import time
 import unittest
-from libs.file_ops import Consistency
-from pkgs.ltp.fs_di import FSDataIntegrity
-from pkgs.fstest import FSTest
-from pkgs.ltp.locktests import LockTest
-from pkgs.ltp.doio import DoIO
-from pkgs.ltp.stream import StreamTest
-from pkgs.ltp.read import ReadAll
-from pkgs.ltp.acl import AclXattr
-from libs.log import log
+
+from libs import log
 from libs import utils
 from libs.exceptions import NoSuchDir
 from libs.customtest import CustomTestCase
@@ -27,8 +20,6 @@ from config import const
 
 logger = log.get_logger()
 args = const.get_value('args')
-
-TEST_PATH = args.test_path
 
 
 class SanityTC(CustomTestCase):
@@ -48,8 +39,68 @@ class SanityTC(CustomTestCase):
     def tearDownClass(cls):
         logger.info("Sanity test on {} complete!".format(cls._fs_path))
 
+    # ==== LTP ====
+    def test_acl(self):
+        """Test ACL and Extend Attribute on Linux system"""
+        from pkgs.ltp.acl import AclXattr
+        acl = AclXattr(self.test_path)
+        logger.info(acl.__doc__)
+        self.assertTrue(acl.sanity())
+
+    def test_doio(self):
+        """base rw test: LTP doio & iogen"""
+        from pkgs.ltp.doio import DoIO
+        dio = DoIO(self.test_path)
+        logger.info(dio.__doc__)
+        self.assertTrue(dio.iogen_doio())
+
+    def test_fs_di(self):
+        """Test FileSystem Data Integrity"""
+        from pkgs.ltp.fs_di import FSDataIntegrity
+        fdi = FSDataIntegrity(self.test_path)
+        logger.info(fdi.__doc__)
+        self.assertTrue(fdi.sanity())
+
+    def test_locktests(self):
+        """Test fcntl locking functions"""
+        from pkgs.ltp.locktests import LockTest
+        lct = LockTest(self.test_path)
+        logger.info(lct.__doc__)
+        self.assertTrue(lct.sanity())
+
+    def test_readall(self):
+        """Perform a small read on every file in a directory tree."""
+        from pkgs.ltp.read import ReadAll
+        readall = ReadAll(self.test_path)
+        logger.info(readall.__doc__)
+        self.assertTrue(readall.sanity())
+
+    def test_stream(self):
+        """LTP file stream test"""
+        from pkgs.ltp.stream import StreamTest
+        stream = StreamTest(self.test_path)
+        logger.info(stream.__doc__)
+        self.assertTrue(stream.sanity())
+
+    # ==== Tools ====
+    def test_fio(self):
+        """FIO: Flexible I/O tester."""
+        from pkgs.fio import FIO
+        fio = FIO(self.test_path)
+        logger.info(fio.__doc__)
+        self.assertTrue(fio.sanity())
+
+    def test_fstest(self):
+        """Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink"""
+        from pkgs.fstest import FSTest
+        fs_test = FSTest(self.test_path)
+        logger.info(fs_test.__doc__)
+        self.assertTrue(fs_test.sanity())
+
+    # ==== Private ====
     def test_consistency(self):
         """Test the file consistency"""
+        from libs.file_ops import Consistency
         cst = Consistency()
         logger.info(cst.__doc__)
         local_path = '/tmp/consistency'
@@ -57,48 +108,6 @@ class SanityTC(CustomTestCase):
         self.assertTrue(cst.create(local_path, 500, 1))
         self.assertTrue(cst.create(test_path, 500, 1))
         self.assertTrue(cst.compare(local_path, test_path, 500))
-
-    def test_fs_di(self):
-        """Test FileSystem Data Integrity"""
-        fdi = FSDataIntegrity(self.test_path)
-        logger.info(fdi.__doc__)
-        self.assertTrue(fdi.sanity())
-
-    def test_fstest(self):
-        """Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink"""
-        fs_test = FSTest(self.test_path)
-        logger.info(fs_test.__doc__)
-        self.assertTrue(fs_test.sanity())
-
-    def test_locktests(self):
-        """Test fcntl locking functions"""
-        lct = LockTest(self.test_path)
-        logger.info(lct.__doc__)
-        self.assertTrue(lct.sanity())
-
-    def test_doio(self):
-        """base rw test: LTP doio & iogen"""
-        dio = DoIO(self.test_path)
-        logger.info(dio.__doc__)
-        self.assertTrue(dio.iogen_doio())
-
-    def test_stream(self):
-        """LTP file stream test"""
-        stream = StreamTest(self.test_path)
-        logger.info(stream.__doc__)
-        self.assertTrue(stream.sanity())
-
-    def test_readall(self):
-        """Perform a small read on every file in a directory tree."""
-        readall = ReadAll(self.test_path)
-        logger.info(readall.__doc__)
-        self.assertTrue(readall.sanity())
-
-    def test_acl(self):
-        """Test ACL and Extend Attribute on Linux system"""
-        acl = AclXattr(self.test_path)
-        logger.info(acl.__doc__)
-        self.assertTrue(acl.sanity())
 
 
 if __name__ == '__main__':

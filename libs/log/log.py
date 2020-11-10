@@ -287,7 +287,7 @@ class _LoggerMan(object):
             self._mylogger.addHandler(streamhandler)
 
 
-def init_logger(logfile='debug.log', logger_name='test.sh', log_level=FILE_LEVEL,
+def init_logger(logfile='debug.log', logger_name='storage-test', log_level=FILE_LEVEL,
                 log_type=ROTATION, maxsize=FILE_MAXBYTES, rotation_count=FILE_BACKUPCOUNT,
                 output_logfile=True, compress_log=False, gen_wf=False,
                 print_console=True, colored_console=True, reset_logger=False):
@@ -330,11 +330,11 @@ def init_logger(logfile='debug.log', logger_name='test.sh', log_level=FILE_LEVEL
         import logging
         from tlib import log
         log.init_logger(
-            '/home/work/test.sh/test.sh.log',
-            'test.sh'
+            '/home/work/test/test.log',
+            'test'
         )
-        log.info('test.sh xxx')
-        log.critical('test.sh critical')
+        log.info('test xxx')
+        log.critical('test critical')
 
     """
 
@@ -364,7 +364,7 @@ def init_logger(logfile='debug.log', logger_name='test.sh', log_level=FILE_LEVEL
     return new_logger
 
 
-def get_logger(logfile='debug.log', logger_name='test.sh', output_logfile=True,
+def get_logger(logfile='debug.log', logger_name='storage-test', output_logfile=True,
                compress_log=False, gen_wf=False, print_console=True,
                colored_console=True, debug=False, reset_logger=False):
     if debug:
@@ -651,7 +651,7 @@ class LogTestCase(unittest.TestCase):
         logger.critical('test_2_2 hello,world')
 
     def test_3(self):
-        logger = get_logger(logger_name='test2', logfile='test.sh.log', reset_logger=True)
+        logger = get_logger(logger_name='test2', logfile='test.log', reset_logger=True)
         logger.info('test_3 start ...')
         logger.warning('test_3 hello,world')
         logger.debug('test_3 hello,world')
@@ -666,7 +666,7 @@ class LogTestCase(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    # test.sh
+    # test
     # unittest.main()
     suite = unittest.TestLoader().loadTestsFromTestCase(LogTestCase)
     unittest.TextTestRunner(verbosity=2).run(suite)

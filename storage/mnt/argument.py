@@ -13,19 +13,32 @@ import unittest
 
 from storage.argument import case_dict_2_string, test_path_parser
 
+all_tcs_info = {
+    # LTP
+    'acl': 'Test ACL and Extend Attribute on Linux system',
+    'create_files': 'Creates files of specified size',
+    'doio': 'base rw test, doio & iogen',
+    'fs_di': 'Test FileSystem Data Integrity',
+    'fsstress': 'filesystem stress',
+    'locktests': 'Test fcntl locking functions',
+    'readall': 'Perform a small read on every file in a directory tree',
+    'stream': 'File stream test',
+
+    # tools
+    # 'dd': 'TODO',
+    'filebench': 'File System Workload test',
+    'fio': 'Flexible I/O tester',
+    'fstest': 'Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink',
+
+    # private, write with python: file_op.py
+    'consistency': 'POSIX/WINDOWS: Test the file consistency',
+}
+
 
 def tc_sanity(action):
-    case_info_dict = {
-        'consistency': 'Test the file consistency',
-        'fs_di': 'Test FileSystem Data Integrity',
-        'fstest': 'Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink',
-        'locktests': 'Test fcntl locking functions',
-        'doio': 'base rw test: LTP doio & iogen',
-        'stream': 'File stream test',
-        'readall': 'Perform a small read on every file in a directory tree',
-        'acl': 'Test ACL and Extend Attribute on Linux system',
-    }
-
+    sanity_tcs = ['acl', 'doio', 'fs_di', 'locktests', 'readall', 'stream',  # LTP
+                  'fio', 'fstest', 'consistency']
+    case_info_dict = dict((k, v) for k, v in all_tcs_info.items() if k in sanity_tcs)
     case_desc = case_dict_2_string(case_info_dict, 25)
 
     parser = action.add_parser(
@@ -43,19 +56,9 @@ def tc_sanity(action):
 
 
 def tc_stress(action):
-    case_info_dict = {
-        'consistency': 'Test the file consistency',
-        'create_files': 'Creates files of specified size',
-        'fs_di': 'Test FileSystem Data Integrity',
-        'fstest': 'Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink',
-        'fsstress': 'filesystem stress with LTP tool fsstress',
-        'filebench': 'File System Workload test',
-        'locktests': 'Test fcntl locking functions',
-        'doio': 'base rw test: LTP doio & iogen',
-        'stream': 'LTP file stream test',
-        'readall': 'Perform a small read on every file in a directory tree.',
-    }
-
+    stress_tcs = ['acl', 'create_files', 'doio', 'fs_di', 'fsstress', 'locktests', 'readall', 'stream',  # LTP
+                  'filebench', 'fio', 'fstest', 'consistency', ]
+    case_info_dict = dict((k, v) for k, v in all_tcs_info.items() if k in stress_tcs)
     case_desc = case_dict_2_string(case_info_dict, 25)
 
     parser = action.add_parser(
@@ -78,6 +81,7 @@ def tc_load(action):
         'create_files': 'Creates files of specified size.(default:1dir*1file*1MB)',
         'small_files': 'Generate small files.(default:1dir*1file*1KB)',
         'empty_files': 'Generate empty files.(default:1dir*1file*0KB)',
+        'seq_files': 'Generate sequential files of specified size by fio',
         'fsstress': 'Generate files by LTP fsstress(deep path/files)',
     }
 
