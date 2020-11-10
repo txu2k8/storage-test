@@ -100,7 +100,7 @@ class SanityTC(CustomTestCase):
     # ==== Private ====
     def test_consistency(self):
         """Test the file consistency"""
-        from libs.file_ops import Consistency
+        from pkgs.fileops import Consistency
         cst = Consistency()
         logger.info(cst.__doc__)
         local_path = '/tmp/consistency'

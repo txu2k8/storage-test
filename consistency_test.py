@@ -7,7 +7,7 @@
 @Email : tao.xu2008@outlook.com
 """
 
-from libs.file_ops import Consistency
+from pkgs.fileops.file_ops import Consistency
 
 
 if __name__ == '__main__':

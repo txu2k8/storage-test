@@ -58,7 +58,7 @@ class LoadGenTC(CustomTestCase):
     def test_small_files(self):
         """Generate small files by Consistency"""
         logger.info(self.test_small_files.__doc__)
-        from libs.file_ops import Consistency
+        from pkgs.fileops import Consistency
         cst = Consistency()
         test_top_path = os.path.join(self.test_path, 'small_files')
         for x in range(0, self._dir_n):
@@ -70,7 +70,7 @@ class LoadGenTC(CustomTestCase):
     def test_empty_files(self):
         """Generate empty files by Consistency"""
         logger.info(self.test_empty_files.__doc__)
-        from libs.file_ops import Consistency
+        from pkgs.fileops import Consistency
         cst = Consistency()
         test_top_path = os.path.join(self.test_path, 'small_files')
         for x in range(0, self._dir_n):
