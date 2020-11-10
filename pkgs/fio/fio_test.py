@@ -43,7 +43,7 @@ class FIO(object):
         if not os.path.isdir(self.top_path):
             raise NoSuchDir(self.top_path)
         try:
-            utils.run_cmd("which fio", expected_rc='ignore')
+            utils.run_cmd("which fio", expected_rc=0)
         except Exception as e:
             logger.error(e)
             raise NoSuchBinary("fio, try install it.(apt-get install -y fio)")
