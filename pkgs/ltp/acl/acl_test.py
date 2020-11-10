@@ -13,7 +13,7 @@ import unittest
 
 from libs import utils
 from libs.log import log
-from libs.exceptions import PlatformError, NoSuchDir
+from libs.exceptions import PlatformError, NoSuchDir, NoSuchBinary
 
 logger = log.get_logger()
 
@@ -28,7 +28,11 @@ class AclXattr(object):
             raise PlatformError("Just support for linux machine!")
         if not os.path.isdir(self.top_path):
             raise NoSuchDir(self.top_path)
-        utils.run_cmd("which attr", expected_rc=0)
+        try:
+            utils.run_cmd("which attr", expected_rc='ignore')
+        except Exception as e:
+            logger.error(e)
+            raise NoSuchBinary("attr, try install it.(apt-get install attr)")
 
     def run(self, test_path):
         """cd <test_path>; ./tacl_xattr.sh """
