@@ -54,7 +54,7 @@ class StressTC(CustomTestCase):
         local_path = '/tmp/consistency'
         self.assertTrue(cst.create(local_path, 1000, 1))
         test_top_path = os.path.join(self.test_path, 'consistency')
-        for x in range(0, 1):
+        for x in range(0, 100):
             test_path = os.path.join(test_top_path, 'dir{0}'.format(x))
             self.assertTrue(cst.create(test_path, 1000, 1))
             self.assertTrue(cst.compare(local_path, test_path, 1000))

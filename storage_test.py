@@ -158,9 +158,6 @@ def run_with_stress_runner(args):
     command = const.get_value('command')
 
     # run with StressRunner -- report html
-    print(args.loops)
-    print(type(args.loops))
-    print("=========================")
     from libs.stressrunner import StressRunner
     runner = StressRunner(report_path=log_path.replace('.log', '.html'),
                           logger=logger, title=title, test_input=command,
