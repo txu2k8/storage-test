@@ -8,6 +8,8 @@
 """
 
 import os
+import sys
+import re
 from setuptools import setup
 
 
@@ -25,6 +27,23 @@ def read_requirements(filename):
             if not line.startswith('#')]
 
 
+def _find_packages():
+    """find pckages"""
+    packages = []
+    path = '.'
+    for root, _, files in os.walk(path):
+        if '__init__.py' in files:
+            if sys.platform.startswith('linux'):
+                item = re.sub('^[^A-z0-9_]', '', root.replace('/', '.'))
+            elif sys.platform.startswith('win'):
+                item = re.sub('^[^A-z0-9_]', '', root.replace('\\', '.'))
+            else:
+                item = re.sub('^[^A-z0-9_]', '', root.replace('/', '.'))
+            if item is not None:
+                packages.append(item.lstrip('.'))
+    return packages
+
+
 setup(
     name='storage-test',
     python_requires='>=3.4.0',
@@ -35,12 +54,7 @@ setup(
     author="tao.xu",
     author_email='tao.xu2008@outlook.com',
     url='https://github.com/txu2k8/storage-test',
-    packages=[
-        'config',
-        'libs',
-        'pkgs',
-        'storage',
-    ],
+    packages=_find_packages(),
     install_requires=read_requirements('requirements.txt'),
     include_package_data=True,
     license="MIT",
@@ -49,6 +63,6 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.9.0',
+        'Programming Language :: Python :: 3',
     ],
 )
