@@ -10,18 +10,25 @@
 import time
 import sys
 import os
+import shutil
 import hashlib
+import string
+import random
+import itertools
 import unittest
 
-from libs.log import log
+from libs import log
 from libs import utils
+from libs.exceptions import NoSuchDir
 
 logger = log.get_logger()
 
 
 class Consistency(object):
     """Test the file consistency"""
-    def __init__(self):
+    def __init__(self, top_path):
+        self.top_path = top_path
+        self.local_path = '/tmp/consistency'
         self.help = """
 Storage-Consistency-Test:
     A python script for test.sh the file consistency between 2 path(or cloud). 
@@ -54,19 +61,23 @@ Storage-Consistency-Test:
     compare 10 file(s), equal: 0.0% time:0.741319894791(seconds)
         """
 
+    def verify(self):
+        if not os.path.isdir(self.top_path):
+            raise NoSuchDir(self.top_path)
+
     @staticmethod
-    def create(top_path, f_num, f_size):
-        utils.mkdir_path(top_path)
+    def create(test_path, f_num, f_size):
+        utils.mkdir_path(test_path)
         start = time.time()
         for idx in range(0, int(f_num)):
-            f = open(top_path + "/test_" + str(idx) + ".txt", "w")
+            f = open(test_path + "/test_" + str(idx) + ".txt", "w")
             for line in range(0, 105 * int(f_size)):
                 f.write(str(idx) + " " + str(line) + " line\n")
             f.close()
         end = time.time()
         during = end - start
         logger.info("{0}: create {1} file(s), time: {2}(seconds)".format(
-            top_path, f_num, during))
+            test_path, f_num, during))
         return True
 
     @staticmethod
@@ -129,24 +140,223 @@ Storage-Consistency-Test:
                 self.compare(path, path2, num)
                 exit(0)
 
+    def sanity(self):
+        self.verify()
+        test_path = os.path.join(self.top_path, "consistency")
+        try:
+            self.create(self.local_path, 500, 1)
+            self.create(test_path, 500, 1)
+            self.compare(self.local_path, test_path, 500)
+            return True
+        except Exception as e:
+            raise e
 
-import os, sys, shutil, time, random
-from random import randint
-import hashlib
-import itertools
-import threading
-from threading import Thread
-from collections import OrderedDict
+    def stress(self):
+        self.verify()
+        test_top_path = os.path.join(self.top_path, "consistency")
+        try:
+            self.create(self.local_path, 1000, 1)
+            for x in range(0, 100):
+                test_path = os.path.join(test_top_path, 'dir{0}'.format(x))
+                self.create(test_path, 1000, 1)
+                self.compare(self.local_path, test_path, 1000)
+            return True
+        except Exception as e:
+            raise e
 
 class FileOps(object):
     """The various file operations"""
     def __init__(self):
+        pass
+
+    # ==== file ops ====
+    def file_name_generator(self):
+        pass
+
+    @staticmethod
+    def random_bytes(n):
+        """returns a byte array of random bytes"""
+        return bytearray(random.getrandbits(8) for _ in range(n))
+
+    @staticmethod
+    def random_string(str_len=16):
+        """
+        generate random string
+        return ''.join(random.sample((string.ascii_letters + string.digits)*str_len, str_len))
+        :param str_len: byte
+        :return:random_string
+        """
+
+        base_string = string.ascii_letters + string.digits
+        # base_string = string.printable
+        base_string_len = len(base_string)
+        multiple = 1
+        if base_string_len < str_len:
+            multiple = (str_len // base_string_len) + 1
+
+        return ''.join(random.sample(base_string * multiple, str_len))
+
+    @staticmethod
+    def hash_md5(file_path):
+        """
+        returns the hash md5 of the opened file
+        :param file_path: file full path
+        :return:(string) md5_value 32-bit hexadecimal string.
+        """
+        logger.debug('Get MD5: {0}'.format(file_path))
+        try:
+            h_md5 = hashlib.md5()
+            with open(file_path, "rb") as f:
+                for chunk in iter(lambda: f.read(), b""):
+                    h_md5.update(chunk)
+            return h_md5.hexdigest()
+        except Exception as e:
+            raise Exception(e)
+
+    def create_file(self, file_path, total_size='4k', line_size=128, mode='w+'):
+        """
+        create original file, each line with line_number, and specified line size
+        :param file_path:
+        :param total_size:
+        :param line_size:
+        :param mode: w+ / a+
+        :return:
+        """
+
+        logger.info('>> Create file: {0}'.format(file_path))
+        original_path = os.path.split(file_path)[0]
+        if not os.path.isdir(original_path):
+            try:
+                os.makedirs(original_path)
+            except OSError as e:
+                raise Exception(e)
+
+        size = utils.strsize_to_byte(total_size)
+        line_count = size // line_size
+        unaligned_size = size % line_size
+
+        with open(file_path, mode) as f:
+            logger.info("write file: {0}".format(file_path))
+            for line_num in range(0, line_count):
+                random_sting = self.random_string(line_size - 2 - len(str(line_num))) + '\n'
+                f.write('{line_num}:{random_s}'.format(line_num=line_num, random_s=random_sting))
+            if unaligned_size > 0:
+                f.write(self.random_string(unaligned_size))
+            f.flush()
+            os.fsync(f.fileno())
+
+        file_md5 = self.hash_md5(file_path)
+        return file_md5
+
+    def modify_file(self, file_path):
+        return self.create_file(file_path, '4k', 128, mode='a+')
+
+    def create_large_size_file(self, file_path, size='4k'):
+        """Create large size enpty file"""
+        size_b = utils.strsize_to_byte(size)
+        with open(file_path, "wb") as out:
+            out.truncate(size_b)
+        file_md5 = self.hash_md5(file_path)
+        return file_md5
+
+    @staticmethod
+    def rename_files(file_path, suffix="_new"):
+        try:
+           file_name = os.path.basename(file_path)
+           file_name_split = file_name.split(".")
+           new_file_path = "{0}{1}.{2}".format(file_name_split[0], suffix, file_name_split[1])
+           os.rename(file_path, new_file_path)
+        except Exception as e:
+           logger.error("Error renaming the file {}".format(file_path))
+           raise e
+
+    @staticmethod
+    def delete_files(file_path):
+        try:
+           os.remove(file_path)
+        except Exception as e:
+           logger.error("Failed delete the file {}".format(file_path))
+           raise e
+
+    # ==== dir ops ====
+    def create_dirs(self, parent_path, dirs_num, name_prefix="Dir"):
+        """method to create number of dirs and return dir_names list"""
+        dir_name_list = []
+        str_time = time.strftime("%H%M%S")
+        for x in range(dirs_num):
+            dir_name = "{0}_{1}_{2}".format(name_prefix, str_time, x)
+            dir_path = os.path.join(parent_path, dir_name)
+            utils.mkdir_path(dir_path)
+            dir_name_list.append(dir_name)
+        return dir_name_list
+
+    def create_sub_dirs(self, parent_path, dirs_num):
+        """Created subdir inside the parent_dir"""
+        return self.create_dirs(parent_path, dirs_num, "SubDir")
+
+    def create_nested_dirs(self, parent_path, levels):
+        tmp =[[parent_path]]  # temp list storing the TopLevel dir
+        nested_dir_path=[]
+        for i in range(levels):
+            tmp.append(["Nested_"+str(i)])
+        for item in itertools.product(*tmp):
+            dir_path=os.path.join(parent_path, *item)
+            utils.mkdir_path(dir_path)
+            tmp.append(dir_path)
+            nested_dir_path = os.path.join(*item)
+        return nested_dir_path
+
+    def rename_dir(self, parent_path, dir_list, suffix="_new"):
+        """Rename the dir by add suffix"""
+        new_dir_list =[]
+        for the_dir in dir_list:
+            dir_path=os.path.join(parent_path, the_dir)
+            new_dir_path = dir_path + suffix
+            if os.path.isdir(dir_path):
+                print("Rename {0} -> {1}".format(dir_path, new_dir_path))
+                os.rename(dir_path, new_dir_path)
+                new_dir_list.append(the_dir + suffix)
+            else:
+               raise Exception("{0} does not exist".format(dir_path))
+        return new_dir_list
+
+    @staticmethod
+    def remove_dir(dir_path):
+        """rm dir tree"""
+        if os.path.isdir(dir_path):
+            shutil.rmtree(dir_path, ignore_errors=True)
+        else:
+            raise Exception("{0} does not exist".format(dir_path))
+
+    @staticmethod
+    def list_dirs(parent_path, dirs, expected_dirs_num):
+        """list the dirs[] and check number expected"""
+        count = 0
+        for the_dir in dirs:
+            dir_path = os.path.join(parent_path, the_dir)
+            if os.path.isdir(dir_path):
+                for dirname, dirnames, filenames in os.walk(dir_path):
+                    print(dirname)
+                    count += 1
+            else:
+                print("Error: {0} does not exist".format(dir_path))
+        if count != expected_dirs_num:
+            raise Exception("FAIL: All the directories created dont exist")
+        print("PASS: All the directories created exist")
+
+    # ==== acls/attributes ops ==== TODO
+
+
+class GlobalMetaFileOps(FileOps):
+    """The various file operations on a Global File System"""
+    def __init__(self):
+        super(GlobalMetaFileOps, self).__init__()
         self.Dirs = []  # this will store all directory names after creation
         self.NewDirs = [] # this will store directory names after rename
-        self.NestedDirs = [] # this will created nested directory under a TopLevelDir
-        self.NewNestedDirs = [] # this will rename the nested dirs
-        self.SubDirs = []  # this will create subdirs inside a Dir
-        self.NewSubDirs = [] # this will rename subdirs
+        self.NestedDirs = [] # this will store nested directory under a TopLevelDir
+        self.NewNestedDirs = [] # this will store the nested dirs after rename
+        self.SubDirs = []  # this will store subdirs inside a Dir
+        self.NewSubDirs = [] # this will store new subdirs after rename
         self.Files = []  # this will store all files inside a dir provided
         self.NewFiles = [] # this will store all files after renames
         self.FilesAfterDirRename = [] # this will store all files after dir renames
@@ -155,257 +365,158 @@ class FileOps(object):
         self.FilesInNestedDir = [] # this will store all files in nested dir
         self.FilesInNewNestedDir = [] # this will store all files after nested dir rename
         self.Md5Csum = {}  # dict with filename as the key to hold md5 checksum after file creation
-        self.cc_drive1 = sys.argv[1]
-        self.cc_drive2 = sys.argv[2]
-        self.cc_drive3 = sys.argv[3]
         self.TopLevelDir = "Dir_" + time.strftime("%H%M%S")
 
-    # method to create number_dirs dirs and save this in a list
-    def create_dir(self,drive,number_dirs):
-        for i in range(number_dirs):
-            name = "Dir_" + time.strftime("%H%M%S") + "-" #appending timestamp to "Dir_"
-            dir_name=name+str(i)
+    def create_dirs(self, drive, dirs_num):
+        """method to create number of dirs and save dir_name in a list"""
+        for x in range(dirs_num):
+            dir_name = "Dir_{0}_{1}".format(time.strftime("%H%M%S"), x)
+            dir_path = os.path.join(drive, dir_name)
+            utils.mkdir_path(dir_path)
             self.Dirs.append(dir_name)
-        for the_dir in self.Dirs:
-            dir_full_path=os.path.join(drive, the_dir)
-            if os.path.isdir(dir_full_path):
-                print("Error: dir_full_path exists")
-            else:
-               os.mkdir(dir_full_path)
 
-    def create_nested_dirs(self,drive,levels):
-        tmp =[[self.TopLevelDir]]    # temp list storing the TopLevel dir
-        # tmp =[]    # temp list storing the TopLevel dir
+    def create_nested_dirs(self, parent_path, levels):
+        tmp =[[self.TopLevelDir]]  # temp list storing the TopLevel dir
         dir_nested_path=[]
         for i in range(levels):
             tmp.append(["S_"+str(i)])
         for item in itertools.product(*tmp):
-             dir_full_path=os.path.join(drive,*item)
-             #dir_nested_path=os.path.join(self.TopLevelDir,*item)
-             dir_nested_path=os.path.join(*item)
-             #print "Deb22" +dir_full_path
-             #print "Deb33" +dir_nested_path
-             tmp.append(dir_full_path)
-             if os.path.isdir(dir_full_path):
-                 print("Error: {} exists".format(dir_full_path))
-             else:
-                os.makedirs(dir_full_path)
-                # save the dirpath without the drive label
-                #tmp_path =   dir_full_path[3:]
-                #tmp_path = dir_nested_path
-                #print "Deb10" +tmp_path
-         # also keep track of top level Dir
+            dir_path=os.path.join(parent_path, *item)
+            utils.mkdir_path(dir_path)
+            tmp.append(dir_path)
+            dir_nested_path = os.path.join(*item)
+
         self.Dirs.append(self.TopLevelDir)
         self.NestedDirs.append(dir_nested_path)
 
-    def create_sub_dirs(self, cc_drive, dir):
-        # Subdir will be created inside the dir
-        name = "SubDir_" + time.strftime("%H%M%S")
-        top_dir_path=os.path.join(cc_drive,dir)
-        dir_full_path=os.path.join(top_dir_path,name)
-        if os.path.isdir(dir_full_path):
-            print("Error: {} exists".format(dir_full_path))
-        else:
-           os.makedirs(dir_full_path)
-           # save the dirpath without the drive label
-           # tmp_path =   dir_full_path[3:]
-           tmp_path = os.path.join(dir, name)  # changed by tao.xu, txu@panzura.com
-           self.SubDirs.append(tmp_path)
+    def create_sub_dirs(self, drive, parent_dir):
+        """Created subdir inside the parent_dir"""
+        sub_dir_name = "SubDir_" + time.strftime("%H%M%S")
+        dir_path=os.path.join(drive, parent_dir, sub_dir_name)
+        utils.mkdir_path(dir_path)
+        tmp_path = os.path.join(parent_dir, sub_dir_name)
+        self.SubDirs.append(tmp_path)
 
-    def rename_dir(self,drive):
-        # "_new" will be appended to new name
-        name = "_new"
-        for dir in self.Dirs:
-            dir_full_path=os.path.join(drive, dir)
-            new_dir_full_path = dir_full_path+name
-            if os.path.isdir(dir_full_path):
-               #try:
-                  os.rename(dir_full_path,new_dir_full_path)
-                  print new_dir_full_path
-                  # save the dirpath without the drive label
-                  tmp_path = dir + name
-                  #tmp_path =   new_dir_full_path[3:]
-                  self.NewDirs.append(tmp_path)
-                  # if the files are already created
-                  tmp_file_path=[]
-                  for dirname, dirnames, filenames in os.walk(new_dir_full_path):
-                      tmp_file_path=filenames
-                      print tmp_file_path
-                  for file in tmp_file_path:
-                      tmp_path = os.path.join(drive,dirname)
-                      new_path = os.path.join(tmp_path,file)
-                      print new_path
-                      self.FilesCreatedBeforeDirRename.append(new_path)
-               #except WindowsError:
-               #   print "Permission or AccessDenied error reported, expected in rename in a multi CC setup"
+    def rename_dir(self, drive, suffix="_new"):
+        """Rename the dir by add suffix"""
+        for the_dir in self.Dirs:
+            dir_path=os.path.join(drive, the_dir)
+            new_dir_path = dir_path + suffix
+            if os.path.isdir(dir_path):
+                print("Rename {0} -> {1}".format(dir_path, new_dir_path))
+                os.rename(dir_path, new_dir_path)
+                self.NewDirs.append(the_dir + suffix)
+
+                # Update the files path under the dir
+                new_files_path=[]
+                dirname = ""
+                for dirname, dirnames, filenames in os.walk(new_dir_path):
+                  new_files_path=filenames
+                # print(new_files_path)
+                for new_file_path in new_files_path:
+                    tmp_path = os.path.join(drive, dirname)
+                    new_path = os.path.join(tmp_path, new_file_path)
+                    # print(new_path)
+                    self.FilesCreatedBeforeDirRename.append(new_path)
             else:
-               print "Error: " + dir_full_path + " does not exist"
+               raise Exception("{0} does not exist".format(dir_path))
 
-    def rename_nested_dirs(self,drive):
-        # "_new" will be appended to new name
-        name = "_new"
-        for dir in self.NestedDirs:
-            dir_full_path=os.path.join(drive, dir)
-            new_dir_full_path = dir_full_path+name
-            if os.path.isdir(dir_full_path):
-               os.rename(dir_full_path,new_dir_full_path)
-               # save the dirpath without the drive label
-               tmp_path = dir + name
-               #print "Deb66" +tmp_path
-               #tmp_path =   new_dir_full_path[3:]
-               self.NewNestedDirs.append(tmp_path)
+    def rename_nested_dirs(self, drive, suffix="_new"):
+        """Rename the nested dir by add suffix"""
+        for nested_dir in self.NestedDirs:
+            dir_path=os.path.join(drive, nested_dir)
+            new_dir_path = dir_path + suffix
+            if os.path.isdir(dir_path):
+                print("Rename {0} -> {1}".format(dir_path, new_dir_path))
+                os.rename(dir_path, new_dir_path)
+                self.NewNestedDirs.append(nested_dir + suffix)
             else:
-               print "Error: " + dir_full_path + " does not exist"
+               raise Exception("{0} does not exist".format(dir_path))
 
-    def rename_subdir(self,drive):
-        # "_new" will be appended to new name
-        name = "_new"
-        for dir in self.SubDirs:
-            dir_full_path=os.path.join(drive, dir)
-            new_dir_full_path = dir_full_path+name
-            if os.path.isdir(dir_full_path):
-               os.rename(dir_full_path,new_dir_full_path)
-               # save the dirpath without the drive label
-               tmp_path = dir + name
-               #tmp_path =   new_dir_full_path[3:]
-               self.NewSubDirs.append(tmp_path)
+    def rename_subdir(self, drive, suffix="_new"):
+        """Rename the nested dir by add suffix"""
+        for sub_dir in self.SubDirs:
+            dir_path=os.path.join(drive, sub_dir)
+            new_dir_path = dir_path + suffix
+            if os.path.isdir(dir_path):
+                print("Rename {0} -> {1}".format(dir_path, new_dir_path))
+                os.rename(dir_path, new_dir_path)
+                self.NewSubDirs.append(sub_dir + suffix)
             else:
-               print "Error: " + dir_full_path + " does not exist"
-
-    def list_dir(self,drive, Dirs, number_dirs):
-        count = 0
-        for dir in Dirs:
-            dir_full_path=os.path.join(drive, dir)
-            if os.path.isdir(dir_full_path):
-               for dirname, dirnames, filenames in os.walk(dir_full_path):
-                   print dirname
-                   count = count + 1
-            else:
-               print "Error: " + dir_full_path + " does not exist"
-        if count == number_dirs:
-           print "PASS: All the directories created exist"
-        else:
-           print "FAIL: All the directories created dont exist"
-
-    def remove_dir(self,drive,Dirs):
-        for dir in Dirs:
-            dir_full_path=os.path.join(drive, dir)
-            if os.path.isdir(dir_full_path):
-               #os.rmdir(dir_full_path)
-               shutil.rmtree(dir_full_path, ignore_errors=True)
-            else:
-               print "Error: " + dir_full_path + " does not exist"
-
-    # returns a byte array of random bytes
-    def randomBytes(self,n):
-        return bytearray(random.getrandbits(8) for i in range(n))
-
-    # returns the md5 checksum of the opened file
-    def md5(self,fname):
-        hash_md5 = hashlib.md5()
-        with open(fname, "rb") as f:
-             for chunk in iter(lambda: f.read(4096), b""):
-                 hash_md5.update(chunk)
-        return hash_md5.hexdigest()
+               raise Exception("{0} does not exist".format(dir_path))
 
 
-    # this will create file_names with .type extension. optional argument *threaded is for creating
-    # names with timestamps if multiple threads are used to create the files.
-    def create_filenames(self,drive,dir,type,number_files,*threaded):
-        for i in range(number_files):
-            new_dir_full_path=os.path.join(drive, dir)
+    def create_filenames(self, parent_dir, f_type, f_num, *threaded):
+        """
+        create file_names with .type extension.
+        arg *threaded is for creating names with timestamps if use multiple threads
+        """
+        for i in range(f_num):
             if threaded:
                name = "file" + "-" + str(threaded[0]) + "-"
             else:
                name = "file" + "-"
-            file_name=name+str(i)+type
-            file_path=os.path.join(new_dir_full_path, file_name)
-            # save the file_path without the drive label
-            #tmp_path =   file_path[3:]
-            tmp_path = dir + "/" + file_name
+            file_name = name + str(i) + f_type
+            tmp_path = os.path.join(parent_dir, file_name)
             self.Files.append(tmp_path)
-            #print "Deb1 " +tmp_path
-            #if there is a dir rename need to save in this list FilesAfterDirRename
-            for dir in self.NewDirs:
-                new_dir_full_path=os.path.join(drive, dir)
-                name = "file" + "-"
-                file_name=name+str(i)+type
-                file_path=os.path.join(new_dir_full_path, file_name)
-                # save the file_path without the drive label
-                #tmp_path1 =   file_path[3:]
-                tmp_path1 = dir + "/" + file_name
-                self.FilesAfterDirRename.append(tmp_path1)
-            #if Subdir exists
-            for dir in self.SubDirs:
-                new_dir_full_path=os.path.join(drive, dir)
-                name = "file" + "-"
-                file_name=name+str(i)+type
-                file_path=os.path.join(new_dir_full_path, file_name)
-                # save the file_path without the drive label
-                #tmp_path1 =   file_path[3:]
-                tmp_path1 = dir + "/" + file_name
-                self.FilesInSubDir.append(tmp_path1)
-            #if NestedDir exists
-            for dir in self.NestedDirs:
-                new_dir_full_path=os.path.join(drive, dir)
-                name = "file" + "-"
-                file_name=name+str(i)+type
-                file_path=os.path.join(new_dir_full_path, file_name)
-                # save the file_path without the drive label
-                #tmp_path1 =   file_path[3:]
-                tmp_path1 = dir + "/" + file_name
-                self.FilesInNestedDir.append(tmp_path1)
-            #if NewNestedDir exists
-            for dir in self.NewNestedDirs:
-                new_dir_full_path=os.path.join(drive, dir)
-                name = "file" + "-"
-                file_name=name+str(i)+type
-                file_path=os.path.join(new_dir_full_path, file_name)
-                # save the file_path without the drive label
-                #tmp_path1 =   file_path[3:]
-                tmp_path1 = dir + "/" + file_name
-                self.FilesInNewNestedDir.append(tmp_path1)
 
-    def create_file_and_calculate_csm(self,drive,bytes,*threaded):
+            # if there is a dir rename need to save in this list FilesAfterDirRename
+            for new_dir in self.NewDirs:
+                tmp_path = os.path.join(new_dir, file_name)
+                self.FilesAfterDirRename.append(tmp_path)
+            # if Subdir exists
+            for sub_dir in self.SubDirs:
+                tmp_path = os.path.join(sub_dir, file_name)
+                self.FilesInSubDir.append(tmp_path)
+            # if NestedDir exists
+            for nested_dir in self.NestedDirs:
+                tmp_path = os.path.join(nested_dir, file_name)
+                self.FilesInNestedDir.append(tmp_path)
+            # if NewNestedDir exists
+            for new_nested_dir in self.NewNestedDirs:
+                tmp_path = os.path.join(new_nested_dir, file_name)
+                self.FilesInNewNestedDir.append(tmp_path)
+
+    def create_files(self, drive, f_size, *threaded):
+        """Create files"""
         for file in self.Files:
             try:
                if threaded:
                   if str(threaded[0]) in file:
-                     file_full_path=os.path.join(drive, file)
-                     fl = open(file_full_path,'w')
-                     rand_bytes = self.randomBytes(bytes)
+                     file_path=os.path.join(drive, file)
+                     fl = open(file_path,'w')
+                     rand_bytes = self.random_bytes(f_size)
                      fl.write(str(rand_bytes))
                      fl.close()
-                     md5checksum = self.md5(file_full_path)
-                     self.Md5Csum [file_full_path] = md5checksum
+                     md5checksum = self.md5(file_path)
+                     self.Md5Csum [file_path] = md5checksum
                else:
-                  file_full_path=os.path.join(drive, file)
-                  fl = open(file_full_path,'w')
-                  rand_bytes = self.randomBytes(bytes)
+                  file_path=os.path.join(drive, file)
+                  fl = open(file_path,'w')
+                  rand_bytes = self.random_bytes(f_size)
                   fl.write(str(rand_bytes))
                   fl.close()
-                  md5checksum = self.md5(file_full_path)
-                  self.Md5Csum [file_full_path] = md5checksum
-                  print " Filename is " + file_full_path + " and md5_checksum is " + md5checksum
+                  md5checksum = self.md5(file_path)
+                  self.Md5Csum [file_path] = md5checksum
+                  print " Filename is " + file_path + " and md5_checksum is " + md5checksum
             except Exception as e:
                  print "Error creating file " +str(e)
                  print(time.strftime('%Y-%m-%d %H:%M:%S',time.localtime(time.time())))
                  sys.exit(0)
         for file in self.FilesAfterDirRename:
             try:
-                 file_full_path=os.path.join(drive, file)
-                 fl = open(file_full_path,'w')
+                 file_path=os.path.join(drive, file)
+                 fl = open(file_path,'w')
                  rand_bytes = self.randomBytes(bytes)
                  fl.write(str(rand_bytes))
                  fl.close()
-                 md5checksum = self.md5(file_full_path)
-                 self.Md5Csum [file_full_path] = md5checksum
-                 print " Filename is " + file_full_path + " and md5_checksum is " + md5checksum
+                 md5checksum = self.md5(file_path)
+                 self.Md5Csum [file_path] = md5checksum
+                 print " Filename is " + file_path + " and md5_checksum is " + md5checksum
             except Exception as e:
                  print "Error creating file " +str(e)
                  print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
                  sys.exit(0)
-
 
     def create_large_size_file_names(self,drive,dir,type,number_files):
         for i in range(number_files):
@@ -427,19 +538,6 @@ class FileOps(object):
                 tmp_path1 =   file_path[3:]
                 self.FilesAfterDirRename.append(tmp_path1)
 
-    def create_large_size_file(self,drive,bytes):
-        for file in self.Files:
-            try:
-               file_full_path=os.path.join(drive, file)
-               with open(file_full_path, "wb") as out:
-                    out.truncate(bytes)
-               md5checksum = self.md5(file_full_path)
-               self.Md5Csum [file_full_path] = md5checksum
-               print " Filename is " + file_full_path + " and md5_checksum is " + md5checksum
-            except Exception as e:
-               print "Error creating file " +str(e)
-               print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-               sys.exit(0)
 
     def modify_files(self,drive,file,bytes):
            #if there is a dir rename need to save in this list FilesAfterDirRename
@@ -521,31 +619,6 @@ class FileOps(object):
         except Exception as e:
            print "Error setting acls to dir {}".format(dir_path)
            print str(e)
-           print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-           sys.exit(0)
-
-    def rename_files(self,drive,file):
-        try:
-           file_full_path=os.path.join(drive, file)
-           file_name_parts = file.split(".") #split actual filename and extension
-           new_full_path=os.path.join(drive, file_name_parts[0]) + "_new." + file_name_parts[1] #constructing the new name
-           os.rename(file_full_path,new_full_path)
-           # save the file_path without the drive label
-           tmp_path =   new_full_path[3:]
-           self.NewFiles.append(tmp_path)
-        except Exception as e:
-           print "Error renaming the file {}".format(file)
-           print str(e)
-           print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
-           sys.exit(0)
-
-    def delete_files(self,drive,file):
-        try:
-           file_full_path=os.path.join(drive, file)
-           os.remove(file_full_path)
-        except Exception as e:
-           print("Error deleting the file " + file_full_path)
-           print(str(e))
            print(time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(time.time())))
            sys.exit(0)
 

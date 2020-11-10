@@ -8,7 +8,7 @@
 """
 
 from .file_ops import *
-__all__ = ['Consistency']
+__all__ = ['Consistency', 'FileOps']
 
 """FileOps contain the various methods for various file operations"""
 

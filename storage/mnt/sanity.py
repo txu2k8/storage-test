@@ -101,13 +101,9 @@ class SanityTC(CustomTestCase):
     def test_consistency(self):
         """Test the file consistency"""
         from pkgs.fileops import Consistency
-        cst = Consistency()
+        cst = Consistency(self.test_path)
         logger.info(cst.__doc__)
-        local_path = '/tmp/consistency'
-        test_path = os.path.join(self.test_path, 'consistency')
-        self.assertTrue(cst.create(local_path, 500, 1))
-        self.assertTrue(cst.create(test_path, 500, 1))
-        self.assertTrue(cst.compare(local_path, test_path, 500))
+        self.assertTrue(cst.sanity())
 
 
 if __name__ == '__main__':

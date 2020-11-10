@@ -122,15 +122,9 @@ class StressTC(CustomTestCase):
     def test_consistency(self):
         """Test the file consistency"""
         from pkgs.fileops import Consistency
-        cst = Consistency()
+        cst = Consistency(self.test_path)
         logger.info(cst.__doc__)
-        local_path = '/tmp/consistency'
-        self.assertTrue(cst.create(local_path, 1000, 1))
-        test_top_path = os.path.join(self.test_path, 'consistency')
-        for x in range(0, 100):
-            test_path = os.path.join(test_top_path, 'dir{0}'.format(x))
-            self.assertTrue(cst.create(test_path, 1000, 1))
-            self.assertTrue(cst.compare(local_path, test_path, 1000))
+        self.assertTrue(cst.stress())
 
 
 if __name__ == '__main__':
