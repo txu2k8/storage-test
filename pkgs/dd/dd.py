@@ -27,7 +27,7 @@ class DD(object):
     """run IO with dd
     Copy a file, converting and formatting according to the operands.
     """
-    def __init__(self, targets):
+    def __init__(self, targets=""):
         super(DD, self).__init__()
         self.target_dirs = targets if isinstance(targets, list) else [targets]
         self.run_cmd = utils.run_cmd

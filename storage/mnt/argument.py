@@ -11,7 +11,7 @@ import os
 import argparse
 import unittest
 
-from storage.argument import case_dict_2_string, test_path_parser
+from storage.argument import case_dict_2_string, mnt_path_parser
 
 all_tcs_info = {
     # LTP
@@ -48,7 +48,7 @@ def tc_sanity(action):
         help='storage->mnt sanity test',
         epilog='Test Case List:\n{0}'.format(case_desc),
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        parents=[test_path_parser()]
+        parents=[mnt_path_parser()]
     )
     parser.add_argument("--case", action="store", dest="case_list",
                         default=['all'], nargs='+',
@@ -68,7 +68,7 @@ def tc_stress(action):
         help='storage->mnt stress test',
         epilog='Test Case List:\n{0}'.format(case_desc),
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        parents=[test_path_parser()]
+        parents=[mnt_path_parser()]
     )
     parser.add_argument("--case", action="store", dest="case_list",
                         default=['all'], nargs='+',
@@ -98,7 +98,7 @@ def tc_load(action):
         epilog='Test Case List:\n{0}'.format(case_desc),
         formatter_class=argparse.RawDescriptionHelpFormatter,
         parents=[
-            test_path_parser(),
+            mnt_path_parser(),
             dir_number_parser(),
             file_number_parser(),
             file_size_range_parser(),

@@ -30,7 +30,7 @@ def runner(default='StressRunner'):
     return arg_parser
 
 
-def test_path_parser():
+def mnt_path_parser():
     arg_parser = argparse.ArgumentParser(add_help=False)
     arg_parser.add_argument(
         "--test_path", "-d",
@@ -66,6 +66,7 @@ def file_number_parser():
     )
     return arg_parser
 
+
 def dir_number_parser():
     arg_parser = argparse.ArgumentParser(add_help=False)
     arg_parser.add_argument(
@@ -73,6 +74,51 @@ def dir_number_parser():
         default=1, help="Sub dir number,default:1"
     )
     return arg_parser
+
+
+# raw
+class RawSanityParser(object):
+    """ raw sanity related parser"""
+
+    @property
+    def device_path(self):
+        arg_parser = argparse.ArgumentParser(add_help=False)
+        arg_parser.add_argument(
+            "--device", "-d",
+            required=True, action="store", dest="device",
+            default=None, help="A full raw device path for test,default:None"
+        )
+        return arg_parser
+
+    @property
+    def case_ids(self):
+        arg_parser = argparse.ArgumentParser(add_help=False)
+        arg_parser.add_argument(
+            "--case_ids", action="store", dest="case_id_list",
+            default=[], nargs='+', help="Filter: case_id list, default:[]")
+        return arg_parser
+
+    @property
+    def case_priority(self):
+        arg_parser = argparse.ArgumentParser(add_help=False)
+        arg_parser.add_argument(
+            "--case_priority", action="store", dest="case_priority_list",
+            default=[], nargs='+', help="Filter: case_priority list, default:[]")
+        return arg_parser
+
+    @property
+    def base(self):
+        """RAW sanity test base info args"""
+
+        arg_parser = argparse.ArgumentParser(
+            parents=[
+                self.device_path,
+                self.case_ids,
+                self.case_priority,
+            ],
+            add_help=False
+        )
+        return arg_parser
 
 
 if __name__ == '__main__':

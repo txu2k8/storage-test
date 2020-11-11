@@ -11,74 +11,66 @@ import os
 import argparse
 import unittest
 
-from storage.argument import case_dict_2_string, test_path_parser
+from storage.argument import case_dict_2_string, RawSanityParser
 
 
 def tc_sanity(action):
     case_info_dict = {
-        '01_consistency': 'test the file consistency',
-        '02_fsstress': 'filesystem stress with LTP tool fsstress',
+        'ut': 'RAW device write/read unit test',
     }
 
     case_desc = case_dict_2_string(case_info_dict, 25)
-
+    raw_parser = RawSanityParser()
     parser = action.add_parser(
         'sanity',
-        help='storage->mnt sanity test',
+        help='storage->raw sanity test',
         epilog='Test Case List:\n{0}'.format(case_desc),
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        parents=[test_path_parser()]
+        parents=[raw_parser.base]
     )
     parser.add_argument("--case", action="store", dest="case_list",
                         default=['all'], nargs='+',
                         choices=case_info_dict.keys(),
                         help="default:['all]")
-    parser.set_defaults(func=test_suite_generator, suite='mnt.sanity')
+    parser.set_defaults(func=test_suite_generator, suite='sanity')
 
 
 # --- Test suite
 def test_suite_generator(args):
     cur_dir = os.path.dirname(os.path.abspath(__file__))
-    if args.suite == 'mnt.sanity':
-        test_py = os.path.join(cur_dir, 'stress.py')
-        from storage.mnt.stress import SanityTC as MntTestCase
-    elif args.suite == 'mnt.stress':
-        test_py = os.path.join(cur_dir, 'stress.py')
-        from storage.mnt.stress import StressTC as MntTestCase
-    elif args.suite == 'mnt.load':
-        test_py = os.path.join(cur_dir, 'stress.py')
-        from storage.mnt.stress import LoadGenTC as MntTestCase
+    if args.suite == 'sanity':
+        test_py = os.path.join(cur_dir, 'sanity.py.py')
+        from storage.raw.sanity import SanityTC as RawTestCase
     else:
-        test_py = os.path.join(cur_dir, 'stress.py')
-        from storage.mnt.stress import SanityTC as MntTestCase
+        raise Exception("Unknown sub parser suite")
 
     if 'all' in args.case_list:
         # Load all test cases
-        test_suite = unittest.TestLoader().loadTestsFromTestCase(MntTestCase)
+        test_suite = unittest.TestLoader().loadTestsFromTestCase(RawTestCase)
     else:
         case_name_list = []
         for case in args.case_list:
             case_name = "test_" + case
             case_name_list.append(case_name)
         # Load the spec test cases
-        test_suite = unittest.TestSuite(map(MntTestCase, case_name_list))
+        test_suite = unittest.TestSuite(map(RawTestCase, case_name_list))
 
     return test_suite, test_py
 
 
 def add_raw_subparsers(action):
     """
-    add subparsers for storage -> mnt
+    add subparsers for storage -> raw
     :param action:
     :return:
     """
 
     # raw
-    mnt_parser = action.add_parser('raw', help='storage test: raw ')
-    mnt_parser.set_defaults(project='raw')
-    mnt_action = mnt_parser.add_subparsers(help='storage test on a raw device')
+    raw_parser = action.add_parser('raw', help='storage test: raw')
+    raw_parser.set_defaults(project='raw')
+    raw_action = raw_parser.add_subparsers(help='storage test on a raw device')
 
-    tc_sanity(mnt_action)
+    tc_sanity(raw_action)
 
 
 if __name__ == '__main__':

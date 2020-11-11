@@ -26,3 +26,6 @@ twine==3.2.0
 urllib3==1.25.11
 wcwidth==0.2.5
 webencodings==0.5.1
+
+xlrd~=1.2.0
+setuptools~=50.3.2
