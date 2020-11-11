@@ -41,7 +41,7 @@ def __run_phase(f, skip=False, comments=''):
     """
 
     phase_name = f.func.__name__
-    comments = str(comments or '')
+    comments = str(comments or '') or f.func.__doc__
 
     try:
         phase_list = f.test_args[0].phase_list

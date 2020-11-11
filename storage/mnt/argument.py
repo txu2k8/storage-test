@@ -29,15 +29,17 @@ all_tcs_info = {
     'filebench': 'File System Workload test',
     'fio': 'Flexible I/O tester',
     'fstest': 'Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink',
+    'postmark': 'Mail server workload',
 
-    # private, write with python: file_op.py
+    # private, write with python: pkgs/fileops
     'consistency': 'POSIX/WINDOWS: Test the file consistency',
+    'fileops': 'POSIX/WINDOWS: Test the various file operations on local File System mount path',
 }
 
 
 def tc_sanity(action):
     sanity_tcs = ['acl', 'doio', 'fs_di', 'locktests', 'readall', 'stream',  # LTP
-                  'fio', 'fstest', 'consistency']
+                  'fio', 'fstest', 'postmark', 'consistency', 'fileops']
     case_info_dict = dict((k, v) for k, v in all_tcs_info.items() if k in sanity_tcs)
     case_desc = case_dict_2_string(case_info_dict, 25)
 
@@ -57,7 +59,7 @@ def tc_sanity(action):
 
 def tc_stress(action):
     stress_tcs = ['acl', 'create_files', 'doio', 'fs_di', 'fsstress', 'locktests', 'readall', 'stream',  # LTP
-                  'filebench', 'fio', 'fstest', 'consistency', ]
+                  'filebench', 'fio', 'fstest', 'postmark', 'consistency', 'fileops']
     case_info_dict = dict((k, v) for k, v in all_tcs_info.items() if k in stress_tcs)
     case_desc = case_dict_2_string(case_info_dict, 25)
 
@@ -78,11 +80,14 @@ def tc_stress(action):
 def tc_load(action):
     from storage.argument import dir_number_parser, file_number_parser, file_size_range_parser
     case_info_dict = {
-        'create_files': 'Creates files of specified size.(default:1dir*1file*1MB)',
-        'small_files': 'Generate small files.(default:1dir*1file*1KB)',
-        'empty_files': 'Generate empty files.(default:1dir*1file*0KB)',
-        'seq_files': 'Generate sequential files of specified size by fio',
-        'fsstress': 'Generate files by LTP fsstress(deep path/files)',
+        # Private
+        'empty_files': 'POSIX/WINDOWS: Generate empty files.(default:1dir*1file*0KB)',
+        'small_files': 'POSIX/WINDOWS: Generate small files.(default:1dir*1file*1KB)',
+        'large_files': 'POSIX/WINDOWS: Generate large files.(default:1dir*1file*1KB)',
+        # POSIX
+        'create_files': 'POSIX: Creates files of specified size.(default:1dir*1file*1MB)',
+        'seq_files': 'POSIX: Generate sequential files of specified size by fio',
+        'fsstress': 'POSIX: Generate files by LTP fsstress(deep path/files)',
     }
 
     case_desc = case_dict_2_string(case_info_dict, 25)

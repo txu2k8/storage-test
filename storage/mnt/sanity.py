@@ -97,6 +97,13 @@ class SanityTC(CustomTestCase):
         logger.info(fs_test.__doc__)
         self.assertTrue(fs_test.sanity())
 
+    def test_postmark(self):
+        """Mail server workload"""
+        from pkgs.postmark import PostMark
+        pm = PostMark(self.test_path)
+        logger.info(pm.__doc__)
+        self.assertTrue(pm.sanity())
+
     # ==== Private ====
     def test_consistency(self):
         """Test the file consistency"""
@@ -104,6 +111,13 @@ class SanityTC(CustomTestCase):
         cst = Consistency(self.test_path)
         logger.info(cst.__doc__)
         self.assertTrue(cst.sanity())
+
+    def test_fileops(self):
+        """Test the various of file operations"""
+        from pkgs.fileops import LocalFileOps
+        fops = LocalFileOps(self.test_path)
+        logger.info(fops.__doc__)
+        self.assertTrue(fops.sanity())
 
 
 if __name__ == '__main__':

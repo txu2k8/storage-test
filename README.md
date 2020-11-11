@@ -1,5 +1,9 @@
-# storage-test
-Storage Test tools/scripts
+# Storage Test
+Various methods/tools/scripts for storage test.
+Types:
+- raw
+- mnt (mount point)
+- cloud
 
 # Usage
 ```commandline

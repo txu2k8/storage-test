@@ -118,6 +118,13 @@ class StressTC(CustomTestCase):
         logger.info(fs_test.__doc__)
         self.assertTrue(fs_test.stress())
 
+    def test_postmark(self):
+        """Mail server workload"""
+        from pkgs.postmark import PostMark
+        pm = PostMark(self.test_path)
+        logger.info(pm.__doc__)
+        self.assertTrue(pm.stress())
+
     # ==== Private ====
     def test_consistency(self):
         """Test the file consistency"""
@@ -125,6 +132,13 @@ class StressTC(CustomTestCase):
         cst = Consistency(self.test_path)
         logger.info(cst.__doc__)
         self.assertTrue(cst.stress())
+
+    def test_fileops(self):
+        """Test the various of file operations"""
+        from pkgs.fileops import LocalFileOps
+        fops = LocalFileOps(self.test_path)
+        logger.info(fops.__doc__)
+        self.assertTrue(fops.stress())
 
 
 if __name__ == '__main__':
