@@ -33,7 +33,6 @@ class FSMark(PkgBase):
         super(FSMark, self).__init__(top_path)
         self.test_path = os.path.join(top_path, "fs_mark")
 
-    @staticmethod
     def tests_generator(self, *args, **kwargs):
         """
         Return fs_mark test case list FYI:
