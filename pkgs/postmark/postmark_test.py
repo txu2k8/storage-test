@@ -36,7 +36,7 @@ class PostMark(object):
         if not os.path.isdir(self.top_path):
             raise NoSuchDir(self.top_path)
 
-    def run(self, test_path, test_profile=None):
+    def run(self, test_path, test_profile):
         """
         Run postmark command
         Args:
@@ -47,9 +47,11 @@ class PostMark(object):
             True or raise Exception
         """
         logger.info(self.run.__doc__)
+        if not os.path.exists(test_profile):
+            raise Exception("{} not exist".format(test_profile))
+        utils.mkdir_path(test_path)
         postmark_bin = os.path.join(cur_dir, 'bin/postmark')
         test_log = os.path.join(self.top_path, 'postmark.log')
-        test_profile = test_profile or ""
 
         pm_cmd = 'cd {0}; {1} {2} | tee -a {3}'.format(test_path, postmark_bin, test_profile, test_log)
 
@@ -73,8 +75,8 @@ class PostMark(object):
         """
         self.verify()
         test_path = os.path.join(self.top_path, "postmark")
-        utils.mkdir_path(test_path)
-        return self.run(test_path, "")
+        test_profile = os.path.join(cur_dir, 'test_profiles/sanity.pmrc')
+        return self.run(test_path, test_profile)
 
     def stress(self):
         """
@@ -82,7 +84,6 @@ class PostMark(object):
         """
         self.verify()
         test_path = os.path.join(self.top_path, "postmark")
-        utils.mkdir_path(test_path)
         test_profile = os.path.join(cur_dir, 'test_profiles/stress.pmrc')
         return self.run(test_path, test_profile)
 
@@ -102,7 +103,6 @@ class PostMark(object):
         logger.info(self.benchmark.__doc__)
         self.verify()
         test_path = os.path.join(self.top_path, "postmark")
-        utils.mkdir_path(test_path)
         test_profile = os.path.join(cur_dir, 'test_profiles/benchmark.pmrc')
         return self.run(test_path, test_profile)
 
