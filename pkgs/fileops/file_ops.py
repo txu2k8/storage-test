@@ -567,11 +567,11 @@ class LocalFileOps(FileOps):
             # Rename files
             self.test_rename_files()
 
+            # Delete some of files
+            self.test_delete_files()
+
             # Rename dirs
             self.test_rename_dirs()
-
-            # Delete files
-            self.test_delete_files()
 
             # rmtree dir_path
             self.test_remove_dirs()
