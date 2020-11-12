@@ -268,6 +268,7 @@ class FileOps(object):
 
     @staticmethod
     def rename_file(file_path, suffix="_new"):
+        """return new_file_path"""
         try:
             file_name = os.path.basename(file_path)
             file_dirname = os.path.dirname(file_path)
@@ -275,7 +276,7 @@ class FileOps(object):
             new_file_name = "{0}{1}.{2}".format(file_name_split[0], suffix, file_name_split[1])
             new_file_path = os.path.join(file_dirname, new_file_name)
             os.rename(file_path, new_file_path)
-            return new_file_name
+            return new_file_path
         except Exception as e:
             logger.error("Error renaming the file {}".format(file_path))
             raise e
@@ -423,6 +424,20 @@ class LocalFileOps(FileOps):
             yield file_name
 
     @enter_phase()
+    def test_check_files_md5(self):
+        """Check files md5 match in dict Md5Csum"""
+        table_err = PrettyTable(['File', 'Expected', 'Actual'])
+        for file_path, expected_md5 in self.Md5Csum.items():
+            actual_md5 = self.hash_md5(file_path)
+            if actual_md5 != expected_md5:
+                table_err.add_row([file_path, expected_md5, actual_md5])
+                continue
+        if len(table_err._rows) > 0:
+            logger.error("Md5sum Check:\n".format(table_err))
+            raise Exception("FAILED: File md5 NOT matched!")
+        return True
+
+    @enter_phase()
     def test_create_dirs(self, test_path, dirs_num):
         """Create dirs"""
         self.Dirs = self.create_dirs(test_path, dirs_num)
@@ -478,20 +493,9 @@ class LocalFileOps(FileOps):
     def test_modify_files(self):
         """Modify files by write a+"""
         logger.info("Modify files by write a+(extend size:1k)")
-        table_err = PrettyTable(['File', 'Expected', 'Actual'])
         for file_path in self.Files:
-            actual_md5 = self.hash_md5(file_path)
-            expected_md5 = self.Md5Csum[file_path]
-            if actual_md5 != expected_md5:
-                table_err.add_row([file_path, expected_md5, actual_md5])
-                continue
-            if len(table_err._rows) == 0:
-                # if md5 not match, just check left
-                md5 = self.create_file(file_path, "1K", 128, 'a+')
-                self.Md5Csum[file_path] = md5
-        if len(table_err._rows) > 0:
-            logger.error("Md5sum Check:\n".format(table_err))
-            raise Exception("Check md5sum before modify: File md5 NOT matched!")
+            md5 = self.create_file(file_path, "1K", 128, 'a+')
+            self.Md5Csum[file_path] = md5
         return True
 
     @enter_phase()
@@ -500,23 +504,19 @@ class LocalFileOps(FileOps):
         logger.info("Rename files with suffix: _new")
         renamed_files = []
         renamed_md5csum = {}
-        table_err = PrettyTable(['File', 'Expected', 'Actual'])
         for file_path in self.Files:
-            actual_md5 = self.hash_md5(file_path)
-            expected_md5 = self.Md5Csum[file_path]
-            if actual_md5 != expected_md5:
-                table_err.add_row([file_path, expected_md5, actual_md5])
-                continue
-            if len(table_err._rows) == 0:
-                # if md5 not match, just check left
-                md5 = self.rename_file(file_path, suffix="_new")
-                renamed_md5csum[file_path] = md5
-                renamed_files.append(file_path)
-        if len(table_err._rows) > 0:
-            logger.error("Md5sum Check:\n".format(table_err))
-            raise Exception("Check md5sum before rename: File md5 NOT matched!")
+            new_file_path = self.rename_file(file_path, suffix="_new")
+            renamed_md5csum[new_file_path] = self.Md5Csum[file_path]
+            renamed_files.append(new_file_path)
         self.Files = renamed_files
         self.Md5Csum = renamed_md5csum
+        return True
+
+    @enter_phase()
+    def test_delete_files(self):
+        """Delete some of files(The latest 5 files)"""
+        for file_path in self.Files[-5:]:
+            self.delete_files(file_path)
         return True
 
     @enter_phase()
@@ -525,13 +525,6 @@ class LocalFileOps(FileOps):
         self.NestedDirs = self.rename_dirs(self.NestedDirs, suffix="_new")
         self.SubDirs = self.rename_dirs(self.SubDirs, suffix="_new")
         self.Dirs = self.rename_dirs(self.Dirs, suffix="_new")
-        return True
-
-    @enter_phase()
-    def test_delete_files(self):
-        """Delete some of files(The latest 5 files)"""
-        for file_path in self.Files[-5:]:
-            self.delete_files(file_path)
         return True
 
     @enter_phase()
@@ -555,6 +548,7 @@ class LocalFileOps(FileOps):
 
             # Create files
             self.test_create_files(files_num, file_size)
+
             # Create large files
             self.test_create_large_files(random.randint(1, 3), "100M")
 
@@ -562,10 +556,13 @@ class LocalFileOps(FileOps):
             self.test_list_dirs()
 
             # Modify files
+            self.test_check_files_md5()
             self.test_modify_files()
 
             # Rename files
+            self.test_check_files_md5()
             self.test_rename_files()
+            self.test_check_files_md5()
 
             # Delete some of files
             self.test_delete_files()
