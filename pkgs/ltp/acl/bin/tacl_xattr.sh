@@ -129,6 +129,7 @@ do
       printf "\t to execute this script\n"
       exit 1
     fi
+    printf "\nSUCCESS: losetup [ $LOOP_DEV ]\n"
     break
   elif [ $loopN -ge 10 ]
   then
@@ -140,18 +141,6 @@ done
 mount | grep loop | grep tacl | grep mount-ext
 if [ $? != 0 ]
 then
-	mkfs -t ext4 $LOOP_DEV
-	mkdir  -m 777 tacl/mount-ext
-	mount -t ext4 -o defaults,acl,user_xattr $LOOP_DEV tacl/mount-ext
-	if [ $? != 0 ]
-	then
-		printf "\nFAILED:  [ mount ] Make sure that ACL (Access Control List)\n"
-		printf "\t and Extended Attribute are built into the kernel\n"
-		printf "\t Can not mount file system with acl and user_xattr options\n"
-		exit 1
-	fi
-
-else
 	mkfs -t $FS_TYPE $LOOP_DEV
 	mkdir  -m 777 tacl/mount-ext
 	mount -t $FS_TYPE -o defaults,acl,user_xattr $LOOP_DEV tacl/mount-ext
@@ -162,6 +151,11 @@ else
 		printf "\t Can not mount file system with acl and user_xattr options\n"
 		exit 1
 	fi
+	printf "\nSUCCESS: mkfs/mount $LOOP_DEV with $FS_TYPE\n"
+else
+  echo "FAILED: mount point already exist"
+  echo "mount | grep loop | grep tacl | grep mount-ext"
+	exit 1
 fi
 
 chmod 777 tacl/mount-ext
