@@ -585,12 +585,12 @@ class LocalFileOps(FileOps):
     def sanity(self):
         self.verify()
         test_path = os.path.join(self.top_path, "LocalFileOps")
-        return self.run(test_path, 5, 10, 10, "1k")
+        return self.run(test_path, 3, 10, 10, "1k")
 
     def stress(self):
         self.verify()
         test_path = os.path.join(self.top_path, "LocalFileOps")
-        return self.run(test_path, 100, 10, 1000, "4k")
+        return self.run(test_path, 10, 10, 100, "4k")
 
 
 class GlobalMetaFileOps(FileOps):
