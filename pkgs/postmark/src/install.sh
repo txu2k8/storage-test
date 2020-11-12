@@ -1,5 +1,6 @@
 #!/bin/sh
 
+wget http://archive.debian.org/debian/pool/main/p/postmark/postmark_1.51.orig.tar.gz
 tar -zxvf postmark_1.51.orig.tar.gz
 cd postmark-1.51/
 cc -O3 $CFLAGS postmark-1.51.c -o postmark

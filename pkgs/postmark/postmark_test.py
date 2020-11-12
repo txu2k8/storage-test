@@ -9,7 +9,6 @@
 
 import os
 import unittest
-from concurrent.futures import ThreadPoolExecutor
 
 from libs import utils
 from libs.log import log
@@ -31,6 +30,7 @@ class PostMark(object):
         self.top_path = top_path
 
     def verify(self):
+        """Verify test env ready"""
         if os.name != "posix":
             raise PlatformError("PostMark just support for linux machine!")
         if not os.path.isdir(self.top_path):

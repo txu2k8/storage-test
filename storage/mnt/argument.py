@@ -77,6 +77,25 @@ def tc_stress(action):
     parser.set_defaults(func=test_suite_generator, suite='stress')
 
 
+def tc_benchmark(action):
+    sanity_tcs = ['fio', 'postmark', 'consistency']
+    case_info_dict = dict((k, v) for k, v in all_tcs_info.items() if k in sanity_tcs)
+    case_desc = case_dict_2_string(case_info_dict, 25)
+
+    parser = action.add_parser(
+        'benchmark',
+        help='storage->mnt benchmark test',
+        epilog='Test Case List:\n{0}'.format(case_desc),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        parents=[mnt_path_parser()]
+    )
+    parser.add_argument("--case", action="store", dest="case_list",
+                        default=['all'], nargs='+',
+                        choices=case_info_dict.keys(),
+                        help="default:['all]")
+    parser.set_defaults(func=test_suite_generator, loops=1, suite='benchmark')
+
+
 def tc_load(action):
     from storage.argument import dir_number_parser, file_number_parser, file_size_range_parser
     case_info_dict = {
@@ -120,6 +139,9 @@ def test_suite_generator(args):
     elif args.suite == 'stress':
         test_py = os.path.join(cur_dir, 'stress.py')
         from storage.mnt.stress import StressTC as MntTestCase
+    elif args.suite == 'benchmark':
+        test_py = os.path.join(cur_dir, 'benchmark.py')
+        from storage.mnt.benchmark import BenchMarkTC as MntTestCase
     elif args.suite == 'load':
         test_py = os.path.join(cur_dir, 'loadgen.py')
         from storage.mnt.loadgen import LoadGenTC as MntTestCase
@@ -154,6 +176,7 @@ def add_mnt_subparsers(action):
 
     tc_sanity(mnt_action)
     tc_stress(mnt_action)
+    tc_benchmark(mnt_action)
     tc_load(mnt_action)
 
 

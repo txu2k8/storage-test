@@ -13,9 +13,9 @@ __all__ = ['PostMark']
 """
 PostMark
 ==============
-http://openbenchmarking.org/test/pts/postmark  (pts/postmark-1.1.2)
-http://archive.debian.org/debian/pool/main/p/postmark/postmark_1.51.orig.tar.gz
-https://mirrors.mediatemple.net/debian-archive/debian/pool/main/p/postmark/postmark_1.51.orig.tar.gz
+http://openbenchmarking.org/test/pts/postmark
+pts/postmark-1.1.2
+postmark_1.51
 
 Mail server workload
 Postmark主要用于测试文件系统在邮件系统或电子商务系统中性能，这类应用的特点是：需要频繁、大量地存取小文件
