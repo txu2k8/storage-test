@@ -58,8 +58,12 @@ class PkgBase(object):
     def tests_generator(self, *args, **kwargs):
         """Return TestProfile list"""
         print(self.test_path)
-        tests = [TestProfile(name="test1", desc="test1 desc", command="pwd")]
+        tests = [TestProfile(name="Not Defined", desc="test desc", command="pwd")]
         return tests
+
+    def test_generator(self, *args, **kwargs):
+        print(self.test_path)
+        return TestProfile(name="Not Defined", desc="test desc", command="pwd")
 
     def run(self, test):
         test_name = test.name
@@ -72,7 +76,7 @@ class PkgBase(object):
 
         try:
             os.system('chmod +x {0}*'.format(bin_path))
-            rc, output = utils.run_cmd(test_cmd)
+            rc, output = utils.run_cmd(test_cmd, timeout=72000)
             logger.info(output)
             if fail_flag and fail_flag in output:
                 raise Exception("FAIL: Run {0} on {1}".format(test_name, test_path))
