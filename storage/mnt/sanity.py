@@ -98,7 +98,7 @@ class SanityTC(CustomTestCase):
         self.assertTrue(fs_test.sanity())
 
     def test_postmark(self):
-        """Mail server workload"""
+        """Simulate small-file testing similar to the tasks endured by web and mail servers"""
         from pkgs.postmark import PostMark
         pm = PostMark(self.test_path)
         logger.info(pm.__doc__)

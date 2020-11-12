@@ -11,9 +11,13 @@ from .postmark_test import *
 __all__ = ['PostMark']
 
 """
-PostMark: Mail server workload
-http://openbenchmarking.org/test/pts/postmark
+PostMark
 ==============
+http://openbenchmarking.org/test/pts/postmark  (pts/postmark-1.1.2)
+http://archive.debian.org/debian/pool/main/p/postmark/postmark_1.51.orig.tar.gz
+https://mirrors.mediatemple.net/debian-archive/debian/pool/main/p/postmark/postmark_1.51.orig.tar.gz
+
+Mail server workload
 Postmark主要用于测试文件系统在邮件系统或电子商务系统中性能，这类应用的特点是：需要频繁、大量地存取小文件
 原理：构建一个测试文件池，通过文件最大，最小大小，数量等参数进行配置，然后进行事务的初始化，
 对每一个事务中读取/附加,创建/删除等所占的比例进行设置来模拟真是应用场景，事务操作完成后，

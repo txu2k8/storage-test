@@ -29,7 +29,7 @@ all_tcs_info = {
     'filebench': 'File System Workload test',
     'fio': 'Flexible I/O tester',
     'fstest': 'Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink',
-    'postmark': 'Mail server workload',
+    'postmark': 'Simulate small-file testing similar to the tasks endured by web and mail servers',
 
     # private, write with python: pkgs/fileops
     'consistency': 'POSIX/WINDOWS: Test the file consistency',
