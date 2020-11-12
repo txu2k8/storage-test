@@ -47,7 +47,7 @@ class BenchMarkTC(CustomTestCase):
         logger.info(acl.__doc__)
         self.assertTrue(acl.sanity())
 
-    # ==== Tools ====
+    # ==== PTS ====
     def test_fio(self):
         """FIO: Flexible I/O tester."""
         from pkgs.fio import FIO
@@ -57,10 +57,17 @@ class BenchMarkTC(CustomTestCase):
 
     def test_postmark(self):
         """Simulate small-file testing similar to the tasks endured by web and mail servers"""
-        from pkgs.postmark import PostMark
+        from pkgs.pts.postmark import PostMark
         pm = PostMark(self.test_path)
         logger.info(pm.__doc__)
         self.assertTrue(pm.benchmark())
+
+    def test_fs_mark(self):
+        """The fs_mark benchmark tests synchronous write workloads"""
+        from pkgs.pts.fs_mark import FSMark
+        fm = FSMark(self.test_path)
+        logger.info(fm.__doc__)
+        self.assertTrue(fm.benchmark())
 
     # ==== Private ====
     def test_consistency(self):

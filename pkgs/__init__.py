@@ -7,6 +7,8 @@
 @Email : tao.xu2008@outlook.com
 """
 
+from pkgs.pkg_template import *
+
 """ This module provide some third-party packages """
 
 if __name__ == '__main__':

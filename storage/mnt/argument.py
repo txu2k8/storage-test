@@ -14,7 +14,7 @@ import unittest
 from storage.argument import case_dict_2_string, mnt_path_parser
 
 all_tcs_info = {
-    # LTP
+    # LTP: Linux Test Project
     'acl': 'Test ACL and Extend Attribute on Linux system',
     'create_files': 'Creates files of specified size',
     'doio': 'base rw test, doio & iogen',
@@ -24,14 +24,17 @@ all_tcs_info = {
     'readall': 'Perform a small read on every file in a directory tree',
     'stream': 'File stream test',
 
-    # tools
-    # 'dd': 'TODO',
-    'filebench': 'File System Workload test',
+    # PTS: Phoronix Test Suite
     'fio': 'Flexible I/O tester',
-    'fstest': 'Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink',
+    'fs_mark': 'The fs_mark benchmark tests synchronous write workloads',
     'postmark': 'Simulate small-file testing similar to the tasks endured by web and mail servers',
 
-    # private, write with python: pkgs/fileops
+    # TOOLS
+    # 'dd': 'TODO',
+    'fstest': 'Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink',
+    'filebench': 'File System Workload test',
+
+    # PRIVATE: write with python: pkgs/fileops
     'consistency': 'POSIX/WINDOWS: Test the file consistency',
     'fileops': 'POSIX/WINDOWS: Test the various file operations on local File System mount path',
 }
@@ -39,7 +42,10 @@ all_tcs_info = {
 
 def tc_sanity(action):
     sanity_tcs = ['acl', 'doio', 'fs_di', 'locktests', 'readall', 'stream',  # LTP
-                  'fio', 'fstest', 'postmark', 'consistency', 'fileops']
+                  'fio', 'fs_mark', 'postmark',
+                  'fstest',  # TOOLS
+                  'consistency', 'fileops'  # PRIVATE
+                  ]
     case_info_dict = dict((k, v) for k, v in all_tcs_info.items() if k in sanity_tcs)
     case_desc = case_dict_2_string(case_info_dict, 25)
 
@@ -59,7 +65,10 @@ def tc_sanity(action):
 
 def tc_stress(action):
     stress_tcs = ['acl', 'create_files', 'doio', 'fs_di', 'fsstress', 'locktests', 'readall', 'stream',  # LTP
-                  'filebench', 'fio', 'fstest', 'postmark', 'consistency', 'fileops']
+                  'fio', 'fs_mark', 'postmark',  # PTS
+                  'filebench', 'fstest',  # TOOLS
+                  'consistency', 'fileops'  # PRIVATE
+                  ]
     case_info_dict = dict((k, v) for k, v in all_tcs_info.items() if k in stress_tcs)
     case_desc = case_dict_2_string(case_info_dict, 25)
 
@@ -78,7 +87,7 @@ def tc_stress(action):
 
 
 def tc_benchmark(action):
-    sanity_tcs = ['fio', 'postmark', 'consistency']
+    sanity_tcs = ['fio', 'fs_mark', 'postmark', 'consistency']
     case_info_dict = dict((k, v) for k, v in all_tcs_info.items() if k in sanity_tcs)
     case_desc = case_dict_2_string(case_info_dict, 25)
 

@@ -1,0 +1,116 @@
+#!/usr/bin/python
+# -*- coding: UTF-8 -*-
+"""
+@file  : pkg_template.py
+@Time  : 2020/11/12 17:30
+@Author: Tao.Xu
+@Email : tao.xu2008@outlook.com
+"""
+import os
+import unittest
+from prettytable import PrettyTable
+
+from libs import utils
+from libs.log import log
+from libs.exceptions import PlatformError, NoSuchDir
+
+logger = log.get_logger()
+
+
+class TestProfile(object):
+    """Define the test struct"""
+    def __init__(self, name="", desc="", test_path="", bin_path="", command="",
+                 fail_flag="Test failed"):
+        self.name = name
+        self.desc = desc
+        self.test_path = test_path
+        self.bin_path = bin_path
+        self.command = command
+        self.fail_flag = fail_flag
+
+
+class PkgBase(object):
+    """Description for the pkg"""
+
+    def __init__(self, top_path):
+        self.top_path = top_path
+        self.test_path = top_path
+        self.phase_list = []
+
+    def verify(self):
+        if os.name != "posix":
+            raise PlatformError("Just support for linux machine!")
+        if not os.path.isdir(self.top_path):
+            raise NoSuchDir(self.top_path)
+
+    def print_phase(self):
+        if len(self.phase_list) == 0:
+            return True
+        step_table = PrettyTable(['No.', 'Test', 'Result', 'Comments'])
+        step_table.align['TestCase'] = 'l'
+        step_table.align['Comments'] = 'l'
+        for idx, step in enumerate(self.phase_list):
+            step_status = [idx + 1] + step
+            step_table.add_row(step_status)
+        logger.info("\n{0}".format(step_table))
+        return True
+
+    def tests_generator(self, *args, **kwargs):
+        """Return TestProfile list"""
+        print(self.test_path)
+        tests = [TestProfile(name="test1", desc="test1 desc", command="pwd")]
+        return tests
+
+    def run(self, test):
+        test_name = test.name
+        test_path = test.test_path
+        bin_path = test.bin_path
+        fail_flag = test.fail_flag
+        test_log = os.path.join(self.top_path, '{0}.log'.format(test_name))
+        test_cmd = "{0} | tee -a {1}".format(test.command, test_log)
+        utils.mkdir_path(test_path)
+
+        try:
+            os.system('chmod +x {0}*'.format(bin_path))
+            rc, output = utils.run_cmd(test_cmd)
+            logger.info(output)
+            if fail_flag and fail_flag in output:
+                raise Exception("FAIL: Run {0} on {1}".format(test_name, test_path))
+            logger.info("PASS: Run {0} on {1}".format(test_name, test_path))
+        except Exception as e:
+            logger.info("FAIL: Run {0} on {1}".format(test_name, test_path))
+            raise e
+        finally:
+            pass
+
+        return True
+
+    def run_tests(self, tests):
+        self.verify()
+        for test in tests:
+            self.phase_list.append([test.name, "Start", test.desc])
+            self.print_phase()
+            try:
+                self.run(test)
+                self.phase_list[-1][1] = "PASS"
+            except Exception as e:
+                self.phase_list[-1][1] = "FAIL"
+                raise e
+            finally:
+                self.print_phase()
+        return True
+
+
+class UnitTestCase(unittest.TestCase):
+
+    def setUp(self) -> None:
+        self.pb = PkgBase("/mnt/test")
+
+    def test_benchmark(self):
+        self.pb.run_tests(self.pb.tests_generator())
+
+
+if __name__ == '__main__':
+    # unittest.main()
+    suite = unittest.TestLoader().loadTestsFromTestCase(UnitTestCase)
+    unittest.TextTestRunner(verbosity=2).run(suite)

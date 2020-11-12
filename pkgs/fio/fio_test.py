@@ -66,7 +66,7 @@ class FIO(object):
 
         tcs = []
         for idx, (desc, cmd) in enumerate(cmd_list):
-            tc_name = "fio_{0}_{1}".format(idx+1, '_'.join(desc.lower().split(" ")))
+            tc_name = "fio_{0}_{1}".format(idx+1, utils.to_safe_name(desc))
             f_pathname = os.path.join(test_path, "{0}_{1}.data".format(tc_name, str_time))
             tc = Test(
                 name=tc_name,

@@ -173,5 +173,9 @@ def strnum_to_int_list(str_num, rtn_len=2, style=','):
     return num_list[:rtn_len]
 
 
+def to_safe_name(s):
+    return str(re.sub("[^a-zA-Z0-9_]+", "_", s))
+
+
 if __name__ == '__main__':
     pass

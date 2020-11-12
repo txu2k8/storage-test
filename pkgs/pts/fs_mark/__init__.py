@@ -7,6 +7,9 @@
 @Email : tao.xu2008@outlook.com
 """
 
+from .fs_mark_test import *
+__all__ = ['FSMark']
+
 """
 fs_mark
 ==============
@@ -19,5 +22,7 @@ It can vary the number of files, directory depth, etc.
 It has detailed timings for reads, writes, unlinks and fsyncs 
 that make it good for simulating mail servers and other setups.
 """
+
+
 if __name__ == '__main__':
     pass
