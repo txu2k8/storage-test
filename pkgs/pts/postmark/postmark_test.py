@@ -10,13 +10,13 @@
 import os
 import unittest
 
-from libs import utils
 from libs.log import log
-from pkgs import TestProfile, PkgBase
+from pkgs import TestProfile, PkgBase, to_safe_name
 
 # --- Global Value
 logger = log.get_logger()
 cur_dir = os.path.dirname(os.path.realpath(__file__))
+bin_path = os.path.join(cur_dir, 'bin')
 
 
 class PostMark(PkgBase):
@@ -31,18 +31,16 @@ class PostMark(PkgBase):
         self.test_path = os.path.join(top_path, "postmark")
 
     def test_generator(self, test_profile):
-        """
-        Return test FYI:
-        http://openbenchmarking.org/test/pts/postmark
-        """
-        pm_bin = os.path.join(cur_dir, 'bin/postmark')
+        """Return a spec PostMark test"""
+        pm_bin = os.path.join(bin_path, 'postmark')
         test_profile_name = os.path.basename(test_profile)
         desc = "{}: Simulate small-file testing".format(test_profile_name.split(".")[0])
+        test_name = "postmark_{0}".format(to_safe_name(desc))
         test = TestProfile(
-            name=utils.to_safe_name(desc),
+            name=test_name,
             desc=desc,
             test_path=self.test_path,
-            bin_path=pm_bin,
+            bin_path=bin_path,
             command="cd {0}; {1} {2}".format(self.test_path, pm_bin, test_profile))
 
         return test

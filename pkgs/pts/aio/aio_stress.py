@@ -10,19 +10,20 @@
 import os
 import unittest
 
-from libs import utils
 from libs.log import log
-from pkgs import PkgBase, TestProfile
+from pkgs import PkgBase, TestProfile, to_safe_name
 
 logger = log.get_logger()
+cur_dir = os.path.dirname(os.path.realpath(__file__))
+bin_path = os.path.join(cur_dir, 'bin')
 
 
 class AioStress(PkgBase):
     """
     aio_stress
-    https://sourceforge.net/projects/fsmark/
+    https://openbenchmarking.org/test/pts/aio-stress
     =============
-    AIO-Stress is an a-synchronous I/O benchmark created by SuSE.
+    An a-synchronous I/O benchmark created by SuSE.
     Current this profile uses a 2048MB test file and a 64KB record size.
     """
 
@@ -32,27 +33,25 @@ class AioStress(PkgBase):
 
     def tests_generator(self):
         """
-        Return fs_mark test case list FYI:
-        https://openbenchmarking.org/test/pts/fs-mark
+        Return aio_stress test case list
         """
-        cur_dir = os.path.dirname(os.path.realpath(__file__))
-        fm_bin = os.path.join(cur_dir, 'bin/fs_mark')
+        aio_bin = os.path.join(bin_path, 'aio_stress')
         cmd_list = [
-            ("1000 Files, 1MB Size", "{0} -d {1} -s 1048576 -n 1000"),
-            ("1000 Files, 1MB Size, No Sync/FSync", "{0} -d {1} -s 1048576 -n 1000 -S 0"),
-            ("5000 Files, 1MB Size, 4 Threads", "{0} -d {1} -s 1048576 -n 5000 -t 4"),
-            ("4000 Files, 32 Sub Dirs, 1MB Size", "{0} -d {1} -s 1048576 -n 4000 -D 32"),
+            ("Write", "cd {0}; {1} -s 2g -r 64k -t 3 -o 0"),
+            ("Read", "{1} -s 2g -r 64k -t 3 -o 1"),
+            ("Random Write", "{1} -s 2g -r 64k -t 3 -o 2"),
+            ("Random Read", "{1} -s 2g -r 64k -t 3 -o 3"),
         ]
 
         tests = []
         for idx, (desc, cmd) in enumerate(cmd_list):
-            test_name = "fs_mark_{0}_{1}".format(idx + 1, utils.to_safe_name(desc))
+            test_name = "aio_stress_{0}_{1}".format(idx + 1, to_safe_name(desc))
             test = TestProfile(
                 name=test_name,
                 desc=desc,
                 test_path=self.test_path,
-                bin_path=fm_bin,
-                command=cmd.format(fm_bin, self.test_path))
+                bin_path=bin_path,
+                command=cmd.format(aio_bin, self.test_path))
             tests.append(test)
         return tests
 

@@ -7,6 +7,7 @@
 @Email : tao.xu2008@outlook.com
 """
 import os
+import re
 import unittest
 from prettytable import PrettyTable
 
@@ -17,6 +18,10 @@ from libs.exceptions import PlatformError, NoSuchDir
 logger = log.get_logger()
 
 
+def to_safe_name(s):
+    return str(re.sub("[^a-zA-Z0-9_]+", "_", s))
+
+
 class TestProfile(object):
     """Define the test struct"""
     def __init__(self, name="", desc="", test_path="", bin_path="", command="",
@@ -24,7 +29,7 @@ class TestProfile(object):
         self.name = name
         self.desc = desc
         self.test_path = test_path
-        self.bin_path = bin_path
+        self.bin_path = bin_path  # chmod +x bin_path/*
         self.command = command
         self.fail_flag = fail_flag
 
@@ -75,7 +80,7 @@ class PkgBase(object):
         utils.mkdir_path(test_path)
 
         try:
-            os.system('chmod +x {0}*'.format(bin_path))
+            os.system('chmod +x {0}/*'.format(bin_path))
             rc, output = utils.run_cmd(test_cmd, timeout=72000)
             logger.info(output)
             if fail_flag and fail_flag in output:
