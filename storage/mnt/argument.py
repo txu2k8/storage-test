@@ -13,40 +13,31 @@ import unittest
 
 from storage.argument import case_dict_2_string, mnt_path_parser
 
-all_tcs_info = {
-    # LTP: Linux Test Project
-    'acl': 'Test ACL and Extend Attribute on Linux system',
-    'create_files': 'Creates files of specified size',
-    'doio': 'base rw test, doio & iogen',
-    'fs_di': 'Test FileSystem Data Integrity',
-    'fsstress': 'filesystem stress',
-    'locktests': 'Test fcntl locking functions',
-    'readall': 'Perform a small read on every file in a directory tree',
-    'stream': 'File stream test',
 
-    # PTS: Phoronix Test Suite
-    'fio': 'Flexible I/O tester',
-    'fs_mark': 'The fs_mark benchmark tests synchronous write workloads',
-    'postmark': 'Simulate small-file testing similar to the tasks endured by web and mail servers',
+def tc_benchmark(action):
+    """Benchmark test arguments"""
+    from storage.mnt.benchmark import BenchMarkTC
+    case_info_dict = BenchMarkTC().get_case_name_desc()
+    case_desc = case_dict_2_string(case_info_dict, 25)
 
-    # TOOLS
-    # 'dd': 'TODO',
-    'fstest': 'Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink',
-    'filebench': 'File System Workload test',
-
-    # PRIVATE: write with python: pkgs/fileops
-    'consistency': 'POSIX/WINDOWS: Test the file consistency',
-    'fileops': 'POSIX/WINDOWS: Test the various file operations on local File System mount path',
-}
+    parser = action.add_parser(
+        'benchmark',
+        help='storage->mnt benchmark test',
+        epilog='Test Case List:\n{0}'.format(case_desc),
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        parents=[mnt_path_parser()]
+    )
+    parser.add_argument("--case", action="store", dest="case_list",
+                        default=['all'], nargs='+',
+                        choices=case_info_dict.keys(),
+                        help="default:['all]")
+    parser.set_defaults(func=test_suite_generator, loops=1, suite='benchmark')
 
 
 def tc_sanity(action):
-    sanity_tcs = ['acl', 'doio', 'fs_di', 'locktests', 'readall', 'stream',  # LTP
-                  'fio', 'fs_mark', 'postmark',
-                  'fstest',  # TOOLS
-                  'consistency', 'fileops'  # PRIVATE
-                  ]
-    case_info_dict = dict((k, v) for k, v in all_tcs_info.items() if k in sanity_tcs)
+    """Sanity test arguments"""
+    from storage.mnt import SanityTC
+    case_info_dict = SanityTC().get_case_name_desc()
     case_desc = case_dict_2_string(case_info_dict, 25)
 
     parser = action.add_parser(
@@ -64,12 +55,9 @@ def tc_sanity(action):
 
 
 def tc_stress(action):
-    stress_tcs = ['acl', 'create_files', 'doio', 'fs_di', 'fsstress', 'locktests', 'readall', 'stream',  # LTP
-                  'fio', 'fs_mark', 'postmark',  # PTS
-                  'filebench', 'fstest',  # TOOLS
-                  'consistency', 'fileops'  # PRIVATE
-                  ]
-    case_info_dict = dict((k, v) for k, v in all_tcs_info.items() if k in stress_tcs)
+    """Stress test arguments"""
+    from storage.mnt import StressTC
+    case_info_dict = StressTC().get_case_name_desc()
     case_desc = case_dict_2_string(case_info_dict, 25)
 
     parser = action.add_parser(
@@ -86,43 +74,17 @@ def tc_stress(action):
     parser.set_defaults(func=test_suite_generator, suite='stress')
 
 
-def tc_benchmark(action):
-    sanity_tcs = ['fio', 'fs_mark', 'postmark', 'consistency']
-    case_info_dict = dict((k, v) for k, v in all_tcs_info.items() if k in sanity_tcs)
-    case_desc = case_dict_2_string(case_info_dict, 25)
-
-    parser = action.add_parser(
-        'benchmark',
-        help='storage->mnt benchmark test',
-        epilog='Test Case List:\n{0}'.format(case_desc),
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        parents=[mnt_path_parser()]
-    )
-    parser.add_argument("--case", action="store", dest="case_list",
-                        default=['all'], nargs='+',
-                        choices=case_info_dict.keys(),
-                        help="default:['all]")
-    parser.set_defaults(func=test_suite_generator, loops=1, suite='benchmark')
-
-
 def tc_load(action):
-    from storage.argument import dir_number_parser, file_number_parser, file_size_range_parser
-    case_info_dict = {
-        # Private
-        'empty_files': 'POSIX/WINDOWS: Generate empty files.(default:1dir*1file*0KB)',
-        'small_files': 'POSIX/WINDOWS: Generate small files.(default:1dir*1file*1KB)',
-        'large_files': 'POSIX/WINDOWS: Generate large files.(default:1dir*1file*1KB)',
-        # POSIX
-        'create_files': 'POSIX: Creates files of specified size.(default:1dir*1file*1MB)',
-        'seq_files': 'POSIX: Generate sequential files of specified size by fio',
-        'fsstress': 'POSIX: Generate files by LTP fsstress(deep path/files)',
-    }
+    """Load data tools arguments"""
 
+    from storage.mnt import LoadGenTC
+    from storage.argument import dir_number_parser, file_number_parser, file_size_range_parser
+    case_info_dict = LoadGenTC().get_case_name_desc()
     case_desc = case_dict_2_string(case_info_dict, 25)
 
     parser = action.add_parser(
         'load',
-        help='storage->mnt load data files',
+        help='storage->mnt load data file tools',
         epilog='Test Case List:\n{0}'.format(case_desc),
         formatter_class=argparse.RawDescriptionHelpFormatter,
         parents=[
@@ -142,18 +104,18 @@ def tc_load(action):
 # --- Generate Test suite
 def test_suite_generator(args):
     cur_dir = os.path.dirname(os.path.abspath(__file__))
-    if args.suite == 'sanity':
+    if args.suite == 'benchmark':
+        test_py = os.path.join(cur_dir, 'benchmark.py')
+        from storage.mnt import BenchMarkTC as MntTestCase
+    elif args.suite == 'sanity':
         test_py = os.path.join(cur_dir, 'sanity.py')
-        from storage.mnt.sanity import SanityTC as MntTestCase
+        from storage.mnt import SanityTC as MntTestCase
     elif args.suite == 'stress':
         test_py = os.path.join(cur_dir, 'stress.py')
-        from storage.mnt.stress import StressTC as MntTestCase
-    elif args.suite == 'benchmark':
-        test_py = os.path.join(cur_dir, 'benchmark.py')
-        from storage.mnt.benchmark import BenchMarkTC as MntTestCase
+        from storage.mnt import StressTC as MntTestCase
     elif args.suite == 'load':
         test_py = os.path.join(cur_dir, 'loadgen.py')
-        from storage.mnt.loadgen import LoadGenTC as MntTestCase
+        from storage.mnt import LoadGenTC as MntTestCase
     else:
         raise Exception("Unknown sub parser suite")
 
@@ -183,9 +145,9 @@ def add_mnt_subparsers(action):
     mnt_parser.set_defaults(project='mnt')
     mnt_action = mnt_parser.add_subparsers(help='Test on a filesystem mount point')
 
+    tc_benchmark(mnt_action)
     tc_sanity(mnt_action)
     tc_stress(mnt_action)
-    tc_benchmark(mnt_action)
     tc_load(mnt_action)
 
 

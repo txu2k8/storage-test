@@ -7,6 +7,9 @@
 @Email : tao.xu2008@outlook.com
 """
 
+from .compile_bench import *
+__all__ = ['CompileBench']
+
 """
 compilebench
 ==============

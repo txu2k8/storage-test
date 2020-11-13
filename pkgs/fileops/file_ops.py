@@ -31,7 +31,7 @@ class Consistency(object):
 
     def __init__(self, top_path):
         self.top_path = top_path
-        self.local_path = '/tmp/consistency'
+        self.local_path = '/tmp/consistency_local'
         self.help = """
 Storage-Consistency-Test:
     A python script for test.sh the file consistency between 2 path(or cloud). 

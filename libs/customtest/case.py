@@ -9,6 +9,7 @@
 
 import unittest
 from prettytable import PrettyTable
+from collections import defaultdict
 
 from libs.log import log
 
@@ -52,6 +53,35 @@ class CustomTestCase(unittest.TestCase):
         logger.info("\n{0}".format(step_table))
         return True
 
+    def get_case_name_desc(self):
+        """Return the dict: {"name": "desc"}"""
+
+        def should_include_method(attrname):
+            if not attrname.startswith("test"):
+                return False
+            test_func = getattr(self, attrname)
+            if not callable(test_func):
+                return False
+            full_name = f'%s.%s' % (
+                self.__module__, attrname
+            )
+            from fnmatch import fnmatch, fnmatchcase
+            test_name_patterns = None
+            return test_name_patterns is None or \
+                   any(fnmatchcase(full_name, pattern) for pattern in test_name_patterns)
+
+        name_desc = defaultdict(dict)
+        test_fn_names = list(filter(should_include_method, dir(self)))
+        for test_fn_name in test_fn_names:
+            test_method = getattr(self, test_fn_name)
+            doc = test_method.__doc__
+            desc = doc.strip().split("\n")[0].strip() if doc else None
+            name_desc[test_fn_name.split("test_")[-1]] = desc
+
+        return name_desc
+
 
 if __name__ == '__main__':
-    pass
+    ctc = CustomTestCase()
+    ctc.get_case_name_desc()
+

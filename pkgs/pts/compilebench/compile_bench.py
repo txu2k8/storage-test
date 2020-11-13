@@ -39,9 +39,7 @@ class CompileBench(PkgBase):
         """
         cb_bin = os.path.join(bin_path, 'compilebench')
         cmd_list = [
-            ("Initial Create", "{0} -D {1} -i 10 --makej -s {2} INITIAL_CREATE"),
-            ("Compile", "{0} -D {1} -i 10 --makej -s {2} COMPILE"),
-            ("Read Compiled Tree", "python {0} -D {1} -i 10 --makej -s {2} READ_COMPILED_TREE"),
+            ("Initial Create/Compile/Read Compiled Tree", "{0} -D {1} -i 10 --makej -s {2}"),
         ]
 
         tests = []
@@ -56,10 +54,15 @@ class CompileBench(PkgBase):
             tests.append(test)
         return tests
 
-    def stress_profile(self):
-        """Return a stress test"""
+    def benchmark_profile(self):
+        """
+        Return a benchmark test
+            Initial Create
+            Compile
+            Read Compiled Tree
+        """
         cb_bin = os.path.join(bin_path, 'compilebench')
-        desc = "stress"
+        desc = "benchmark"
         test_name = "compilebench_{0}".format(to_safe_name(desc))
         test = TestProfile(
             name=test_name,
@@ -70,10 +73,56 @@ class CompileBench(PkgBase):
 
         return test
 
+    def stress_profile(self):
+        """
+        Return a stress test
+            intial create
+            create
+            patch
+            compile
+            clean
+            read tree
+            read compiled tree
+            delete tree
+            delete compiled tree
+            stat tree
+            stat compiled tree
+        """
+        cb_bin = os.path.join(bin_path, 'compilebench')
+        desc = "stress"
+        test_name = "compilebench_{0}".format(to_safe_name(desc))
+        test = TestProfile(
+            name=test_name,
+            desc=desc,
+            test_path=self.test_path,
+            bin_path=bin_path,
+            command="{0} -D {1} -i 10".format(cb_bin, self.test_path))
+
+        return test
+
     def benchmark(self):
-        return self.run_tests(self.tests_generator())
+        """
+        A shorter run that simulates the files created by running make -j in a kernel tree,
+        and then readingand deleting the kernel trees.
+        """
+        logger.info(self.benchmark.__doc__)
+        return self.run(self.benchmark_profile())
 
     def stress(self):
+        """
+        A full tests include:
+            intial create
+            create
+            patch
+            compile
+            clean
+            read tree
+            read compiled tree
+            delete tree
+            delete compiled tree
+            stat tree
+            stat compiled tree"""
+        logger.info(self.stress.__doc__)
         return self.run(self.stress_profile())
 
 

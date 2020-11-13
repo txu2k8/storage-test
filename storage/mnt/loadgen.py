@@ -19,18 +19,23 @@ from libs.customtest import CustomTestCase
 from config import const
 
 logger = log.get_logger()
-args = const.get_value('args')
 
 
 class LoadGenTC(CustomTestCase):
     """Generate data on a mount point or path"""
-    _fs_path = args.test_path
-    _dir_n = args.dir_number
-    _file_n = args.file_number
-    _file_size_range = args.file_size_range
+    _fs_path = ""
+    _dir_n = 0
+    _file_n = 0
+    _file_size_range = ""
 
     @classmethod
     def setUpClass(cls):
+        args = const.get_value('args')
+        cls._fs_path = args.test_path
+        cls._dir_n = args.dir_number
+        cls._file_n = args.file_number
+        cls._file_size_range = args.file_size_range
+
         logger.info("Start generate data on {}".format(cls._fs_path))
         if not os.path.isdir(cls._fs_path):
             raise NoSuchDir(cls._fs_path)

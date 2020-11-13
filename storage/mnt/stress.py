@@ -18,15 +18,17 @@ from libs.customtest import CustomTestCase
 from config import const
 
 logger = log.get_logger()
-args = const.get_value('args')
 
 
 class StressTC(CustomTestCase):
     """Stress test on a mount point or path"""
-    _fs_path = args.test_path
+    _fs_path = ""
 
     @classmethod
     def setUpClass(cls):
+        args = const.get_value('args')
+        cls._fs_path = args.test_path
+
         logger.info("Start stress test on {}".format(cls._fs_path))
         if not os.path.isdir(cls._fs_path):
             raise NoSuchDir(cls._fs_path)
