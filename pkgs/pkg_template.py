@@ -13,7 +13,7 @@ from prettytable import PrettyTable
 
 from libs import utils
 from libs.log import log
-from libs.exceptions import PlatformError, NoSuchDir
+from libs.exceptions import PlatformError, NoSuchDir, NoSuchBinary
 
 logger = log.get_logger()
 
@@ -110,6 +110,29 @@ class PkgBase(object):
             finally:
                 self.print_phase()
         return True
+
+
+def verify_all():
+    if os.name != "posix":
+        raise PlatformError("Some test just support for linux machine!")
+
+    rc, output = utils.run_cmd('which filebench')
+    if not output.strip("\n") or 'no filebench' in output:
+        logger.warning("yum install filebench -y")
+        raise NoSuchBinary("filebench not installed")
+
+    try:
+        utils.run_cmd("which fio", expected_rc=0)
+    except Exception as e:
+        logger.error(e)
+        raise NoSuchBinary("fio, try install it.(apt-get install -y fio)")
+
+    try:
+        utils.run_cmd("which attr", expected_rc=0)
+    except Exception as e:
+        logger.error(e)
+        raise NoSuchBinary("attr, try install it.(apt-get install -y attr)")
+    return True
 
 
 class UnitTestCase(unittest.TestCase):

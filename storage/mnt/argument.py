@@ -121,6 +121,8 @@ def test_suite_generator(args):
 
     if 'all' in args.case_list:
         # Load all test cases
+        from pkgs import verify_all
+        verify_all()
         test_suite = unittest.TestLoader().loadTestsFromTestCase(MntTestCase)
     else:
         case_name_list = []
