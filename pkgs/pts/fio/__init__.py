@@ -8,8 +8,15 @@
 """
 
 from .fio_test import *
-
 __all__ = ['FIO']
+
+"""
+Flexible IO Tester
+===================
+http://git.kernel.dk/?p=fio.git;a=summary
+https://openbenchmarking.org/test/pts/fio
+fio is an advanced disk benchmark that depends upon the kernel's AIO access library.
+"""
 
 if __name__ == '__main__':
     pass
