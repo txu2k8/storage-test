@@ -62,6 +62,13 @@ class BenchMarkTC(CustomTestCase):
         logger.info(fm.__doc__)
         self.assertTrue(fm.benchmark())
 
+    def test_iozone(self):
+        """A benchmark tests for generates and measures a variety of file operations."""
+        from pkgs.pts.iozone import IOzone
+        ioz = IOzone(self.test_path)
+        logger.info(ioz.__doc__)
+        self.assertTrue(ioz.benchmark())
+
     def test_postmark(self):
         """Simulate small-file testing similar to the tasks endured by web and mail servers"""
         from pkgs.pts.postmark import PostMark

@@ -120,12 +120,20 @@ class StressTC(CustomTestCase):
         logger.info(fs_test.__doc__)
         self.assertTrue(fs_test.stress())
 
-    def test_postmark(self):
-        """Simulate small-file testing similar to the tasks endured by web and mail servers"""
-        from pkgs.pts.postmark import PostMark
-        pm = PostMark(self.test_path)
-        logger.info(pm.__doc__)
-        self.assertTrue(pm.stress())
+    # ==== PTS ====
+    def test_aio(self):
+        """a-synchronous I/O benchmark"""
+        from pkgs.pts.aio import AioStress
+        aio = AioStress(self.test_path)
+        logger.info(aio.__doc__)
+        self.assertTrue(aio.benchmark())
+
+    def test_compilebench(self):
+        """Simulating disk IO common in creating, compiling, patching, stating and reading kernel trees."""
+        from pkgs.pts.compilebench import CompileBench
+        cb = CompileBench(self.test_path)
+        logger.info(cb.__doc__)
+        self.assertTrue(cb.stress())
 
     def test_fs_mark(self):
         """The fs_mark benchmark tests synchronous write workloads"""
@@ -133,6 +141,20 @@ class StressTC(CustomTestCase):
         fm = FSMark(self.test_path)
         logger.info(fm.__doc__)
         self.assertTrue(fm.benchmark())
+
+    def test_iozone(self):
+        """A benchmark tests for generates and measures a variety of file operations."""
+        from pkgs.pts.iozone import IOzone
+        ioz = IOzone(self.test_path)
+        logger.info(ioz.__doc__)
+        self.assertTrue(ioz.stress())
+
+    def test_postmark(self):
+        """Simulate small-file testing similar to the tasks endured by web and mail servers"""
+        from pkgs.pts.postmark import PostMark
+        pm = PostMark(self.test_path)
+        logger.info(pm.__doc__)
+        self.assertTrue(pm.stress())
 
     # ==== Private ====
     def test_consistency(self):

@@ -10,7 +10,6 @@
 import os
 import unittest
 
-from libs import utils
 from libs.log import log
 from pkgs import PkgBase, TestProfile, to_safe_name
 
@@ -34,7 +33,7 @@ class FSMark(PkgBase):
         super(FSMark, self).__init__(top_path)
         self.test_path = os.path.join(top_path, "fs_mark")
 
-    def tests_generator(self, *args, **kwargs):
+    def tests_generator(self):
         """
         Return fs_mark test case list
         """
