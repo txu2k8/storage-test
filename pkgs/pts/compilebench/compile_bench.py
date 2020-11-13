@@ -39,9 +39,9 @@ class CompileBench(PkgBase):
         """
         cb_bin = os.path.join(bin_path, 'compilebench')
         cmd_list = [
-            ("Initial Create", "python {0} -D {1} -i 10 --makej INITIAL_CREATE"),
-            ("Compile", "python {0} -D {1} -i 10 --makej COMPILE"),
-            ("Read Compiled Tree", "python {0} -D {1} -i 10 --makej READ_COMPILED_TREE"),
+            ("Initial Create", "{0} -D {1} -i 10 --makej -s {2} INITIAL_CREATE"),
+            ("Compile", "{0} -D {1} -i 10 --makej -s {2} COMPILE"),
+            ("Read Compiled Tree", "python {0} -D {1} -i 10 --makej -s {2} READ_COMPILED_TREE"),
         ]
 
         tests = []
@@ -52,7 +52,7 @@ class CompileBench(PkgBase):
                 desc=desc,
                 test_path=self.test_path,
                 bin_path=bin_path,
-                command=cmd.format(cb_bin, self.test_path))
+                command=cmd.format(cb_bin, self.test_path, bin_path))
             tests.append(test)
         return tests
 
@@ -66,7 +66,7 @@ class CompileBench(PkgBase):
             desc=desc,
             test_path=self.test_path,
             bin_path=bin_path,
-            command="python {0} -D {1} -i 10 --makej".format(cb_bin, self.test_path))
+            command="{0} -D {1} -i 10 --makej".format(cb_bin, self.test_path))
 
         return test
 

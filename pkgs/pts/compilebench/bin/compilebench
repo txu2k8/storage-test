@@ -39,13 +39,13 @@
 
 import os
 import sys
-import time
 import random
 import signal
 import operator
 from optparse import OptionParser
+import functools
 
-VERSION = "0.6"
+VERSION = "0.7-txu-py3"
 
 
 def maybe_sync():
@@ -83,7 +83,7 @@ def rmrf(dirname):
 
 
 def random_order(dhash, rnd):
-    keys = dhash.keys()
+    keys = list(dhash.keys())
     rnd.shuffle(keys)
     ret = [(str, dhash[str]) for str in keys]
     return ret
@@ -99,8 +99,8 @@ def native_order(dhash, tag):
         dirname = 'native-%d' % i
         fullpath = os.path.join(benchdir, dirname)
 
-    sorted = dhash.keys()
-    sorted.sort(cmp=pathcomp)
+    sorted = list(dhash.keys())
+    sorted.sort(key=functools.cmp_to_key(pathcomp))
     tmplist = []
     for x in sorted:
         tmplist.append((x, dhash[x]))
@@ -358,7 +358,7 @@ def patch_one_dir(dset, rnd):
     if len(good) == 0:
         return 0
     ch = good[rnd.choice(range(0, len(good)))]
-    dir = rnd.choice(ch[1].keys())
+    dir = rnd.choice(list(ch[1].keys()))
     if not dir:
         return 0
     if rnd.randint(0, 3) == 1:
@@ -384,7 +384,7 @@ def compile_one_dir(dset, rnd):
         return 0
     ch = good[rnd.choice(range(0, len(good)))]
 
-    dir = rnd.choice(ch[1].keys())
+    dir = rnd.choice(list(ch[1].keys()))
     if not dir:
         return 0
     mbs = run_directory(ch[0], dir, "compile dir")
@@ -407,7 +407,7 @@ def clean_one_dir(dset, rnd):
     ch = good[rnd.choice(range(0, len(good)))]
     if len(ch[1]) == 0:
         return 0
-    dir = rnd.choice(ch[1].keys())
+    dir = rnd.choice(list(ch[1].keys()))
     if not dir:
         return 0
     mbs = clean_directory(ch[0], dir)
@@ -425,7 +425,7 @@ def delete_one_dir(dset, rnd):
     if len(good) == 0:
         return 0
     ch = good[rnd.choice(range(0, len(good)))]
-    dir = rnd.choice(ch.keys())
+    dir = rnd.choice(list(ch.keys()))
     seconds = rmrf(dir)
     del ch[dir]
     sys.stderr.write("delete %s in %.2f seconds\n" % (dir, seconds[2]));
@@ -444,7 +444,7 @@ def read_one_dir(dset, rnd):
     if len(good) == 0:
         return 0
     ch = good[rnd.choice(range(0, len(good)))]
-    dir = rnd.choice(ch.keys())
+    dir = rnd.choice(list(ch.keys()))
     mbs = read_dirtree(dir)
     if ch == dset.unpatched_compiled_dirs or ch == dset.patched_compiled_dirs:
         add_times(dset.read_compiled_stats, mbs)
@@ -461,7 +461,7 @@ def stat_one_dir(dset, rnd):
     if len(good) == 0:
         return 0
     ch = good[rnd.choice(range(0, len(good)))]
-    dir = rnd.choice(ch.keys())
+    dir = rnd.choice(list(ch.keys()))
     seconds = stat_dirtree(dir)
     if ch == dset.unpatched_compiled_dirs or ch == dset.patched_compiled_dirs:
         add_times(dset.stat_compiled_stats, seconds)
