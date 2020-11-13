@@ -74,7 +74,7 @@ class IOzone(PkgBase):
                 test_name = "iozone_{0}_{1}".format(idx + 1, to_safe_name(test_desc))
                 test_filename = os.path.join(self.test_path, test_name+".data")
                 cmd = "{0} -e -o -f {1} {2} {3} {4}".format(
-                    ioz_bin, test_filename, record_size, file_size, test_filename)
+                    ioz_bin, test_filename, record_size, file_size, test_item)
                 test = TestProfile(
                     name=test_name,
                     desc="{0}-{1}-{2}".format(record_desc, file_desc, test_desc),
@@ -95,7 +95,7 @@ class IOzone(PkgBase):
                     test_name = "iozone_{0}_{1}".format(idx + 1, to_safe_name(test_desc))
                     test_filename = os.path.join(self.test_path, test_name + ".data")
                     cmd = "{0} -e -o -f {1} {2} {3} {4}".format(
-                        ioz_bin, test_filename, record_size, file_size, test_filename)
+                        ioz_bin, test_filename, record_size, file_size, test_item)
                     test = TestProfile(
                         name=test_name,
                         desc="{0}-{1}-{2}".format(record_desc, file_desc, test_desc),
