@@ -55,6 +55,13 @@ class BenchMarkTC(CustomTestCase):
         logger.info(cb.__doc__)
         self.assertTrue(cb.benchmark())
 
+    def test_fio(self):
+        """Flexible I/O tester"""
+        from pkgs.pts.fio import FIO
+        fio = FIO(self.test_path)
+        logger.info(fio.__doc__)
+        self.assertTrue(fio.google_benchmark())
+
     def test_fs_mark(self):
         """A benchmark tests for synchronous write workloads"""
         from pkgs.pts.fs_mark import FSMark

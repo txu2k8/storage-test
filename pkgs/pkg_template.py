@@ -71,6 +71,8 @@ class PkgBase(object):
         return TestProfile(name="Not Defined", desc="test desc", command="pwd")
 
     def run(self, test):
+        logger.info(test.desc)
+        self.verify()
         test_name = test.name
         test_path = test.test_path
         bin_path = test.bin_path
@@ -80,7 +82,8 @@ class PkgBase(object):
         utils.mkdir_path(test_path)
 
         try:
-            os.system('chmod +x {0}/*'.format(bin_path))
+            if bin_path:
+                os.system('chmod +x {0}/*'.format(bin_path))
             rc, output = utils.run_cmd(test_cmd, timeout=72000)
             logger.info(output)
             if fail_flag and fail_flag in output:
@@ -95,7 +98,6 @@ class PkgBase(object):
         return True
 
     def run_tests(self, tests):
-        self.verify()
         for test in tests:
             self.phase_list.append([test.name, "Start", test.desc])
             self.print_phase()

@@ -68,7 +68,7 @@ class IOzone(PkgBase):
         ioz_bin = os.path.join(bin_path, 'iozone')
         tests = []
         idx = 0
-        file_desc, file_size = self.file_size_list[1]
+        file_desc, file_size = self.file_size_list[0]
         for test_desc, test_item in self.test_item_list:
             for record_desc, record_size in self.record_size_list:
                 test_name = "iozone_{0}_{1}".format(idx + 1, to_safe_name(test_desc))

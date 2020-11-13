@@ -10,24 +10,15 @@
 import os
 import unittest
 
-from libs import utils
 from libs.log import log
-from libs.exceptions import PlatformError, NoSuchDir
+from pkgs import PkgBase, TestProfile
 
 logger = log.get_logger()
+cur_dir = os.path.dirname(os.path.realpath(__file__))
+bin_path = os.path.join(cur_dir, 'bin')
 
 
-class Test(object):
-    """Define the test struct"""
-    def __init__(self, name="", desc="", test_path="", bin_path="", command=""):
-        self.name = name
-        self.desc = desc
-        self.test_path = test_path
-        self.bin_path = bin_path
-        self.command = command
-
-
-class DoIO(object):
+class DoIO(PkgBase):
     """
     Run Test with LTP tools:
     1. iogen & doio
@@ -49,16 +40,10 @@ class DoIO(object):
     """
 
     def __init__(self, top_path):
-        self.top_path = top_path
+        super(DoIO, self).__init__(top_path)
+        self.test_path = os.path.join(top_path, "doio")
 
-    def verify(self):
-        if os.name != "posix":
-            raise PlatformError("Just support for linux machine!")
-        if not os.path.isdir(self.top_path):
-            raise NoSuchDir(self.top_path)
-
-    @staticmethod
-    def iogen_doio_tcs(test_path):
+    def iogen_doio_test_profile(self):
         """
         Examples:
         ---------
@@ -68,25 +53,24 @@ class DoIO(object):
         # run forever:  8 process - using record locks
         iogen -i 0 100000b:doio_2 | doio -akv -n 8 -m 1000
         """
-        cur_dir = os.path.dirname(os.path.realpath(__file__))
-        bin_path = os.path.join(cur_dir, 'bin')
         iogen_bin = os.path.join(bin_path, 'iogen')
         doio_bin = os.path.join(bin_path, 'doio')
-        tcs = [
-            Test(name="iogen01", test_path=test_path, bin_path=bin_path,
-                 command="{0} -i 120s -s read,write 500b:{1}doio.f1.$$ 1000b:{1}doio.f2.$$ | {2} -akv -n 2".format(
-                     iogen_bin, test_path, doio_bin))
-        ]
-        return tcs
+        test = TestProfile(
+            name="iogen01",
+            test_path=self.test_path,
+            bin_path=bin_path,
+            command="{0} -i 120s -s read,write 500b:{1}doio.f1.$$ 1000b:{1}doio.f2.$$ | {2} -akv -n 2".format(
+                     iogen_bin, self.test_path, doio_bin),
+            fail_flag="Test failed",
+        )
 
-    @staticmethod
-    def rwtest_tcs(test_path):
+        return test
+
+    def rwtest_profiles(self):
         """
         Return rwtest case list FYI:
         https://github.com/linux-test-project/ltp/blob/master/runtest/fs
         """
-        cur_dir = os.path.dirname(os.path.realpath(__file__))
-        bin_path = os.path.join(cur_dir, 'bin')
         rwtest_bin = os.path.join(bin_path, 'rwtest')
         cmd_list = [
             "{0} -N rwtest01 -c -q -i 60s -f sync 10%25000:{1}/rw-sync-$$",
@@ -97,21 +81,23 @@ class DoIO(object):
             "{0} -N iogen01 -i 120s -s read,write -Da -Dv -n 2 500b:{1}/doio.f1.$$ 1000b:{1}/doio.f2.$$",
         ]
 
-        tcs = []
+        tests = []
         for idx, cmd in enumerate(cmd_list):
-            tc = Test(name="rwtest-"+str(idx+1), test_path=test_path, bin_path=bin_path,
-                      command=cmd.format(rwtest_bin, test_path))
-            tcs.append(tc)
-        return tcs
+            test = TestProfile(
+                name="rwtest-"+str(idx+1),
+                test_path=self.test_path,
+                bin_path=bin_path,
+                command=cmd.format(rwtest_bin, self.test_path),
+                fail_flag="Test failed",
+            )
+            tests.append(test)
+        return tests
 
-    @staticmethod
-    def growfiles_tcs(test_path):
+    def growfiles_test_profiles(self):
         """
         Return growfiles case list FYI:
         https://github.com/linux-test-project/ltp/blob/master/runtest/fs
         """
-        cur_dir = os.path.dirname(os.path.realpath(__file__))
-        bin_path = os.path.join(cur_dir, 'bin')
         growfiles_bin = os.path.join(bin_path, 'growfiles')
         cmd_list = [
             "{0} -W gf01 -b -e 1 -u -i 0 -L 20 -w -C 1 -l -I r -T 10 -f glseek20 -S 2 -d {1}"
@@ -145,65 +131,31 @@ class DoIO(object):
             "{0} -W gf29 -b -D 0 -r 1-4096 -R 0-33554432 -i 0 -L 60 -C 1 -u -f gfsparse-3-$$ -d {1}"
             "{0} -W gf30 -D 0 -b -i 0 -L 60 -u -B 1000b -e 1 -o O_RDWR,O_CREAT,O_SYNC -g 20480 -T 10 -t 20480 -f gf-sync-$$ -d {1}"
         ]
-        tcs = []
+
+        tests = []
         for idx, cmd in enumerate(cmd_list):
-            tc = Test(name="gf"+str(idx+1), desc="growfiles test-"+str(idx+1),
-                      test_path=test_path, bin_path=bin_path,
-                      command=cmd.format(growfiles_bin, test_path))
-            tcs.append(tc)
-        return tcs
-
-    def run(self, test):
-        """
-        Run Test with command:
-        support for:
-            1. iogen & doio
-            2. rwtest
-            3. growfiles
-        """
-        logger.info(self.run.__doc__)
-        test_name = test.name
-        test_path = test.test_path
-        bin_path = test.bin_path
-        test_log = os.path.join(self.top_path, '{0}.log'.format(test_name))
-        test_cmd = "{0} | tee -a {1}".format(test.command, test_log)
-        utils.mkdir_path(test_path)
-
-        try:
-            os.system('chmod +x {0}/*'.format(bin_path))
-            rc, output = utils.run_cmd(test_cmd)
-            logger.info('\n'.format(output.strip('\n')))
-            if "Test failed" in output:
-                raise Exception("FAIL: Run {0} on {1}".format(test_name, test_path))
-            logger.info("PASS: Run {0} on {1}".format(test_name, test_path))
-        except Exception as e:
-            logger.info("FAIL: Run {0} on {1}".format(test_name, test_path))
-            raise e
-        finally:
-            pass
-
-        return True
+            test = TestProfile(
+                name="gf_" + str(idx + 1),
+                desc="growfiles test-" + str(idx + 1),
+                test_path=self.test_path,
+                bin_path=bin_path,
+                command=cmd.format(growfiles_bin, self.test_path),
+                fail_flag="Test failed",
+            )
+            tests.append(test)
+        return tests
 
     def rwtest(self):
-        self.verify()
-        test_path = os.path.join(self.top_path, "rwtest")
-        for tc in self.rwtest_tcs(test_path):
-            assert self.run(tc)
-        return True
+        self.test_path = os.path.join(self.top_path, "rwtest")
+        return self.run_tests(self.rwtest_profiles())
 
     def growfiles(self):
-        self.verify()
-        test_path = os.path.join(self.top_path, "growfiles")
-        for tc in self.growfiles_tcs(test_path):
-            assert self.run(tc)
-        return True
+        self.test_path = os.path.join(self.top_path, "growfiles")
+        return self.run_tests(self.growfiles_test_profiles())
 
     def iogen_doio(self):
-        self.verify()
-        test_path = os.path.join(self.top_path, "iogen_doio")
-        for tc in self.iogen_doio_tcs(test_path):
-            assert self.run(tc)
-        return True
+        self.test_path = os.path.join(self.top_path, "iogen_doio")
+        return self.run(self.iogen_doio_test_profile())
 
 
 class UnitTestCase(unittest.TestCase):

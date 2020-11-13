@@ -14,12 +14,13 @@ from parameterized import parameterized, param
 from libs import utils
 from libs.log import log
 from libs.exceptions import PlatformError, NoSuchDir, NoSuchBinary
+from pkgs import PkgBase, TestProfile, to_safe_name
 
-# --- Global Value
 logger = log.get_logger()
+cur_dir = os.path.dirname(os.path.realpath(__file__))
 
 
-class FileBench(object):
+class FileBench(PkgBase):
     """
     Filebench - A Model Based File System Workload Generator
     https://github.com/filebench/filebench/wiki
@@ -33,7 +34,8 @@ class FileBench(object):
     """
 
     def __init__(self, top_path):
-        self.top_path = top_path
+        super(FileBench, self).__init__(top_path)
+        self.test_path = os.path.join(self.top_path, "filebench")
 
     def verify(self):
         if os.name != "posix":
@@ -45,21 +47,31 @@ class FileBench(object):
             logger.warning("yum install filebench -y")
             raise NoSuchBinary("filebench not installed")
 
-    @staticmethod
-    def set_workload(test_path, workload_conf_template):
+    @property
+    def workload_templates(self):
+        conf_path = os.path.join(cur_dir, 'workloads')
+        conf_list = os.popen('ls {0}'.format(conf_path)).read().split('\n')
+        fb_conf_names = []
+        for fb_conf in conf_list:
+            if not fb_conf.endswith('.f'):
+                continue
+            fb_conf_names.append(os.path.join(conf_path, fb_conf))
+        return fb_conf_names
+
+    def new_workload(self, workload_conf_template):
         logger.info('Load: {0}'.format(workload_conf_template))
         conf_name = os.path.split(workload_conf_template)[-1]
         tmp_path = os.path.join(os.getcwd(), 'tmp')
         utils.mkdir_path(tmp_path)
 
-        test_conf_name = 'filebench_{0}_{1}'.format(test_path.replace('/', '_'), conf_name)
+        test_conf_name = 'filebench_{0}_{1}'.format(self.test_path.replace('/', '_'), conf_name)
         test_conf = os.path.join(tmp_path, test_conf_name)
         rc, output = utils.run_cmd('cp {0} {1}'.format(workload_conf_template, test_conf))
         print(output)
 
         # modify the tmp workload conf file: dir
         config_cmd = "sed -i 's/set \$dir=\/tmp/set \$dir={test_path}/g' {test_conf}".format(
-            test_path=test_path.replace('/', '\/'), test_conf=test_conf)
+            test_path=self.test_path.replace('/', '\/'), test_conf=test_conf)
         rc, output = utils.run_cmd(config_cmd)
         print(output)
 
@@ -70,69 +82,25 @@ class FileBench(object):
                 f.write('run 60\n')
         return test_conf
 
-    @staticmethod
-    def get_workload_templates():
-        cur_dir = os.path.dirname(os.path.realpath(__file__))
-        conf_path = os.path.join(cur_dir, 'workloads')
-        conf_list = os.popen('ls {0}'.format(conf_path)).read().split('\n')
-        fb_conf_names = []
-        for fb_conf in conf_list:
-            if not fb_conf.endswith('.f'):
-                continue
-            fb_conf_names.append(os.path.join(conf_path, fb_conf))
-        return fb_conf_names
-
-    def run(self, test_path, workload_conf_template):
-        """
-        filebench -f workload.f
-        """
-        rc, output = utils.run_cmd('which filebench')
-        if not output.strip("\n") or 'no filebench' in output:
-            logger.warning("yum install filebench -y")
-            raise NoSuchBinary("filebench not installed")
-
-        rc, output = utils.run_cmd('echo 0 to /proc/sys/kernel/randomize_va_space')
-        logger.info(output.strip('\n'))
-
-        workload_conf = self.set_workload(test_path, workload_conf_template)
-        conf_name = os.path.split(workload_conf)[-1]
-        test_log = os.path.join(self.top_path, '{}.log'.format(conf_name))
-        fb_cmd = 'filebench -f {0} | tee -a {1}'.format(workload_conf, test_log)
-
-        try:
-            rc, output = utils.run_cmd(fb_cmd, timeout=72000)
-            logger.info('\n'.format(output.strip('\n')))
-            logger.info("Complete: Run fstest on {0}".format(test_path))
-        except Exception as e:
-            logger.info("FAIL: Run fstest on {0}".format(test_path))
-            raise e
-        finally:
-            utils.run_cmd('rm -rf {0}'.format(workload_conf))
-
-        return True
+    def tests_generator(self):
+        tests = []
+        for idx, conf_template in enumerate(self.workload_templates):
+            workload_conf = self.new_workload(conf_template)
+            conf_name = os.path.split(workload_conf)[-1]
+            test_name = "filebench_{0}_{1}".format(idx+1, conf_name)
+            test = TestProfile(
+                name=test_name,
+                desc=conf_name,
+                test_path=self.test_path,
+                command="echo 0 to /proc/sys/kernel/randomize_va_space; filebench -f {0}".format(workload_conf))
+            tests.append(test)
+        return tests
 
     def sanity(self):
-        self.verify()
-        test_path = os.path.join(self.top_path, "filebench")
-        utils.mkdir_path(test_path)
-        fb_conf_list = self.get_workload_templates()
-        len_conf = len(fb_conf_list)
-        for idx, fb_conf in enumerate(fb_conf_list):
-            logger.info("({0}/{1}) Run FileBench with workload: {2}".format(
-                idx+1, len_conf, fb_conf))
-            self.run(test_path, fb_conf)
-        return True
+        return self.run_tests(self.tests_generator())
 
     def stress(self):
-        test_path = os.path.join(self.top_path, "filebench")
-        utils.mkdir_path(test_path)
-        fb_conf_list = self.get_workload_templates()
-        len_conf = len(fb_conf_list)
-        for idx, fb_conf in enumerate(fb_conf_list):
-            logger.info("({0}/{1}) Run FileBench with workload: {2}".format(
-                idx + 1, len_conf, fb_conf))
-            self.run(test_path, fb_conf)
-        return True
+        return self.run_tests(self.tests_generator())
 
 
 def custom_name_func():
@@ -162,22 +130,15 @@ class FilebenchTestCase(unittest.TestCase):
         logger.info("Filebench Test Complete!")
 
     fb_parameterized = []
-    cur_dir = os.path.dirname(os.path.realpath(__file__))
-    conf_path = os.path.join(cur_dir, 'workloads')
-    conf_list = os.popen('ls {0}'.format(conf_path)).read().split('\n')
-
-    for fb_conf in conf_list:
-        if not fb_conf.endswith('.f'):
-            continue
-        fb_conf_pathname = os.path.join(conf_path, fb_conf)
-        p = param(fb_conf.split('.')[0], fb_conf_pathname)
+    fb_test = FileBench(_test_path)
+    logger.info(fb_test.__doc__)
+    for test in fb_test.tests_generator():
+        p = param(test.name, test)
         fb_parameterized.append(p)
 
     @parameterized.expand(fb_parameterized, name_func=custom_name_func())
-    def test_filebench(self, _, fb_conf_pathname):
-        fb_test = FileBench(self._test_path)
-        logger.info(fb_test.__doc__)
-        fb_test.run(self._test_path, fb_conf_pathname)
+    def test_filebench(self, _, test):
+        self.fb_test.run(test)
 
 
 if __name__ == '__main__':

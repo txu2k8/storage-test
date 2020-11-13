@@ -49,7 +49,6 @@ class PostMark(PkgBase):
         """
         PostMark For Disk Transaction Sanity Test(default profile)
         """
-        self.verify()
         test_profile = os.path.join(cur_dir, 'test_profiles/sanity.pmrc')
         return self.run(self.test_generator(test_profile))
 
@@ -57,7 +56,6 @@ class PostMark(PkgBase):
         """
         PostMark For Disk Transaction Stress Test
         """
-        self.verify()
         test_profile = os.path.join(cur_dir, 'test_profiles/stress.pmrc')
         return self.run(self.test_generator(test_profile))
 
@@ -75,7 +73,6 @@ class PostMark(PkgBase):
 
         """
         logger.info(self.benchmark.__doc__)
-        self.verify()
         test_profile = os.path.join(cur_dir, 'test_profiles/benchmark.pmrc')
         return self.run(self.test_generator(test_profile))
 

@@ -16,6 +16,8 @@ from libs.log import log
 from libs.exceptions import PlatformError, NoSuchDir, NoSuchBinary
 
 logger = log.get_logger()
+cur_dir = os.path.dirname(os.path.realpath(__file__))
+bin_path = os.path.join(cur_dir, 'bin')
 
 
 class AclXattr(object):
@@ -38,8 +40,6 @@ class AclXattr(object):
         """cd <test_path>; ./tacl_xattr.sh """
         logger.info(self.run.__doc__)
         utils.mkdir_path(test_path)
-        cur_dir = os.path.dirname(os.path.realpath(__file__))
-        bin_path = os.path.join(cur_dir, 'bin')
         acl_bin = os.path.join(bin_path, 'tacl_xattr.sh')
         test_log = os.path.join(self.top_path, 'tacl_xattr.log')
         acl_cmd = "rm -rf {0}/*; cd {0}; {1} | tee {2}".format(test_path, acl_bin, test_log)

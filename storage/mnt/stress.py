@@ -108,7 +108,7 @@ class StressTC(CustomTestCase):
 
     def test_fio(self):
         """FIO: Flexible I/O tester."""
-        from pkgs.fio import FIO
+        from pkgs.pts.fio import FIO
         fio = FIO(self.test_path)
         logger.info(fio.__doc__)
         self.assertTrue(fio.stress())

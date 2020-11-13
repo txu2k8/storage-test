@@ -103,7 +103,7 @@ class LoadGenTC(CustomTestCase):
     def test_seq_files(self):
         """Generate sequential files of specified size by fio"""
         logger.info(self.test_empty_files.__doc__)
-        from pkgs.fio import FIO
+        from pkgs.pts.fio import FIO
         fio = FIO(self.test_path)
         fio.verify()
         test_top_path = os.path.join(self.test_path, 'seq_files')
