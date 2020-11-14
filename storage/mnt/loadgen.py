@@ -68,7 +68,7 @@ class LoadGenTC(CustomTestCase):
         test_top_path = os.path.join(self.test_path, 'small_files')
         for x in range(0, self._dir_n):
             test_path = os.path.join(test_top_path, 'dir_{0}'.format(x))
-            f_size_min, f_size_max = utils.strnum_to_int_list(self._file_size_range)
+            f_size_min, f_size_max = utils.to_int_list(self._file_size_range)
             f_size = random.randint(f_size_min, f_size_max)
             self.assertTrue(cst.create(test_path, self._file_n, f_size))
 
@@ -83,7 +83,7 @@ class LoadGenTC(CustomTestCase):
             utils.mkdir_path(dir_path)
             for n in range(0, self._file_n):
                 file_path = os.path.join(dir_path, 'file-{0}.dat'.format(x))
-                f_size_min, f_size_max = utils.strnum_to_int_list(self._file_size_range)
+                f_size_min, f_size_max = utils.to_int_list(self._file_size_range)
                 self.assertTrue(fops.create_large_size_file(file_path, f_size_max))
 
     # POSIX
@@ -96,7 +96,7 @@ class LoadGenTC(CustomTestCase):
         test_top_path = os.path.join(self.test_path, 'create_files')
         for x in range(0, self._dir_n):
             test_path = os.path.join(test_top_path, "dir_{}".format(x))
-            f_size_min, f_size_max = utils.strnum_to_int_list(self._file_size_range)
+            f_size_min, f_size_max = utils.to_int_list(self._file_size_range)
             f_size = random.randint(f_size_min, f_size_max)
             self.assertTrue(cdf.run(test_path, self._file_n, f_size))
 
@@ -110,7 +110,7 @@ class LoadGenTC(CustomTestCase):
         for x in range(0, self._dir_n):
             test_path = os.path.join(test_top_path, 'dir_{0}'.format(x))
             for _ in range(0, self._file_n):
-                f_size_min, f_size_max = utils.strnum_to_int_list(self._file_size_range)
+                f_size_min, f_size_max = utils.to_int_list(self._file_size_range)
                 f_size = random.randint(f_size_min, f_size_max)
                 self.assertTrue(fio.seq_write(test_path, str(f_size)))
 

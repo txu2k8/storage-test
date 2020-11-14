@@ -8,28 +8,16 @@
 """
 
 import os
-import sys
 import re
-import time
 import subprocess
 import inspect
-import string
-import hashlib
 
 from libs.log import log
-from libs.retry import retry, retry_call
+from libs.retry import retry_call
 
 """utils"""
 
-# --- Global Value
 logger = log.get_logger()
-# --- OS constants
-POSIX = os.name == "posix"
-WINDOWS = os.name == "nt"
-PY2 = sys.version_info[0] == 2
-ENCODING = None if PY2 else 'utf-8'
-DD_BINARY = os.path.join(os.getcwd(), r'bin\dd\dd.exe') if WINDOWS else 'dd'
-MD5SUM_BINARY = os.path.join(os.getcwd(), r'bin\git\md5sum.exe') if WINDOWS else 'md5sum'
 
 
 def subprocess_popen_cmd(cmd_spec, output=True, timeout=7200):
@@ -146,12 +134,12 @@ def mkdir_path(local_path):
             raise Exception(e)
 
 
-def strnum_to_int_list(str_num, rtn_len=2, style=','):
+def to_int_list(str_num, rtn_len=2, sep=','):
     """
-    Format a string to number list
-    :param str_num: string_number
+    Format a string to number list, eg: 1,2 --> [1,2]
+    :param str_num: string_number, eg: 1,2 or 1-2
     :param rtn_len: return number list length
-    :param style: string split with style, '-' not support
+    :param sep: string split with style, '-' not support
     :return: a number list
     """
 
@@ -162,10 +150,10 @@ def strnum_to_int_list(str_num, rtn_len=2, style=','):
     else:
         str_num = str(str_num)
 
-    if bool(re.search('[^0-9{0}|\-1\-\-9]'.format(style), str_num)):
+    if bool(re.search('[^0-9{0}|\-1\-\-9]'.format(sep), str_num)):
         raise Exception('None-INT char in string: {}'.format(str_num))
 
-    str_num_list = str_num.split(style)
+    str_num_list = str_num.split(sep)
     num_list = [int(n) for n in str_num_list]
     num_list_len = len(num_list)
     if rtn_len > num_list_len:
@@ -174,8 +162,16 @@ def strnum_to_int_list(str_num, rtn_len=2, style=','):
 
 
 def to_safe_name(s):
-    return str(re.sub("[^a-zA-Z0-9_]+", "_", s))
+    """Formatting a string to safe testcase name"""
+    return str(re.sub(r"[^a-zA-Z0-9_]+", "_", s))
+
+
+def to_safe_int_list(s):
+    """Formatting a string with numbers to int list"""
+    return [int(i) for i in re.findall(r'-?[1-9]\d*', s)]
 
 
 if __name__ == '__main__':
-    pass
+    print(to_int_list("1,2,3", 4))
+    print(to_safe_int_list("1,2,3"))
+    print(to_safe_name("WAS=SS-Q*S1K&%#$%^"))
