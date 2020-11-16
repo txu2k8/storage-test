@@ -6,6 +6,6 @@
 
 """StressRunner inherit from TextTestRunner"""
 
-from libs.stressrunner.lite.runner import StressRunner
+from libs.stressrunner.lite.runner import StressRunner, MailInfo
 
-__all__ = ['StressRunner']
+__all__ = ['StressRunner', 'MailInfo']

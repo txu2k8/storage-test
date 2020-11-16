@@ -108,15 +108,12 @@ def init_logger(args):
 
 # --- Init Test Session
 def init_test_session(args):
-    command = 'python ' + ' '.join(sys.argv)
-    const.set_value('command', command)
-
     logger = init_logger(args)
     logger.info('{0} Args {0} '.format('=' * 15))
+    command = 'python ' + ' '.join(sys.argv)
     logger.info(command)
     logger.info(args)
     logger.info('{0} End {0} '.format('=' * 15))
-    MAIL_COUNT['m_to'] = args.mail_to
 
     return logger
 
@@ -158,11 +155,20 @@ def run_with_stress_runner(args):
     command = const.get_value('command')
 
     # run with StressRunner -- report html
-    from libs.stressrunner import StressRunner
+    from libs.stressrunner import StressRunner, MailInfo
+    mail_info = MailInfo(
+        m_from=MAIL_COUNT['m_from'],
+        m_to=args.mail_to,
+        host=MAIL_COUNT['host'],
+        user=MAIL_COUNT['user'],
+        password=MAIL_COUNT['password'],
+        port=MAIL_COUNT['port'],
+        tls=MAIL_COUNT['tls'],
+    )
     runner = StressRunner(report_path=log_path.replace('.log', '.html'),
-                          logger=logger, title=title, test_input=command,
-                          iteration=args.loops, tc_elapsed_limit=None,
-                          mail_info=MAIL_COUNT, save_last_result=False, user_args=args)
+                          logger=logger, iteration=args.loops,
+                          tc_elapsed_limit=None, save_last_result=False,
+                          test_title=title, mail_info=mail_info)
     # get unittest test suite and then run unittest case
     test_suite, _ = args.func(args)
     runner.run(test_suite)

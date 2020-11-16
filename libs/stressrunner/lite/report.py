@@ -151,6 +151,11 @@ REPORT_TEMPLATE = r"""
             color: #c00;
             font-weight: bold;
         }
+        
+        .skipCase {
+            color: #f0a20d;
+            font-weight: bold;
+        }
 
         .hiddenRow {
             display: none;

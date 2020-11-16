@@ -72,7 +72,6 @@ DEFAULT_REPORT_PATH = os.path.join(CUR_DIR, 'report.html')
 DEFAULT_TITLE = 'Test Report'
 DEFAULT_DESCRIPTION = ''
 DEFAULT_TESTER = __author__
-
 STATUS = {
         0: 'PASS',
         1: 'FAIL',
@@ -82,32 +81,37 @@ STATUS = {
     }
 
 
-def send_mail(subject, content, address_from, address_to, attach, host, user,
-              password, port, tls):
+class MailInfo(object):
+    """Define the mail info attributes here"""
+    def __init__(self, m_from="", m_to="", host="", user="", password="", port=465, tls=True,
+                 subject="Test Report", content="", attachments=None):
+        self.m_from = m_from
+        self.m_to = m_to
+        self.host = host
+        self.user = user
+        self.password = password
+        self.port = port
+        self.tls = tls
+        self.subject = subject
+        self.content = content
+        self.attachments = attachments or []
+
+
+def send_mail(mail_info):
     """
     Send mail
-    :param subject:
-    :param content:
-    :param address_from:
-    :param address_to:"txu1@test.com;txu2@test.com"
-    :param attach:
-    :param host:"smtp.gmail.com"
-    :param user:"stress@test.com"
-    :param password:"password"
-    :param port:465
-    :param tls:True
+    :param mail_info: object MailInfo()
     :return:
     """
-
     try:
         print('preparing mail...')
-        mail = Mail(subject, content, address_from, address_to)
+        mail = Mail(mail_info.subject, mail_info.content, mail_info.m_from, mail_info.m_to)
         print('preparing attachments...')
-        mail.attach(attach)
+        mail.attach(mail_info.attachments)
 
         print('preparing SMTP server...')
-        smtp = SmtpServer(host, user, password, port, tls)
-        print('sending mail to {0}...'.format(address_to))
+        smtp = SmtpServer(mail_info.host, mail_info.user, mail_info.password, mail_info.port, mail_info.tls)
+        print('sending mail to {0}...'.format(mail_info.m_to))
         smtp.sendmail(mail)
     except Exception as e:
         raise Exception('Error in sending email. [Exception]%s' % e)
@@ -161,6 +165,7 @@ def escape(value):
             return value.encode("utf-8")
 
     return str(value)
+
 
 # ------------------------------------------------------------------------
 # The redirectors below are used to capture output during testing. Output
@@ -481,78 +486,65 @@ class StressRunner(object):
     def __init__(self,
                  report_path=DEFAULT_REPORT_PATH,
                  logger=DEFAULT_LOGGER,
-                 title=DEFAULT_TITLE,
-                 description=DEFAULT_DESCRIPTION,
-                 tester=DEFAULT_TESTER,
-                 test_input='',
-                 test_version='version',
-                 test_env=None,
-                 comment=None,
                  iteration=1,
                  verbosity=2,
                  tc_elapsed_limit=None,
                  save_last_result=False,
-                 mail_info=None,
-                 nodes_info=None,
-                 user_args=None
+                 desc=DEFAULT_DESCRIPTION,
+                 tester=DEFAULT_TESTER,
+                 test_title=DEFAULT_TITLE,
+                 test_version='',
+                 test_env=None,
+                 test_nodes=None,
+                 mail_info=MailInfo(),
+                 teardown_fn=None,
                  ):
         """
-        :param report_path: default ./report.html
-        :param verbosity:
-        :param title:
-        :param description:
-        :param tester:
-        :param test_input:
-        :param test_version:
-        :param test_env:
-        :param iteration: the max test iteration
-        :param nodes_info: test env nodes info
-        :param mail_info: default, example:
-            MAIL_INFO = dict(
-                m_from="stress@test.com",
-                m_to="txu@test.com;txu2@test.com", # split to ";"
-                host="smtp.gmail.com",
-                user="txu@test.com",
-                password="P@ssword1",
-                port=465,
-                tls = True
-                )
-        :param tc_elapsed_limit: the test case run time limit
-        :param save_last_result: Save only the last iteration results if true
-        :param user_args: the user inout args
+        Stress runner
+        Args:
+            report_path: default ./report.html
+            logger:
+            iteration: the max test iteration
+            verbosity:
+            tc_elapsed_limit: the test case run time limit
+            save_last_result: Save only the last iteration results if true
+            desc:
+            tester:
+            test_title:
+            test_version:
+            test_env: test env k-v info
+            test_nodes: test env nodes info
+            mail_info: info for send emails
+            teardown_fn: The Fn() run after test done
         """
 
         if test_env is None:
             test_env = []
+        if not isinstance(test_env, list):
+            test_env = [test_env]
 
-        self.report_path = report_path if report_path.endswith('.html') \
-            else report_path + '.html'
+        self.report_path = report_path if report_path.endswith('.html') else report_path + '.html'
         self.logger = logger
+        self.iteration = iteration
         self.verbosity = verbosity
         self.tc_elapsed_limit = tc_elapsed_limit
         self.save_last_result = save_last_result
 
-        self.title = title + '-' + test_version
-        self.description = description
+        self.desc = desc
         self.tester = tester
-        self.test_input = test_input
+        self.title = test_title + '-' + test_version if test_version else test_title
         self.test_version = test_version
         self.test_env = test_env
-        self.comment = comment
-        self.iteration = iteration
+        self.test_nodes = test_nodes
         self.mail_info = mail_info
-        self.nodes_info = nodes_info
+        self.teardown_fn = teardown_fn
 
-        self.user_args = user_args
-        self.elapsedtime = ''
+        # test status
         self.start_time = datetime.now()
         self.stop_time = ''
+        self.elapsedtime = ''
         self.passrate = ''
-
-        # results for write in mysql
-        self.result_overview = ''
-        self.suite = user_args.project
-        self.tc = title.replace(user_args.project + '-', '').replace(user_args.project, '')
+        self.summary = ''  # eg: "ALL 1, PASS 1, Passing rate: 100%"
 
     def run(self, test):
         """
@@ -623,10 +615,8 @@ class StressRunner(object):
 
             self.logger.info('=' * 50)
             for res in _result.result:
-                msg = "{stat} - {tc} - Iteration: {iter} " \
-                      "- Elapsed: {elapsed}"\
-                    .format(stat=STATUS[res[0]], tc=res[1],
-                            iter=res[5], elapsed=res[4])
+                msg = "{stat} - {tc} - Iteration: {iter} - Elapsed: {elapsed}"\
+                    .format(stat=STATUS[res[0]], tc=res[1], iter=res[5], elapsed=res[4])
                 self.logger.info(msg)
                 # res[2].strip('\n') + res[3].strip('\n')
                 err_failure = res[3].strip('\n')
@@ -641,8 +631,7 @@ class StressRunner(object):
                 _result.failure_count,
                 _result.error_count,
                 _result.skipped_count,
-                _result.canceled_count]
-            )
+                _result.canceled_count])
             self.logger.info("Pass: {0}".format(_result.success_count))
             self.logger.info("Fail: {0}".format(_result.failure_count))
             self.logger.info("Error: {0}".format(_result.error_count))
@@ -655,35 +644,23 @@ class StressRunner(object):
                 self.local_hostname, self.local_ip))
             self.logger.info('=' * 50)
 
+            # send email
+            if self.mail_info.m_to:
+                self.mail_info.subject = self.title
+                with open(self.report_path, 'rb') as f:
+                    self.mail_info.content = f.read()
+                log_path = self.report_path.replace('.html', '.log')
+                if os.path.getsize(log_path) < 2048 * 1000:
+                    self.mail_info.attachments.append(log_path)
+                # self.mail_info.attachments.append(self.report_path)
+                send_mail(self.mail_info)
+                print(">> Send mail done.")
+
             # -- extend operations here -----------------------------------
             # eg: write test result to mysql
             # eg: tar and backup test logs
-            # eg: send email
-
-            # send email
-            if self.mail_info and self.mail_info['m_to']:
-                subject = self.title
-                with open(self.report_path, 'rb') as f:
-                    content = f.read()
-                address_from = self.mail_info['m_from']
-                address_to = self.mail_info['m_to']
-                host = self.mail_info['host']
-                user = self.mail_info['user']
-                password = self.mail_info['password']
-                port = self.mail_info['port']
-                tls = self.mail_info['tls']
-                attach = []  # [self.report_path]
-                log_path = self.report_path.replace('.html', '.log')
-                if os.path.getsize(log_path) < 2048 * 1000:
-                    attach.append(log_path)
-                if 'attach' in self.user_args:
-                    attach.append(os.path.join(CUR_DIR, self.user_args.attach))
-
-                send_mail(subject, content, address_from, address_to, attach,
-                          host, user, password, port, tls)
-                print(">> Send mail done.")
-
-            # write test result mysql,TODO
+            if self.teardown_fn:
+                self.teardown_fn()
 
             return _result, test_status
 
@@ -744,7 +721,7 @@ class StressRunner(object):
             self.passrate = str("%.0f%%" % (float(pass_count) / float(exec_count)*100))
         else:
             self.passrate = str("%.0f%%" % (float(0)))
-        self.result_overview = status + ", Passing rate: " + self.passrate
+        self.summary = status + ", Passing rate: " + self.passrate
 
         attr = {
             'Tester': self.tester,
@@ -752,11 +729,10 @@ class StressRunner(object):
             'Start': str(self.start_time).split('.')[0],
             'End': str(self.stop_time).split('.')[0],
             'Elapsed': self.elapsedtime,
-            'Summary': self.result_overview,
+            'Summary': self.summary,
             'Location': '{0}({1})'.format(self.local_hostname, self.local_ip),
             'Report': self.report_path,
-            'Command': self.test_input,
-            'Comment': self.comment
+            'Command': 'python '+' '.join(sys.argv),
         }
 
         return attr
@@ -779,8 +755,7 @@ class StressRunner(object):
                 tr += att_template % (idx, k, v)
         return tr
 
-    @staticmethod
-    def _get_nodes_table_string(nodes_info=None):
+    def _get_nodes_table_string(self, nodes_info=None):
         """
         nodes_info [
             {
@@ -795,6 +770,14 @@ class StressRunner(object):
         """
         if nodes_info is None:
             nodes_info = []
+        nodes_info.insert(0, {
+            "Name": self.local_hostname,
+            "Status": "Ready",
+            "IPAddress": self.local_ip,
+            "Roles": "Test Host",
+            "User": "root",
+            "Password": "password",
+        })
         html_template = """
         <tr id='node_%d' class='nodes'>
             <td colspan='1' align='center''>%s</td>
@@ -869,7 +852,7 @@ class StressRunner(object):
         )
         attr = self._get_attributes_table_string(result)
         results = self._get_result_table_string(result)
-        nodes = self._get_nodes_table_string(self.nodes_info)
+        nodes = self._get_nodes_table_string(self.test_nodes)
         output = report.REPORT_TEMPLATE % dict(
             Title=self.title,
             Generator=__author__,
