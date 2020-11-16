@@ -25,7 +25,7 @@ MAIL_COUNT = dict(
     m_to="",  # split to ";"
     host="smtp.gmail.com",
     user="txu2k8@gmail.com",
-    password="password",
+    password="b29ndHl5YnlvdWF4a2l3aQ==",
     port=465,
     tls=True
 )

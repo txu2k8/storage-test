@@ -7,6 +7,7 @@
 """Send email by smtp"""
 
 import os
+import base64
 import smtplib
 import mimetypes
 from email import encoders
@@ -26,6 +27,20 @@ from libs import decorators
 logger = log.get_logger()
 
 
+def is_base64(sb):
+    try:
+        if isinstance(sb, str):
+            # If there's any unicode here, an exception will be thrown and the function will return false
+            sb_bytes = bytes(sb, 'ascii')
+        elif isinstance(sb, bytes):
+            sb_bytes = sb
+        else:
+            raise ValueError("Argument must be string or bytes")
+        return base64.b64encode(base64.b64decode(sb_bytes)) == sb_bytes
+    except Exception:
+        return False
+
+
 # ===================================================================
 # --- Solution 1: SmtpServer + Mail
 # ===================================================================
@@ -37,7 +52,7 @@ class SmtpServer(object):
         self.smtp = smtplib.SMTP(host=host)
         self.host = host
         self.user = user
-        self.password = password
+        self.password = base64.b64decode(password).decode('UTF-8') if is_base64(password) else password
         self.is_gmail = False
         if self.host == 'smtp.gmail.com':
             self.is_gmail = True
