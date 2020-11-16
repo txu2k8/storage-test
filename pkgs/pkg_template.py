@@ -121,8 +121,10 @@ def windows_ready():
 
 
 def filebench_ready():
-    rc, output = utils.run_cmd('which filebench')
-    if not output.strip("\n") or 'no filebench' in output:
+    try:
+        utils.run_cmd('which filebench', expected_rc=0)
+    except Exception as e:
+        logger.warning(e)
         logger.warning("filebench not installed.(yum install -y filebench)")
         return False
     return True
