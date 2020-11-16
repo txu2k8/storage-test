@@ -121,6 +121,7 @@ class StressTC(CustomTestCase):
 
     @unittest.skipUnless(posix_ready(), "Not supported platform")
     @unittest.skipUnless(fio_ready(), "fio not installed!")
+    @unittest.skip("Skip this test temporary ...")
     def test_fio(self):
         """FIO: Flexible I/O tester."""
         from pkgs.pts.fio import FIO
