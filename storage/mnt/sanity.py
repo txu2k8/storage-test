@@ -54,6 +54,7 @@ class SanityTC(CustomTestCase):
         self.assertTrue(acl.sanity())
 
     @unittest.skipUnless(posix_ready(), "Not supported platform!")
+    @unittest.skip("Skip this test temporary ...")
     def test_doio(self):
         """base rw test: LTP doio & iogen"""
         from pkgs.ltp.doio import DoIO

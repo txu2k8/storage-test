@@ -59,8 +59,8 @@ class StressTC(CustomTestCase):
         logger.info(cdf.__doc__)
         self.assertTrue(cdf.stress())
 
-    @unittest.skipUnless(len_path_limited(_fs_path, 80), "Path length out of range!")
     @unittest.skipUnless(posix_ready(), "Not supported platform!")
+    @unittest.skip("Skip this test temporary ...")
     def test_doio(self):
         """base rw test: LTP doio & iogen; growfiles"""
         from pkgs.ltp.doio import DoIO
