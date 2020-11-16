@@ -304,7 +304,8 @@ class _TestResult(unittest.TestResult):
         Safe to call multiple times.
         """
         # remove the running record
-        self.result.pop(-1)
+        if len(self.result) > 0:
+            self.result.pop(-1)
 
         output = sys.stdout.fp.getvalue().decode('UTF-8')
         error = sys.stderr.fp.getvalue().decode('UTF-8')
