@@ -15,6 +15,7 @@ from libs import log
 from libs import utils
 from libs.exceptions import NoSuchDir
 from libs.customtest import CustomTestCase
+from pkgs import posix_ready, fio_ready, attr_ready, filebench_ready
 from config import const
 
 logger = log.get_logger()
@@ -41,6 +42,7 @@ class StressTC(CustomTestCase):
         logger.info("Stress test on {} complete!".format(cls._fs_path))
 
     # ==== LTP ====
+    @unittest.skipUnless(posix_ready() and attr_ready(), "Not supported platform or attr not installed!")
     def test_acl(self):
         """Test ACL and Extend Attribute on Linux system"""
         from pkgs.ltp.acl import AclXattr
@@ -55,6 +57,7 @@ class StressTC(CustomTestCase):
         logger.info(cdf.__doc__)
         self.assertTrue(cdf.stress())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_doio(self):
         """base rw test: LTP doio & iogen; growfiles"""
         from pkgs.ltp.doio import DoIO
@@ -63,6 +66,7 @@ class StressTC(CustomTestCase):
         self.assertTrue(dio.rwtest())
         self.assertTrue(dio.growfiles())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_fs_di(self):
         """Test FileSystem Data Integrity"""
         from pkgs.ltp.fs_di import FSDataIntegrity
@@ -70,6 +74,7 @@ class StressTC(CustomTestCase):
         logger.info(fdi.__doc__)
         self.assertTrue(fdi.stress())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_fsstress(self):
         """filesystem stress with LTP tool fsstress"""
         from pkgs.ltp.fsstress import FSStress
@@ -77,6 +82,7 @@ class StressTC(CustomTestCase):
         logger.info(fs_stress.__doc__)
         fs_stress.stress()
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_locktests(self):
         """Test fcntl locking functions"""
         from pkgs.ltp.locktests import LockTest
@@ -84,6 +90,7 @@ class StressTC(CustomTestCase):
         logger.info(lct.__doc__)
         self.assertTrue(lct.stress())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_readall(self):
         """Perform a small read on every file in a directory tree."""
         from pkgs.ltp.read import ReadAll
@@ -91,6 +98,7 @@ class StressTC(CustomTestCase):
         logger.info(readall.__doc__)
         self.assertTrue(readall.stress())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_stream(self):
         """LTP file stream test"""
         from pkgs.ltp.stream import StreamTest
@@ -99,6 +107,8 @@ class StressTC(CustomTestCase):
         self.assertTrue(stream.stress())
 
     # ==== Tools ====
+    @unittest.skipUnless(posix_ready() and filebench_ready(),
+                         "Not supported platform or filebench not installed!")
     def test_filebench(self):
         """File System Workload test"""
         from pkgs.filebench import FileBench
@@ -106,6 +116,7 @@ class StressTC(CustomTestCase):
         logger.info(fb.__doc__)
         self.assertTrue(fb.stress())
 
+    @unittest.skipUnless(posix_ready() and fio_ready(), "Not supported platform or fio not installed!")
     def test_fio(self):
         """FIO: Flexible I/O tester."""
         from pkgs.pts.fio import FIO
@@ -113,6 +124,7 @@ class StressTC(CustomTestCase):
         logger.info(fio.__doc__)
         self.assertTrue(fio.stress())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_fstest(self):
         """Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink"""
         from pkgs.fstest import FSTest
@@ -121,6 +133,7 @@ class StressTC(CustomTestCase):
         self.assertTrue(fs_test.stress())
 
     # ==== PTS ====
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_aio(self):
         """a-synchronous I/O benchmark"""
         from pkgs.pts.aio import AioStress
@@ -128,6 +141,7 @@ class StressTC(CustomTestCase):
         logger.info(aio.__doc__)
         self.assertTrue(aio.benchmark())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_compilebench(self):
         """Simulating disk IO common in creating, compiling, patching, stating and reading kernel trees."""
         from pkgs.pts.compilebench import CompileBench
@@ -135,6 +149,7 @@ class StressTC(CustomTestCase):
         logger.info(cb.__doc__)
         self.assertTrue(cb.stress())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_fs_mark(self):
         """The fs_mark benchmark tests synchronous write workloads"""
         from pkgs.pts.fs_mark import FSMark
@@ -142,6 +157,7 @@ class StressTC(CustomTestCase):
         logger.info(fm.__doc__)
         self.assertTrue(fm.benchmark())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_iozone(self):
         """A benchmark tests for generates and measures a variety of file operations."""
         from pkgs.pts.iozone import IOzone
@@ -149,6 +165,7 @@ class StressTC(CustomTestCase):
         logger.info(ioz.__doc__)
         self.assertTrue(ioz.stress())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_postmark(self):
         """Simulate small-file testing similar to the tasks endured by web and mail servers"""
         from pkgs.pts.postmark import PostMark

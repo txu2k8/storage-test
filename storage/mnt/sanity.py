@@ -16,6 +16,7 @@ from libs import log
 from libs import utils
 from libs.exceptions import NoSuchDir
 from libs.customtest import CustomTestCase
+from pkgs import posix_ready, fio_ready, attr_ready
 from config import const
 
 logger = log.get_logger()
@@ -42,6 +43,7 @@ class SanityTC(CustomTestCase):
         logger.info("Sanity test on {} complete!".format(cls._fs_path))
 
     # ==== LTP ====
+    @unittest.skipUnless(posix_ready() and attr_ready(), "Not supported platform or attr not installed!")
     def test_acl(self):
         """Test ACL and Extend Attribute on Linux system"""
         from pkgs.ltp.acl import AclXattr
@@ -49,6 +51,7 @@ class SanityTC(CustomTestCase):
         logger.info(acl.__doc__)
         self.assertTrue(acl.sanity())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_doio(self):
         """base rw test: LTP doio & iogen"""
         from pkgs.ltp.doio import DoIO
@@ -56,6 +59,7 @@ class SanityTC(CustomTestCase):
         logger.info(dio.__doc__)
         self.assertTrue(dio.iogen_doio())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_fs_di(self):
         """Test FileSystem Data Integrity"""
         from pkgs.ltp.fs_di import FSDataIntegrity
@@ -63,6 +67,7 @@ class SanityTC(CustomTestCase):
         logger.info(fdi.__doc__)
         self.assertTrue(fdi.sanity())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_locktests(self):
         """Test fcntl locking functions"""
         from pkgs.ltp.locktests import LockTest
@@ -70,6 +75,7 @@ class SanityTC(CustomTestCase):
         logger.info(lct.__doc__)
         self.assertTrue(lct.sanity())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_readall(self):
         """Perform a small read on every file in a directory tree."""
         from pkgs.ltp.read import ReadAll
@@ -77,6 +83,7 @@ class SanityTC(CustomTestCase):
         logger.info(readall.__doc__)
         self.assertTrue(readall.sanity())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_stream(self):
         """LTP file stream test"""
         from pkgs.ltp.stream import StreamTest
@@ -85,6 +92,7 @@ class SanityTC(CustomTestCase):
         self.assertTrue(stream.sanity())
 
     # ==== Tools ====
+    @unittest.skipUnless(posix_ready() and fio_ready(), "Not supported platform or fio not installed!")
     def test_fio(self):
         """FIO: Flexible I/O tester."""
         from pkgs.pts.fio import FIO
@@ -92,6 +100,7 @@ class SanityTC(CustomTestCase):
         logger.info(fio.__doc__)
         self.assertTrue(fio.sanity())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_fstest(self):
         """Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink"""
         from pkgs.fstest import FSTest
@@ -99,6 +108,7 @@ class SanityTC(CustomTestCase):
         logger.info(fs_test.__doc__)
         self.assertTrue(fs_test.sanity())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_postmark(self):
         """Simulate small-file testing similar to the tasks endured by web and mail servers"""
         from pkgs.pts.postmark import PostMark

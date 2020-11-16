@@ -69,12 +69,12 @@ class FIO(PkgBase):
             tests.append(test)
         return tests
 
-    def seq_write_tcs(self, size="2G"):
+    def seq_write_tcs(self, num=1, size="2G"):
         cmd_list = [
             ("Write Sequential Speed", "fio --name=write_seq --filename={0} --bs=1M --iodepth=16 --size={1} --readwrite=write --thread --numjobs=4 --offset_increment=500M --randrepeat=0 --verify=0 --ioengine=libaio --direct=1 --gtod_reduce=1 --ramp_time=2s"),
         ]
         tests = []
-        for idx, (desc, cmd) in enumerate(cmd_list):
+        for idx, (desc, cmd) in enumerate(cmd_list*num):
             test_name = "fio_{0}_{1}".format(idx + 1, to_safe_name(desc))
             f_pathname = os.path.join(self.test_path, test_name + ".data")
             test = TestProfile(
@@ -86,8 +86,8 @@ class FIO(PkgBase):
             tests.append(test)
         return tests
 
-    def seq_write(self, size="2G"):
-        return self.run_tests(self.seq_write_tcs(size))
+    def seq_write(self, num=1, size="2G"):
+        return self.run_tests(self.seq_write_tcs(num, size))
 
     def sanity(self):
         """Run dbench tests"""

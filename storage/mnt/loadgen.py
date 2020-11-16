@@ -16,6 +16,7 @@ from libs import log
 from libs import utils
 from libs.exceptions import NoSuchDir
 from libs.customtest import CustomTestCase
+from pkgs import posix_ready, fio_ready
 from config import const
 
 logger = log.get_logger()
@@ -47,7 +48,6 @@ class LoadGenTC(CustomTestCase):
     def tearDownClass(cls):
         logger.info("Generate data on {} complete!".format(cls._fs_path))
 
-    # POSIX/WINDOWS
     def test_empty_files(self):
         """Generate empty files by Consistency"""
         logger.info(self.test_empty_files.__doc__)
@@ -86,7 +86,7 @@ class LoadGenTC(CustomTestCase):
                 f_size_min, f_size_max = utils.to_int_list(self._file_size_range)
                 self.assertTrue(fops.create_large_size_file(file_path, f_size_max))
 
-    # POSIX
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_create_files(self):
         """Creates files of specified size"""
         logger.info(self.test_create_files.__doc__)
@@ -100,20 +100,18 @@ class LoadGenTC(CustomTestCase):
             f_size = random.randint(f_size_min, f_size_max)
             self.assertTrue(cdf.run(test_path, self._file_n, f_size))
 
+    @unittest.skipUnless(posix_ready() and fio_ready(), "Not supported platform or fio not installed!")
     def test_seq_files(self):
         """Generate sequential files of specified size by fio"""
         logger.info(self.test_empty_files.__doc__)
         from pkgs.pts.fio import FIO
-        fio = FIO(self.test_path)
-        fio.verify()
-        test_top_path = os.path.join(self.test_path, 'seq_files')
         for x in range(0, self._dir_n):
-            test_path = os.path.join(test_top_path, 'dir_{0}'.format(x))
-            for _ in range(0, self._file_n):
-                f_size_min, f_size_max = utils.to_int_list(self._file_size_range)
-                f_size = random.randint(f_size_min, f_size_max)
-                self.assertTrue(fio.seq_write(test_path, str(f_size)))
+            f_size_min, f_size_max = utils.to_int_list(self._file_size_range)
+            f_size = random.randint(f_size_min, f_size_max)
+            fio = FIO(os.path.join(self.test_path, 'seq_files_dir_{0}'.format(x)))
+            self.assertTrue(fio.seq_write(self._file_n, str(f_size)))
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_fsstress(self):
         """Generate sub dirs/files by fsstress"""
         logger.info(self.test_fsstress.__doc__)

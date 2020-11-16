@@ -112,26 +112,37 @@ class PkgBase(object):
         return True
 
 
-def verify_all():
-    if os.name != "posix":
-        raise PlatformError("Some test just support for linux machine!")
+def posix_ready():
+    return os.name == "posix"
 
+
+def windows_ready():
+    return os.name == "nt"
+
+
+def filebench_ready():
     rc, output = utils.run_cmd('which filebench')
     if not output.strip("\n") or 'no filebench' in output:
-        logger.warning("yum install filebench -y")
-        raise NoSuchBinary("filebench not installed")
+        logger.warning("filebench not installed.(yum install -y filebench)")
+        return False
+    return True
 
+
+def fio_ready():
     try:
         utils.run_cmd("which fio", expected_rc=0)
     except Exception as e:
-        logger.error(e)
-        raise NoSuchBinary("fio, try install it.(apt-get install -y fio)")
+        logger.warning(e)
+        logger.warning("fio not installed.(apt-get install -y fio)")
+    return True
 
+
+def attr_ready():
     try:
         utils.run_cmd("which attr", expected_rc=0)
     except Exception as e:
-        logger.error(e)
-        raise NoSuchBinary("attr, try install it.(apt-get install -y attr)")
+        logger.warning(e)
+        logger.warning("attr not installed.(apt-get install -y attr)")
     return True
 
 

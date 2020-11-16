@@ -16,6 +16,7 @@ from libs import log
 from libs import utils
 from libs.exceptions import NoSuchDir
 from libs.customtest import CustomTestCase
+from pkgs import posix_ready, fio_ready
 from config import const
 
 logger = log.get_logger()
@@ -41,6 +42,7 @@ class BenchMarkTC(CustomTestCase):
         logger.info("BenchMark test on {} complete!".format(cls._fs_path))
 
     # ==== PTS ====
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_aio(self):
         """a-synchronous I/O benchmark"""
         from pkgs.pts.aio import AioStress
@@ -48,6 +50,7 @@ class BenchMarkTC(CustomTestCase):
         logger.info(aio.__doc__)
         self.assertTrue(aio.benchmark())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_compilebench(self):
         """Simulating disk IO common in creating, compiling, patching, stating and reading kernel trees."""
         from pkgs.pts.compilebench import CompileBench
@@ -55,6 +58,7 @@ class BenchMarkTC(CustomTestCase):
         logger.info(cb.__doc__)
         self.assertTrue(cb.benchmark())
 
+    @unittest.skipUnless(posix_ready() and fio_ready(), "Not supported platform or fio not installed!")
     def test_fio(self):
         """Flexible I/O tester"""
         from pkgs.pts.fio import FIO
@@ -62,6 +66,7 @@ class BenchMarkTC(CustomTestCase):
         logger.info(fio.__doc__)
         self.assertTrue(fio.google_benchmark())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_fs_mark(self):
         """A benchmark tests for synchronous write workloads"""
         from pkgs.pts.fs_mark import FSMark
@@ -69,6 +74,7 @@ class BenchMarkTC(CustomTestCase):
         logger.info(fm.__doc__)
         self.assertTrue(fm.benchmark())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_iozone(self):
         """A benchmark tests for generates and measures a variety of file operations."""
         from pkgs.pts.iozone import IOzone
@@ -76,6 +82,7 @@ class BenchMarkTC(CustomTestCase):
         logger.info(ioz.__doc__)
         self.assertTrue(ioz.benchmark())
 
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_postmark(self):
         """Simulate small-file testing similar to the tasks endured by web and mail servers"""
         from pkgs.pts.postmark import PostMark
