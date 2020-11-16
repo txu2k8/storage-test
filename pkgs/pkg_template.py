@@ -113,7 +113,7 @@ class PkgBase(object):
 
 
 def posix_ready():
-    return not os.name == "posix"
+    return os.name == "posix"
 
 
 def windows_ready():
