@@ -740,7 +740,10 @@ class StressRunner(object):
             status.append('Cancel {0}'.format(result.canceled_count))
 
         status = ', '.join(status)
-        self.passrate = str("%.0f%%" % (float(pass_count) / float(exec_count)*100))
+        if exec_count > 0:
+            self.passrate = str("%.0f%%" % (float(pass_count) / float(exec_count)*100))
+        else:
+            self.passrate = str("%.0f%%" % (float(0)))
         self.result_overview = status + ", Passing rate: " + self.passrate
 
         attr = {
