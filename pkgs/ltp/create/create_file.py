@@ -50,7 +50,7 @@ class CreateDataFile(object):
                 f_name = os.path.join(test_path, "file_{}".format(x))
                 test_cmd = "{0} {1} {2}".format(cdf_bin, f_size, f_name)
                 futures.append(pool.submit(utils.run_cmd, test_cmd, expected_rc='ignore'))
-                pool.shutdown()
+            pool.shutdown()
             future_result = [future.result()[0] for future in futures]
             result = False if -1 in future_result else True
             assert result

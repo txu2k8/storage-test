@@ -100,7 +100,8 @@ class LoadGenTC(CustomTestCase):
             f_size = random.randint(f_size_min, f_size_max)
             self.assertTrue(cdf.run(test_path, self._file_n, f_size))
 
-    @unittest.skipUnless(posix_ready() and fio_ready(), "Not supported platform or fio not installed!")
+    @unittest.skipUnless(posix_ready(), "Not supported platform")
+    @unittest.skipUnless(fio_ready(), "fio not installed!")
     def test_seq_files(self):
         """Generate sequential files of specified size by fio"""
         logger.info(self.test_empty_files.__doc__)

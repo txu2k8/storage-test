@@ -15,7 +15,7 @@ from libs import log
 from libs import utils
 from libs.exceptions import NoSuchDir
 from libs.customtest import CustomTestCase
-from pkgs import posix_ready, fio_ready, attr_ready, filebench_ready
+from pkgs import posix_ready, fio_ready, attr_ready, filebench_ready, len_path_limited
 from config import const
 
 logger = log.get_logger()
@@ -42,7 +42,9 @@ class StressTC(CustomTestCase):
         logger.info("Stress test on {} complete!".format(cls._fs_path))
 
     # ==== LTP ====
-    @unittest.skipUnless(posix_ready() and attr_ready(), "Not supported platform or attr not installed!")
+    @unittest.skipUnless(posix_ready(), "Not supported platform")
+    @unittest.skipUnless(attr_ready(), "attr not installed!")
+    @unittest.skip("Skip this test temporary ...")
     def test_acl(self):
         """Test ACL and Extend Attribute on Linux system"""
         from pkgs.ltp.acl import AclXattr
@@ -57,6 +59,7 @@ class StressTC(CustomTestCase):
         logger.info(cdf.__doc__)
         self.assertTrue(cdf.stress())
 
+    @unittest.skipUnless(len_path_limited(_fs_path, 80), "Path length out of range!")
     @unittest.skipUnless(posix_ready(), "Not supported platform!")
     def test_doio(self):
         """base rw test: LTP doio & iogen; growfiles"""
@@ -107,8 +110,8 @@ class StressTC(CustomTestCase):
         self.assertTrue(stream.stress())
 
     # ==== Tools ====
-    @unittest.skipUnless(posix_ready() and filebench_ready(),
-                         "Not supported platform or filebench not installed!")
+    @unittest.skipUnless(posix_ready(), "Not supported platform")
+    @unittest.skipUnless(filebench_ready(), "filebench not installed!")
     def test_filebench(self):
         """File System Workload test"""
         from pkgs.filebench import FileBench
@@ -116,7 +119,8 @@ class StressTC(CustomTestCase):
         logger.info(fb.__doc__)
         self.assertTrue(fb.stress())
 
-    @unittest.skipUnless(posix_ready() and fio_ready(), "Not supported platform or fio not installed!")
+    @unittest.skipUnless(posix_ready(), "Not supported platform")
+    @unittest.skipUnless(fio_ready(), "fio not installed!")
     def test_fio(self):
         """FIO: Flexible I/O tester."""
         from pkgs.pts.fio import FIO

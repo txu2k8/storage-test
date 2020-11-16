@@ -113,7 +113,7 @@ class PkgBase(object):
 
 
 def posix_ready():
-    return os.name == "posix"
+    return not os.name == "posix"
 
 
 def windows_ready():
@@ -147,6 +147,9 @@ def attr_ready():
         logger.warning("attr not installed.(apt-get install -y attr)")
     return True
 
+
+def len_path_limited(p, n=128):
+    return len(p) < n
 
 class UnitTestCase(unittest.TestCase):
 

@@ -43,7 +43,9 @@ class SanityTC(CustomTestCase):
         logger.info("Sanity test on {} complete!".format(cls._fs_path))
 
     # ==== LTP ====
-    @unittest.skipUnless(posix_ready() and attr_ready(), "Not supported platform or attr not installed!")
+    @unittest.skipUnless(posix_ready(), "Not supported platform")
+    @unittest.skipUnless(attr_ready(), "attr not installed!")
+    @unittest.skip("Skip this test temporary ...")
     def test_acl(self):
         """Test ACL and Extend Attribute on Linux system"""
         from pkgs.ltp.acl import AclXattr
@@ -92,7 +94,8 @@ class SanityTC(CustomTestCase):
         self.assertTrue(stream.sanity())
 
     # ==== Tools ====
-    @unittest.skipUnless(posix_ready() and fio_ready(), "Not supported platform or fio not installed!")
+    @unittest.skipUnless(posix_ready(), "Not supported platform")
+    @unittest.skipUnless(fio_ready(), "fio not installed!")
     def test_fio(self):
         """FIO: Flexible I/O tester."""
         from pkgs.pts.fio import FIO

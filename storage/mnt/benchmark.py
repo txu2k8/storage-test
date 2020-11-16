@@ -58,7 +58,8 @@ class BenchMarkTC(CustomTestCase):
         logger.info(cb.__doc__)
         self.assertTrue(cb.benchmark())
 
-    @unittest.skipUnless(posix_ready() and fio_ready(), "Not supported platform or fio not installed!")
+    @unittest.skipUnless(posix_ready(), "Not supported platform")
+    @unittest.skipUnless(fio_ready(), "fio not installed!")
     def test_fio(self):
         """Flexible I/O tester"""
         from pkgs.pts.fio import FIO
