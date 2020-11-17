@@ -28,15 +28,15 @@ class CustomTestCase(unittest.TestCase):
         self.str_time = str(time.strftime("%Y%m%d%H%M%S", time.localtime()))
 
     @staticmethod
-    def parametrize(testcase_klass, *args, **kwargs):
-        """ Create a suite containing all tests taken from the given
-            subclass, passing them the parameter 'param'.
-        """
+    def parametrize(testcase_class, *args, **kwargs):
+        """Return a suite of all test cases contained in testCaseClass"""
         testloader = unittest.TestLoader()
-        testnames = testloader.getTestCaseNames(testcase_klass)
+        testnames = testloader.getTestCaseNames(testcase_class)
+        if not testnames and hasattr(testcase_class, 'runTest'):
+            testnames = ['runTest']
         suite = unittest.TestSuite()
         for name in testnames:
-            suite.addTest(testcase_klass(name, *args, **kwargs))
+            suite.addTest(testcase_class(name, *args, **kwargs))
         return suite
 
     def setUp(self):

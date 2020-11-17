@@ -121,7 +121,13 @@ def test_suite_generator(args):
 
     if 'all' in args.case_list:
         # Load all test cases
-        test_suite = unittest.TestLoader().loadTestsFromTestCase(MntTestCase)
+        # test_suite = unittest.TestLoader().loadTestsFromTestCase(MntTestCase)
+        test_suite = unittest.TestSuite()
+        tc_names = unittest.TestLoader().getTestCaseNames(MntTestCase)
+        if not tc_names and hasattr(MntTestCase, 'runTest'):
+            tc_names = ['runTest']
+        for tc_name in tc_names:
+            test_suite.addTest(MntTestCase(tc_name, args))
     else:
         case_name_list = []
         args_list = []
