@@ -8,37 +8,27 @@
 """
 
 import os
-import time
 import unittest
 
 from storagetest.libs import utils, log
 from storagetest.libs.exceptions import NoSuchDir
-from storagetest.libs.customtest import CustomTestCase
+from storagetest.libs.customtestcase import CustomTestCase
 from storagetest.pkgs.base import posix_ready, fio_ready, attr_ready, filebench_ready
-from config import const
 
 logger = log.get_logger()
 
 
 class StressTC(CustomTestCase):
     """Stress test on a mount point or path"""
-    _fs_path = ""
 
-    @classmethod
-    def setUpClass(cls):
-        args = const.get_value('args')
-        cls._fs_path = args.test_path
-
-        logger.info("Start stress test on {}".format(cls._fs_path))
-        if not os.path.isdir(cls._fs_path):
-            raise NoSuchDir(cls._fs_path)
-        str_time = str(time.strftime("%Y%m%d%H%M%S", time.localtime()))
-        cls.test_path = os.path.join(cls._fs_path, "stress_"+str_time)
-        utils.mkdir_path(cls.test_path)
-
-    @classmethod
-    def tearDownClass(cls):
-        logger.info("Stress test on {} complete!".format(cls._fs_path))
+    def setUp(self):
+        self.phase_list.append([self.id().split('.')[-1], "Start", self.shortDescription()])
+        self.print_phase()
+        fs_path = self.args[0].test_path
+        if not os.path.isdir(fs_path):
+            raise NoSuchDir(fs_path)
+        self.test_path = os.path.join(fs_path, "stress_{0}_{1}".format(self.str_time, self.tc_loop[self.id()]))
+        utils.mkdir_path(self.test_path)
 
     # ==== LTP ====
     @unittest.skipUnless(posix_ready(), "Not supported platform")

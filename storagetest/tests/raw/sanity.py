@@ -10,31 +10,25 @@
 import unittest
 
 from storagetest.libs import log
-from storagetest.libs import CustomTestCase
-from storagetest.pkgs import RawUT
-from config import const
+from storagetest.libs.customtestcase import CustomTestCase
+from storagetest.pkgs.raw.ut import RawUT
 
 logger = log.get_logger()
-args = const.get_value('args')
 
 
 class SanityTC(CustomTestCase):
     """RAW device write/read unit test"""
-    _device = args.device
-    _case_id_list = args.case_id_list
-    _case_priority_list = args.case_priority_list
 
-    @classmethod
-    def setUpClass(cls):
-        logger.info("Start sanity test on raw device {}".format(cls._device))
-
-    @classmethod
-    def tearDownClass(cls):
-        logger.info("Sanity test on raw device {} complete!".format(cls._device))
+    def setUp(self):
+        self.phase_list.append([self.id().split('.')[-1], "Start", self.shortDescription()])
+        self.print_phase()
+        self.device = self.args[0].device
+        self.case_id_list = self.args[0].case_id_list
+        self.case_priority_list = self.args[0].case_priority_list
 
     def test_ut(self):
         """Raw write/read unit test"""
-        raw = RawUT(self._device)
+        raw = RawUT(self.device)
         logger.info(raw.__doc__)
         self.assertTrue(raw.sanity())
 

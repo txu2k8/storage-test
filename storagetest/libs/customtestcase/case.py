@@ -6,7 +6,7 @@
 @Author: Tao.Xu
 @Email : tao.xu2008@outlook.com
 """
-
+import time
 import unittest
 from prettytable import PrettyTable
 from collections import defaultdict
@@ -18,7 +18,26 @@ logger = log.get_logger()
 
 class CustomTestCase(unittest.TestCase):
     """A custom class inherit from unittest.TestCase"""
-    phase_list = []
+    tc_loop = defaultdict(int)
+
+    def __init__(self, methodName='runTest', *args, **kwargs):
+        super(CustomTestCase, self).__init__(methodName)
+        self.args = args
+        self.kwargs = kwargs
+        self.phase_list = []
+        self.str_time = str(time.strftime("%Y%m%d%H%M%S", time.localtime()))
+
+    @staticmethod
+    def parametrize(testcase_klass, *args, **kwargs):
+        """ Create a suite containing all tests taken from the given
+            subclass, passing them the parameter 'param'.
+        """
+        testloader = unittest.TestLoader()
+        testnames = testloader.getTestCaseNames(testcase_klass)
+        suite = unittest.TestSuite()
+        for name in testnames:
+            suite.addTest(testcase_klass(name, *args, **kwargs))
+        return suite
 
     def setUp(self):
         self.phase_list.append([self.id().split('.')[-1], "Start", self.shortDescription()])
@@ -36,6 +55,7 @@ class CustomTestCase(unittest.TestCase):
         status = "PASS" if ok else "FAIL"
         self.phase_list[-1][1] = status
         self.print_phase()
+        self.tc_loop[self.id()] += 1
 
     def list2reason(self, exc_list):
         if exc_list and exc_list[-1][0] is self:

@@ -124,11 +124,13 @@ def test_suite_generator(args):
         test_suite = unittest.TestLoader().loadTestsFromTestCase(MntTestCase)
     else:
         case_name_list = []
+        args_list = []
         for case in args.case_list:
             case_name = "test_" + case
             case_name_list.append(case_name)
+            args_list.append(args)
         # Load the spec test cases
-        test_suite = unittest.TestSuite(map(MntTestCase, case_name_list))
+        test_suite = unittest.TestSuite(map(lambda x, y: MntTestCase(x, y), case_name_list, args_list))
 
     return test_suite, test_py
 

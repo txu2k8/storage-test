@@ -19,7 +19,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from storagetest.pkgs.fileops import FileOps
 from storagetest.pkgs.dd import DD
 from storagetest.libs import utils, log
-from storagetest.libs.customtest import CustomTestCase
+from storagetest.libs.customtestcase import CustomTestCase
 from storagetest.libs.exceptions import PlatformError, NoSuchDir
 
 logger = log.get_logger()
