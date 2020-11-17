@@ -26,3 +26,19 @@ Pawel Jakub Dawidek <pjd@FreeBSD.org>
 Linux port:
 Jean-Pierre Andre <jean-pierre.andre@wanadoo.fr>
 Szabolcs Szakacsits <szaka@ntfs-3g.org>
+
+
+# ======
+https://command-not-found.com/prove
+
+Debian          apt-get install perl
+Ubuntu          apt-get install perl
+Alpine          apk add perl
+Arch Linux      pacman -S perl
+Kali Linux      apt-get install perl
+CentOS          yum install perl-Test-Harness
+Fedora          dnf install perl-Test-Harness
+OS X            brew install perl
+Raspbian        apt-get install perl
+Docker          docker run cmd.cat/prove prove
+
