@@ -46,14 +46,23 @@ def test_suite_generator(args):
 
     if 'all' in args.case_list:
         # Load all test cases
-        test_suite = unittest.TestLoader().loadTestsFromTestCase(RawTestCase)
+        # test_suite = unittest.TestLoader().loadTestsFromTestCase(RawTestCase)
+        test_suite = unittest.TestSuite()
+        tc_names = unittest.TestLoader().getTestCaseNames(RawTestCase)
+        if not tc_names and hasattr(RawTestCase, 'runTest'):
+            tc_names = ['runTest']
+        for tc_name in tc_names:
+            test_suite.addTest(RawTestCase(tc_name, args))
     else:
         case_name_list = []
+        args_list = []
         for case in args.case_list:
             case_name = "test_" + case
             case_name_list.append(case_name)
+            args_list.append(args)
         # Load the spec test cases
-        test_suite = unittest.TestSuite(map(RawTestCase, case_name_list))
+        # test_suite = unittest.TestSuite(map(RawTestCase, case_name_list))
+        test_suite = unittest.TestSuite(map(lambda x, y: RawTestCase(x, y), case_name_list, args_list))
 
     return test_suite, test_py
 
