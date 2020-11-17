@@ -132,7 +132,7 @@ def filebench_ready():
 
 def prove_ready():
     try:
-        utils.run_cmd('prove -h', expected_rc=0)
+        utils.run_cmd('prove -h', expected_rc=1)
     except Exception as e:
         # logger.warning(e)
         logger.warning("perl not installed.(yum install perl-Test-Harness)")
