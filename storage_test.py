@@ -155,7 +155,7 @@ def run_with_stress_runner(args):
     command = const.get_value('command')
 
     # run with StressRunner -- report html
-    from libs.stressrunner import StressRunner, MailInfo
+    from stressrunner import StressRunner, MailInfo
     mail_info = MailInfo(
         m_from=MAIL_COUNT['m_from'],
         m_to=args.mail_to,
