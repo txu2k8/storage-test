@@ -14,7 +14,7 @@ import unittest
 from storagetest.libs import utils, log
 from storagetest.libs.exceptions import NoSuchDir
 from storagetest.libs.customtestcase import CustomTestCase
-from storagetest.pkgs.base import posix_ready, fio_ready, attr_ready
+from storagetest.pkgs.base import posix_ready, fio_ready, attr_ready, prove_ready
 
 logger = log.get_logger()
 
@@ -103,6 +103,7 @@ class SanityTC(CustomTestCase):
 
     # ==== Tools/Private ====
     @unittest.skipUnless(posix_ready(), "Not supported platform!")
+    @unittest.skipUnless(prove_ready(), "perl not installed!")
     def test_fstest(self):
         """Test FS function:chmod, chown, link, mkdir, mkfifo, open, rename, rmdir, symlink, truncate, unlink"""
         from storagetest.pkgs.fstest import FSTest

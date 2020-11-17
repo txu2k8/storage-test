@@ -130,6 +130,16 @@ def filebench_ready():
     return True
 
 
+def prove_ready():
+    try:
+        utils.run_cmd('prove -h', expected_rc=0)
+    except Exception as e:
+        # logger.warning(e)
+        logger.warning("perl not installed.(yum install perl-Test-Harness)")
+        return False
+    return True
+
+
 def fio_ready():
     try:
         utils.run_cmd("which fio", expected_rc=0)
