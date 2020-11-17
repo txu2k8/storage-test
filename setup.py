@@ -10,7 +10,7 @@
 import os
 import sys
 import re
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 # 读取文件内容
@@ -30,9 +30,13 @@ def read_requirements(filename):
 def _find_packages():
     """find pckages"""
     packages = []
-    path = '.'
+    path = os.path.join('.', 'storagetest')
+    print(path)
+    import time
+    time.sleep(3)
     for root, _, files in os.walk(path):
-        if '__init__.py' in files:
+
+        if '__init__.py' in files or os.path.basename(root) in ['bin', 'src', 'test_profiles']:
             if sys.platform.startswith('linux'):
                 item = re.sub('^[^A-z0-9_]', '', root.replace('/', '.'))
             elif sys.platform.startswith('win'):
@@ -40,25 +44,34 @@ def _find_packages():
             else:
                 item = re.sub('^[^A-z0-9_]', '', root.replace('/', '.'))
             if item is not None:
+                print("===============:", item.lstrip('.'))
                 packages.append(item.lstrip('.'))
     return packages
 
 
 setup(
-    name='storage-test',
+    name='storagetest',
     python_requires='>=3.4.0',
-    version='1.0.1',
+    version='1.1.2',
     description="Storage Test tools/scripts.",
     long_description=read_file('README.md'),
     long_description_content_type="text/markdown",
     author="tao.xu",
     author_email='tao.xu2008@outlook.com',
     url='https://github.com/txu2k8/storage-test',
-    packages=_find_packages(),
-    install_requires=read_requirements('requirements.txt'),
+    packages=find_packages('storagetest'),
+    package_dir={'': 'storagetest'},
+    package_data={
+        '': ['*.sh'],
+    },
     include_package_data=True,
+    exclude_package_data={'': ['*.log']},
+    # entry_points={
+    #     'console_scripts': ['storage-test=storage_test:main'],
+    # },
+    install_requires=read_requirements('requirements.txt'),
     license="MIT",
-    keywords=['storage', 'filesystem', 'raw', 'cloud'],
+    keywords=['storagetest', 'filesystem', 'raw', 'cloud'],
     classifiers=[
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',

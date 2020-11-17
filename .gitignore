@@ -131,3 +131,6 @@ dmypy.json
 # tmp/log file
 tmp/
 log/
+
+# Distribution / packaging
+storage_test.egg-info/

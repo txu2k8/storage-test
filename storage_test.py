@@ -12,7 +12,7 @@ import sys
 import time
 import argparse
 
-from libs.log import log
+from storagetest.libs.log import log
 from config import const
 from config.const import MAIL_COUNT
 
@@ -54,24 +54,24 @@ def base_parser():
 
 def storage_test_parser_args():
     """
-    Set parser for storage test
+    Set parser for tests test
     :return:
     """
 
     # Parent parser
     parser = base_parser()
-    action = parser.add_subparsers(help='storage test')
+    action = parser.add_subparsers(help='tests test')
 
     # mnt
-    from storage.mnt.argument import add_mnt_subparsers
+    from storagetest.tests.mnt.argument import add_mnt_subparsers
     add_mnt_subparsers(action)
 
     # raw
-    from storage.raw.argument import add_raw_subparsers
+    from storagetest.tests.raw.argument import add_raw_subparsers
     add_raw_subparsers(action)
 
     # raw
-    from storage.cloud.argument import add_cloud_subparsers
+    from storagetest.tests.cloud.argument import add_cloud_subparsers
     add_cloud_subparsers(action)
 
     return parser.parse_args()
@@ -212,7 +212,6 @@ def run_with_pytest(args):
 
 def run(args):
     """Main method"""
-    print(args)
     const.set_value('args', args)
 
     # -----------------------------
