@@ -11,7 +11,7 @@ import os
 import argparse
 import unittest
 
-from storagetest.tests.argument import case_dict_2_string, mnt_path_parser
+from storagetest.tests.argument import case_dict_2_string, MntParser
 
 
 def tc_sanity(action):
@@ -27,7 +27,7 @@ def tc_sanity(action):
         help='tests->mnt sanity test',
         epilog='Test Case List:\n{0}'.format(case_desc),
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        parents=[mnt_path_parser()]
+        parents=[MntParser().test_path]
     )
     parser.add_argument("--case", action="store", dest="case_list",
                         default=['all'], nargs='+',

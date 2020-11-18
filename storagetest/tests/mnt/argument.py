@@ -11,7 +11,8 @@ import os
 import argparse
 import unittest
 
-from storagetest.tests.argument import case_dict_2_string, mnt_path_parser
+from storagetest.tests.argument import case_dict_2_string, exclude_case, MntParser, \
+    load_tests_from_testcase
 
 
 def tc_benchmark(action):
@@ -25,7 +26,7 @@ def tc_benchmark(action):
         help='tests->mnt benchmark test',
         epilog='Test Case List:\n{0}'.format(case_desc),
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        parents=[mnt_path_parser()]
+        parents=[MntParser().test_path, exclude_case()]
     )
     parser.add_argument("--case", action="store", dest="case_list",
                         default=['all'], nargs='+',
@@ -45,7 +46,7 @@ def tc_sanity(action):
         help='tests->mnt sanity test',
         epilog='Test Case List:\n{0}'.format(case_desc),
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        parents=[mnt_path_parser()]
+        parents=[MntParser().test_path, exclude_case()]
     )
     parser.add_argument("--case", action="store", dest="case_list",
                         default=['all'], nargs='+',
@@ -65,7 +66,7 @@ def tc_stress(action):
         help='tests->mnt stress test',
         epilog='Test Case List:\n{0}'.format(case_desc),
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        parents=[mnt_path_parser()]
+        parents=[MntParser().test_path, exclude_case()]
     )
     parser.add_argument("--case", action="store", dest="case_list",
                         default=['all'], nargs='+',
@@ -78,20 +79,20 @@ def tc_load(action):
     """Load data tools arguments"""
 
     from storagetest.tests.mnt import LoadGenTC
-    from storagetest.tests.argument import dir_number_parser, file_number_parser, file_size_range_parser
     case_info_dict = LoadGenTC().get_case_name_desc()
     case_desc = case_dict_2_string(case_info_dict, 25)
-
+    mnt_p = MntParser()
     parser = action.add_parser(
         'load',
         help='tests->mnt load data file tools',
         epilog='Test Case List:\n{0}'.format(case_desc),
         formatter_class=argparse.RawDescriptionHelpFormatter,
         parents=[
-            mnt_path_parser(),
-            dir_number_parser(),
-            file_number_parser(),
-            file_size_range_parser(),
+            mnt_p.test_path,
+            mnt_p.dir_number,
+            mnt_p.file_number,
+            mnt_p.file_size_range,
+            exclude_case()
         ]
     )
     parser.add_argument("--case", action="store", dest="case_list",
@@ -119,25 +120,7 @@ def test_suite_generator(args):
     else:
         raise Exception("Unknown sub parser suite")
 
-    if 'all' in args.case_list:
-        # Load all test cases
-        # test_suite = unittest.TestLoader().loadTestsFromTestCase(MntTestCase)
-        test_suite = unittest.TestSuite()
-        tc_names = unittest.TestLoader().getTestCaseNames(MntTestCase)
-        if not tc_names and hasattr(MntTestCase, 'runTest'):
-            tc_names = ['runTest']
-        for tc_name in tc_names:
-            test_suite.addTest(MntTestCase(tc_name, args))
-    else:
-        case_name_list = []
-        args_list = []
-        for case in args.case_list:
-            case_name = "test_" + case
-            case_name_list.append(case_name)
-            args_list.append(args)
-        # Load the spec test cases
-        test_suite = unittest.TestSuite(map(lambda x, y: MntTestCase(x, y), case_name_list, args_list))
-
+    test_suite = load_tests_from_testcase(MntTestCase, args)
     return test_suite, test_py
 
 

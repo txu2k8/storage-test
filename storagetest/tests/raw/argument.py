@@ -11,7 +11,8 @@ import os
 import argparse
 import unittest
 
-from storagetest.tests.argument import case_dict_2_string, RawSanityParser
+from storagetest.tests.argument import case_dict_2_string, RawParser, exclude_case, \
+    load_tests_from_testcase
 
 
 def tc_sanity(action):
@@ -20,13 +21,13 @@ def tc_sanity(action):
     }
 
     case_desc = case_dict_2_string(case_info_dict, 25)
-    raw_parser = RawSanityParser()
+    raw_p = RawParser()
     parser = action.add_parser(
         'sanity',
         help='tests->raw sanity test',
         epilog='Test Case List:\n{0}'.format(case_desc),
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        parents=[raw_parser.base]
+        parents=[raw_p.sanity, exclude_case()]
     )
     parser.add_argument("--case", action="store", dest="case_list",
                         default=['all'], nargs='+',
@@ -44,26 +45,7 @@ def test_suite_generator(args):
     else:
         raise Exception("Unknown sub parser suite")
 
-    if 'all' in args.case_list:
-        # Load all test cases
-        # test_suite = unittest.TestLoader().loadTestsFromTestCase(RawTestCase)
-        test_suite = unittest.TestSuite()
-        tc_names = unittest.TestLoader().getTestCaseNames(RawTestCase)
-        if not tc_names and hasattr(RawTestCase, 'runTest'):
-            tc_names = ['runTest']
-        for tc_name in tc_names:
-            test_suite.addTest(RawTestCase(tc_name, args))
-    else:
-        case_name_list = []
-        args_list = []
-        for case in args.case_list:
-            case_name = "test_" + case
-            case_name_list.append(case_name)
-            args_list.append(args)
-        # Load the spec test cases
-        # test_suite = unittest.TestSuite(map(RawTestCase, case_name_list))
-        test_suite = unittest.TestSuite(map(lambda x, y: RawTestCase(x, y), case_name_list, args_list))
-
+    test_suite = load_tests_from_testcase(RawTestCase, args)
     return test_suite, test_py
 
 
