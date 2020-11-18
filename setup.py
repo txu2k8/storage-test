@@ -61,9 +61,6 @@ setup(
     url='https://github.com/txu2k8/storage-test',
     packages=find_packages('storagetest'),
     package_dir={'': 'storagetest'},
-    package_data={
-        '': ['*.sh'],
-    },
     include_package_data=True,
     exclude_package_data={'': ['*.log']},
     # entry_points={
