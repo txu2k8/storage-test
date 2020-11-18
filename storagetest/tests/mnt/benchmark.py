@@ -10,6 +10,7 @@
 
 import os
 import unittest
+from datetime import datetime
 
 from storagetest.libs import utils, log
 from storagetest.libs.exceptions import NoSuchDir
@@ -23,7 +24,8 @@ class BenchMarkTC(CustomTestCase):
     """BenchMark test on a mount point or path"""
 
     def setUp(self):
-        self.phase_list.append([self.id().split('.')[-1], "Start", self.shortDescription()])
+        self.phase_list.append([self.id().split('.')[-1], "Start", '', self.shortDescription()])
+        self.start_time = datetime.now()
         self.print_phase()
         fs_path = self.args[0].test_path
         if not os.path.isdir(fs_path):

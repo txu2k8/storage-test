@@ -7,6 +7,7 @@
 @Email : tao.xu2008@outlook.com
 """
 import time
+from datetime import datetime
 import unittest
 from prettytable import PrettyTable
 from collections import defaultdict
@@ -40,10 +41,12 @@ class CustomTestCase(unittest.TestCase):
         return suite
 
     def setUp(self):
-        self.phase_list.append([self.id().split('.')[-1], "Start", self.shortDescription()])
+        self.phase_list.append([self.id().split('.')[-1], "Start", '', self.shortDescription()])
+        self.start_time = datetime.now()
         self.print_phase()
 
     def tearDown(self):
+        end_time = datetime.now()
         if hasattr(self, '_outcome'):  # Python 3.4+
             result = self.defaultTestResult()  # these 2 methods have no side effects
             self._feedErrorsToResult(result, self._outcome.errors)
@@ -54,6 +57,7 @@ class CustomTestCase(unittest.TestCase):
         ok = not error and not failure
         status = "PASS" if ok else "FAIL"
         self.phase_list[-1][1] = status
+        self.phase_list[-1][2] = str(end_time - self.start_time).split('.')[0]
         self.print_phase()
         self.tc_loop[self.id()] += 1
 
@@ -64,7 +68,7 @@ class CustomTestCase(unittest.TestCase):
     def print_phase(self):
         if len(self.phase_list) == 0:
             return True
-        step_table = PrettyTable(['No.', 'TestCase', 'Result', 'Comments'])
+        step_table = PrettyTable(['No.', 'TestCase', 'Result', 'Elapsed', 'Comments'])
         step_table.align['TestCase'] = 'l'
         step_table.align['Comments'] = 'l'
         for idx, step in enumerate(self.phase_list):

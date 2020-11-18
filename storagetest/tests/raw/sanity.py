@@ -8,6 +8,7 @@
 """
 
 import unittest
+from datetime import datetime
 
 from storagetest.libs import log
 from storagetest.libs.customtestcase import CustomTestCase
@@ -20,7 +21,8 @@ class SanityTC(CustomTestCase):
     """RAW device write/read unit test"""
 
     def setUp(self):
-        self.phase_list.append([self.id().split('.')[-1], "Start", self.shortDescription()])
+        self.phase_list.append([self.id().split('.')[-1], "Start", '', self.shortDescription()])
+        self.start_time = datetime.now()
         self.print_phase()
         self.device = self.args[0].device
         self.case_id_list = self.args[0].case_id_list

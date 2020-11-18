@@ -10,6 +10,7 @@ import os
 import re
 import unittest
 from prettytable import PrettyTable
+from datetime import datetime
 
 from storagetest.libs import utils
 from storagetest.libs.log import log
@@ -51,7 +52,7 @@ class PkgBase(object):
     def print_phase(self):
         if len(self.phase_list) == 0:
             return True
-        step_table = PrettyTable(['No.', 'Test', 'Result', 'Comments'])
+        step_table = PrettyTable(['No.', 'Step', 'Result', 'Elapsed', 'Comments'])
         step_table.align['Test'] = 'l'
         step_table.align['Comments'] = 'l'
         for idx, step in enumerate(self.phase_list):
@@ -99,7 +100,8 @@ class PkgBase(object):
 
     def run_tests(self, tests):
         for test in tests:
-            self.phase_list.append([test.name, "Start", test.desc])
+            self.phase_list.append([test.name, "Start", '', test.desc])
+            start_time = datetime.now()
             self.print_phase()
             try:
                 self.run(test)
@@ -108,6 +110,8 @@ class PkgBase(object):
                 self.phase_list[-1][1] = "FAIL"
                 raise e
             finally:
+                end_time = datetime.now()
+                self.phase_list[-1][2] = str(end_time - start_time).split('.')[0]
                 self.print_phase()
         return True
 

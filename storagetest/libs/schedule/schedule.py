@@ -17,6 +17,7 @@ See the test examples
 """
 
 import time
+from datetime import datetime
 import unittest
 from functools import wraps, partial
 from prettytable import PrettyTable
@@ -57,21 +58,22 @@ def __run_phase(f, skip=False, comments=''):
     # if '__wrapped__' in f.func.__dict__:
     #     print(f.func.__dict__['__wrapped__'].__name__)
 
+    phase_elapsed = ''
     phase_stat = 'SKIP' if skip else 'START'
     if '__wrapped__' not in f.func.__dict__:
         logger.log(21, '{0}: {1} ...'.format(phase_stat, phase_name))
 
     # ignore the same and not completed step (for retry)
     if len(phase_list) == 0:
-        phase_list.append([phase_name, phase_stat, comments])
+        phase_list.append([phase_name, phase_stat, phase_elapsed, comments])
     else:
         last_phase = phase_list[-1]
         if last_phase[0] != phase_name or last_phase[1] != 'START':
-            phase_list.append([phase_name, phase_stat, comments])
+            phase_list.append([phase_name, phase_stat, phase_elapsed, comments])
 
     if verbosity > 0 and not skip:
         # print with PrettyTable
-        cur_table = PrettyTable(['No.', 'Step', 'Progress', 'Comments'])
+        cur_table = PrettyTable(['No.', 'Step', 'Result', 'Elapsed', 'Comments'])
         cur_table.align['Step'] = 'l'
         cur_table.align['Comments'] = 'l'
         for idx, phase in enumerate(phase_list):
@@ -87,10 +89,14 @@ def __run_phase(f, skip=False, comments=''):
     if f.func.__doc__:
         logger.info(f.func.__doc__)
     time.sleep(1)
+    start_time = datetime.now()
     rtn = f()
     result = 'PASS' if rtn else 'FAIL'
     logger.log(21, '{0}:{1}, rc:{2}'.format(result, phase_name, rtn))
+    end_time = datetime.now()
+    phase_elapsed = str(end_time - start_time).split('.')[0]
     phase_list[idx][1] = result
+    phase_list[idx][2] = phase_elapsed
 
     return rtn
 
