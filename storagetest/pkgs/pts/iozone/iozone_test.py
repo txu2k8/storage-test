@@ -82,6 +82,7 @@ class IOzone(PkgBase):
                     bin_path=bin_path,
                     command=cmd)
                 tests.append(test)
+                idx += 1
         return tests
 
     def benchmark_profiles(self):
@@ -103,6 +104,7 @@ class IOzone(PkgBase):
                         bin_path=bin_path,
                         command=cmd)
                     tests.append(test)
+                    idx += 1
         return tests
 
     def benchmark(self):
