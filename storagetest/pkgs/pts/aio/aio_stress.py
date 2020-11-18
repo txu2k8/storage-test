@@ -11,7 +11,7 @@ import os
 import unittest
 
 from storagetest.libs.log import log
-from storagetest.pkgs import PkgBase, TestProfile, to_safe_name
+from storagetest.pkgs.base import PkgBase, TestProfile, to_safe_name
 
 logger = log.get_logger()
 cur_dir = os.path.dirname(os.path.realpath(__file__))
