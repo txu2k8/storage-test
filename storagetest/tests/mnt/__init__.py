@@ -7,12 +7,12 @@
 @Email : tao.xu2008@outlook.com
 """
 
-from .benchmark import *
-from .sanity import *
-from .stress import *
-from .loadgen import *
-
-__all__ = ['BenchMarkTC', 'SanityTC', 'StressTC', 'LoadGenTC']
+# from .benchmark import *
+# from .sanity import *
+# from .stress import *
+# from .loadgen import *
+#
+# __all__ = ['BenchMarkTC', 'SanityTC', 'StressTC', 'LoadGenTC']
 
 
 if __name__ == '__main__':

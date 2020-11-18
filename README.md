@@ -1,9 +1,9 @@
 # Storage Test
 Various methods/tools/scripts for storage test.
 Types:
-- raw
-- mnt (mount point)
-- cloud
+- raw   (base device)
+- mnt   (base dir)
+- cloud (base url)
 
 # Usage
 ```commandline

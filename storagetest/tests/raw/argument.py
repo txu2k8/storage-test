@@ -9,7 +9,6 @@
 
 import os
 import argparse
-import unittest
 
 from storagetest.tests.argument import case_dict_2_string, RawParser, exclude_case, \
     load_tests_from_testcase
@@ -24,7 +23,7 @@ def tc_sanity(action):
     raw_p = RawParser()
     parser = action.add_parser(
         'sanity',
-        help='tests->raw sanity test',
+        help='storage->raw sanity test',
         epilog='Test Case List:\n{0}'.format(case_desc),
         formatter_class=argparse.RawDescriptionHelpFormatter,
         parents=[raw_p.sanity, exclude_case()]
@@ -57,9 +56,9 @@ def add_raw_subparsers(action):
     """
 
     # raw
-    raw_parser = action.add_parser('raw', help='tests test: raw')
+    raw_parser = action.add_parser('raw', help='base device')
     raw_parser.set_defaults(project='raw')
-    raw_action = raw_parser.add_subparsers(help='tests test on a raw device')
+    raw_action = raw_parser.add_subparsers(help='Test on a raw device')
 
     tc_sanity(raw_action)
 

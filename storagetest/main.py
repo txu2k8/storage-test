@@ -57,7 +57,7 @@ def storage_test_parser_args():
 
     # Parent parser
     parser = base_parser()
-    action = parser.add_subparsers(help='tests test')
+    action = parser.add_subparsers(help='Storage Test')
 
     # mnt
     from storagetest.tests.mnt.argument import add_mnt_subparsers

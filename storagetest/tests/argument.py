@@ -22,13 +22,12 @@ def case_dict_2_string(case_dict, case_name_len=25):
 
 def load_tests_from_testcase(test_case_class, args):
     """
-
+    load tests from testcase class
     Args:
         test_case_class: TestCase class object
         args: parse args
 
-    Returns:
-
+    Returns: unittest.TestSuite()
     """
     if 'all' in args.case_list:
         # Load all test cases

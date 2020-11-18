@@ -60,7 +60,7 @@ def storage_test_parser_args():
 
     # Parent parser
     parser = base_parser()
-    action = parser.add_subparsers(help='tests test')
+    action = parser.add_subparsers(help='Storage Test')
 
     # mnt
     from storagetest.tests.mnt.argument import add_mnt_subparsers
@@ -70,7 +70,7 @@ def storage_test_parser_args():
     from storagetest.tests.raw.argument import add_raw_subparsers
     add_raw_subparsers(action)
 
-    # raw
+    # cloud
     from storagetest.tests.cloud.argument import add_cloud_subparsers
     add_cloud_subparsers(action)
 
