@@ -4,7 +4,6 @@ include *.rst
 include *.txt
 include .gitignore
 include LICENSE
-include storage_test.py
 recursive-include storagetest *
 prune storagetest.egg-info
 
