@@ -64,7 +64,7 @@ setup(
     include_package_data=True,
     exclude_package_data={'': ['*.log']},
     # entry_points={
-    #     'console_scripts': ['storage-test=storage_test:main'],
+    #     'console_scripts': ['storage-test=storagetest/main:main'],
     # },
     install_requires=read_requirements('requirements.txt'),
     license="MIT",
