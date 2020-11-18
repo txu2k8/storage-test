@@ -4,8 +4,10 @@ include *.rst
 include *.txt
 include .gitignore
 include LICENSE
-include storagetest/*
 include storage_test.py
+recursive-include storagetest *
+prune storagetest.egg-info
+
 
 global-exclude __pycache__ *.py[cod]
 global-exclude *.so *.dylib *.log

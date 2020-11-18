@@ -1,8 +1,8 @@
 #!/usr/bin/python
 # -*- coding: UTF-8 -*-
 """
-@file  : storage_test.py.py
-@Time  : 2020/10/26 15:06
+@file  : main.py
+@Time  : 2020/11/18 9:55
 @Author: Tao.Xu
 @Email : tao.xu2008@outlook.com
 """
@@ -11,11 +11,8 @@ import os
 import sys
 import time
 import argparse
-
-from storagetest.libs.log import log
-from config import const
-from config.const import MAIL_COUNT
-
+sys.path.append("..")
+from storagetest.libs import log
 
 """stresstest entrance"""
 
@@ -78,6 +75,7 @@ def storage_test_parser_args():
 
 
 # --- Init logger
+global log_path, log_title
 def init_logger(args):
     """
     init the logger
@@ -97,11 +95,7 @@ def init_logger(args):
 
     log_name = log_title + '-' + STR_TIME
     log_path = os.path.join(log_dir, log_name + '.log')
-
-    const.set_value('log_title', log_title)
-    const.set_value('log_path', log_path)
-    logger = log.get_logger(
-        log_path, output_logfile=True, debug=args.debug, reset_logger=True)
+    logger = log.get_logger(log_path, output_logfile=True, debug=args.debug, reset_logger=True)
 
     return logger
 
@@ -150,24 +144,13 @@ def run_with_stress_runner(args):
 
     logger = init_test_session(args)
 
-    log_path = const.get_value('log_path')
-    title = const.get_value('log_title')
-
     # run with StressRunner -- report html
     from stressrunner import StressRunner, MailInfo
-    mail_info = MailInfo(
-        m_from=MAIL_COUNT['m_from'],
-        m_to=args.mail_to,
-        host=MAIL_COUNT['host'],
-        user=MAIL_COUNT['user'],
-        password=MAIL_COUNT['password'],
-        port=MAIL_COUNT['port'],
-        tls=MAIL_COUNT['tls'],
-    )
+    mail_info = MailInfo(m_to=args.mail_to)
     runner = StressRunner(report_path=log_path.replace('.log', '.html'),
                           logger=logger, iteration=args.loops,
                           tc_elapsed_limit=None, save_last_result=False,
-                          test_title=title, mail_info=mail_info)
+                          test_title=log_title, mail_info=mail_info)
     # get unittest test suite and then run unittest case
     test_suite, _ = args.func(args)
     runner.run(test_suite)
