@@ -34,7 +34,6 @@ class SanityTC(CustomTestCase):
     # ==== LTP ====
     @unittest.skipUnless(posix_ready(), "Not supported platform")
     @unittest.skipUnless(attr_ready(), "attr not installed!")
-    @unittest.skip("Skip this test temporary ...")
     def test_acl(self):
         """Test ACL and Extend Attribute on Linux system"""
         from storagetest.pkgs.ltp.acl import AclXattr
@@ -43,7 +42,6 @@ class SanityTC(CustomTestCase):
         self.assertTrue(acl.sanity())
 
     @unittest.skipUnless(posix_ready(), "Not supported platform!")
-    @unittest.skip("Skip this test temporary ...")
     def test_doio(self):
         """base rw test: LTP doio & iogen"""
         from storagetest.pkgs.ltp.doio import DoIO

@@ -33,7 +33,6 @@ class StressTC(CustomTestCase):
     # ==== LTP ====
     @unittest.skipUnless(posix_ready(), "Not supported platform")
     @unittest.skipUnless(attr_ready(), "attr not installed!")
-    @unittest.skip("Skip this test temporary ...")
     def test_acl(self):
         """Test ACL and Extend Attribute on Linux system"""
         from storagetest.pkgs.ltp.acl import AclXattr
@@ -49,7 +48,6 @@ class StressTC(CustomTestCase):
         self.assertTrue(cdf.stress())
 
     @unittest.skipUnless(posix_ready(), "Not supported platform!")
-    @unittest.skip("Skip this test temporary ...")
     def test_doio(self):
         """base rw test: LTP doio & iogen; growfiles"""
         from storagetest.pkgs.ltp.doio import DoIO
@@ -117,7 +115,6 @@ class StressTC(CustomTestCase):
 
     @unittest.skipUnless(posix_ready(), "Not supported platform")
     @unittest.skipUnless(fio_ready(), "fio not installed!")
-    @unittest.skip("Skip this test temporary ...")
     def test_fio(self):
         """FIO: Flexible I/O tester."""
         from storagetest.pkgs.pts.fio import FIO
