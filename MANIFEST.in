@@ -6,6 +6,7 @@ include .gitignore
 include LICENSE
 recursive-include storagetest *
 prune storagetest.egg-info
+prune config
 
 
 global-exclude __pycache__ *.py[cod]
