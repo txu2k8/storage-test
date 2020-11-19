@@ -146,5 +146,6 @@ if __name__ == '__main__':
     # fb.sanity()
 
     # unittest.main()
-    suite = unittest.TestLoader().loadTestsFromTestCase(FilebenchTestCase)
-    unittest.TextTestRunner(verbosity=2).run(suite)
+    # suite = unittest.TestLoader().loadTestsFromTestCase(FilebenchTestCase)
+    # unittest.TextTestRunner(verbosity=2).run(suite)
+    pass
