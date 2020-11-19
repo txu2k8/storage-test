@@ -1,9 +1,22 @@
 # Storage Test
 Various methods/tools/scripts for storage test.
-Types:
+
+If you have any questions or requirements, please let me know. 
+[tao.xu2008@outlook.com](tao.xu2008@outlook.com)
+
+
+Support Types:
 - raw   (base device)
 - mnt   (base dir)
 - cloud (base url)
+
+# Quick Start
+```shell script
+git clone https://github.com/txu2k8/storage-test.git
+
+import as a third-part pakage:
+pip install storagetest
+```
 
 # Usage
 ```commandline
