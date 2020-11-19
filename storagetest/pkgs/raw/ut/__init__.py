@@ -8,7 +8,8 @@
 """
 
 from .raw_ut import *
-__all__ = ['RawUT', 'UnitTestCase']
+__all__ = ['RawUT']
+
 
 if __name__ == '__main__':
     pass
