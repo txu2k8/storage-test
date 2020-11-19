@@ -162,7 +162,8 @@ def attr_ready():
     return True
 
 
-def len_path_limited(p, n=128):
+def len_path_in_limit(p, n=128):
+    """if path len in limit, return True"""
     return len(p) < n
 
 
