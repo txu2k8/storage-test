@@ -74,7 +74,7 @@ class RawUnitTestCase(CustomTestCase):
         logger.info(json.dumps(case_info, indent=4))
         # logger.info('=' * 50)
 
-        self.raw_ut.run()
+        self.raw_ut.run(case_info)
 
 
 if __name__ == '__main__':
