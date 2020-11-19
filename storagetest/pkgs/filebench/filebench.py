@@ -112,7 +112,7 @@ def custom_name_func():
 
 
 class FilebenchTestCase(unittest.TestCase):
-    _test_path = ""
+    _test_path = "/tmp"
     # Verify
     if os.name != "posix":
         raise PlatformError("fs_test just support for linux machine!")
