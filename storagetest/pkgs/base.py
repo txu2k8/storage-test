@@ -53,7 +53,7 @@ class PkgBase(object):
         if len(self.phase_list) == 0:
             return True
         step_table = PrettyTable(['No.', 'Step', 'Result', 'Elapsed', 'Comments'])
-        step_table.align['Test'] = 'l'
+        step_table.align['Step'] = 'l'
         step_table.align['Comments'] = 'l'
         for idx, step in enumerate(self.phase_list):
             step_status = [idx + 1] + step
