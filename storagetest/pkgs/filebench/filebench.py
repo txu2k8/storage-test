@@ -64,7 +64,7 @@ class FileBench(PkgBase):
         tmp_path = os.path.join(os.getcwd(), 'tmp')
         utils.mkdir_path(tmp_path)
 
-        test_conf_name = 'filebench_{0}_{1}'.format(self.test_path.replace('/', '_'), conf_name)
+        test_conf_name = 'filebench_{0}_{1}'.format(os.path.basename(self.test_path), conf_name)
         test_conf = os.path.join(tmp_path, test_conf_name)
         rc, output = utils.run_cmd('cp {0} {1}'.format(workload_conf_template, test_conf))
         print(output)
