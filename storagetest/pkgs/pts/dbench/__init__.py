@@ -7,6 +7,9 @@
 @Email : tao.xu2008@outlook.com
 """
 
+from .dbench_test import Dbench
+__all__ = ['Dbench']
+
 """
 dbench  -- TODO
 ========

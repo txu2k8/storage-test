@@ -83,6 +83,14 @@ class SanityTC(CustomTestCase):
         self.assertTrue(stream.sanity())
 
     # ==== PTS ====
+    @unittest.skipUnless(posix_ready(), "Not supported platform!")
+    def test_dbench(self):
+        """A load tester for various protocols such as iSCSI, NFS, SCSI, SMB."""
+        from storagetest.pkgs.pts.dbench import Dbench
+        db = Dbench(self.test_path)
+        logger.info(db.__doc__)
+        self.assertTrue(db.sanity())
+
     @unittest.skipUnless(posix_ready(), "Not supported platform")
     @unittest.skipUnless(fio_ready(), "fio not installed!")
     def test_fio(self):

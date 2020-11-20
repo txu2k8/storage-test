@@ -91,6 +91,11 @@ class Dbench(PkgBase):
         load_file = os.path.join(loadfiles_path, 'client.txt')
         return self.run_tests(self.tests_generator(load_file, 60, (1,)))
 
+    def stress(self):
+        self.tar_loadfiles()
+        load_file = os.path.join(loadfiles_path, 'client.txt')
+        return self.run_tests(self.tests_generator(load_file, 600, (1, 6)))
+
     def benchmark(self):
         self.tar_loadfiles()
         load_file = os.path.join(loadfiles_path, 'client.txt')
