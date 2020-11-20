@@ -17,6 +17,7 @@ from storagetest.pkgs.base import PkgBase, TestProfile, to_safe_name
 logger = log.get_logger()
 cur_dir = os.path.dirname(os.path.realpath(__file__))
 bin_path = os.path.join(cur_dir, 'bin')
+loadfiles_tar = os.path.join(bin_path, 'loadfiles.tar.gz')
 loadfiles_path = os.path.join(cur_dir, 'loadfiles')
 
 
@@ -33,6 +34,24 @@ class Dbench(PkgBase):
     it becomes saturated and can also be used for preditcion analysis to determine
     "How many concurrent clients/applications performing this workload can my server
     handle before response starts to lag?"
+
+    Usage: [OPTION...]
+        -t, --timelimit=integer       timelimit
+        -c, --loadfile=filename       loadfile
+        -D, --directory=STRING        working directory
+        -T, --tcp-options=STRING      TCP socket options
+        -R, --target-rate=DOUBLE      target throughput (MB/sec)
+        -s, --sync                    use O_SYNC
+        -S, --sync-dir                sync directory changes
+        -F, --fsync                   fsync on write
+        -x, --xattr                   use xattrs
+        --no-resolve                  disable name resolution simulation
+        --clients-per-process=INT     number of clients per process
+        --one-byte-write-fix          try to fix 1 byte writes
+        --stat-check                  check for pointless calls with stat
+        --fake-io                     fake up read/write calls
+        --skip-cleanup                skip cleanup operations
+        --per-client-results          show results per client
     """
 
     def __init__(self, top_path):
@@ -58,16 +77,24 @@ class Dbench(PkgBase):
             tests.append(test)
         return tests
 
-    def tar_loadfiles(self):
-        os.system("")
+    @staticmethod
+    def tar_loadfiles():
+        if not os.path.isdir(loadfiles_path):
+            try:
+                os.system("tar -zxvf {0} -C {1}".format(loadfiles_tar, cur_dir))
+            except Exception as e:
+                raise e
+        return True
 
     def sanity(self):
-        load_file = os.path.join(cur_dir, 'loadfiles/client.txt')
+        self.tar_loadfiles()
+        load_file = os.path.join(loadfiles_path, 'client.txt')
         return self.run_tests(self.tests_generator(load_file, 60, (1,)))
 
     def benchmark(self):
-        load_file = os.path.join(cur_dir, 'loadfiles/client.txt')
-        return self.run_tests(self.tests_generator(load_file, 60, (1,)))
+        self.tar_loadfiles()
+        load_file = os.path.join(loadfiles_path, 'client.txt')
+        return self.run_tests(self.tests_generator(load_file, 600))
 
 
 class UnitTestCase(unittest.TestCase):
