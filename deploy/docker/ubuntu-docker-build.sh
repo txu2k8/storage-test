@@ -18,6 +18,8 @@ ADD storage-test.tar /
 WORKDIR /storage-test
 ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update
+RUN apt-get install -y apt-utils apt-file git-core
+RUN apt-file update
 RUN apt-get install -y python3-pip fio attr
 RUN pip3 install -r requirements.txt
 RUN apt-get install -y flex bison
