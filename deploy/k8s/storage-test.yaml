@@ -1,0 +1,80 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: storage-test-1
+    component: storage-test-1
+  name: storage-test-1
+  namespace: default
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: storage-test-1
+      component: storage-test-1
+  serviceName: storage-test-1
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: storage-test-1
+        component: storage-test-1
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: component
+                operator: In
+                values:
+                - storage-test-1
+            topologyKey: kubernetes.io/hostname
+      containers:
+      - command:
+        - sleep
+        - "1000000"
+        image: storage-test:2020-11-20-00-02-58
+        imagePullPolicy: Always
+        name: storage-test
+        resources:
+          limits:
+            cpu: "4"
+            memory: 8Gi
+          requests:
+            cpu: 1
+            memory: 2Gi
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /mnt/
+          name: mnt
+      dnsPolicy: ClusterFirst
+      nodeSelector:
+        kubernetes.io/hostname: node7
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 172800
+  updateStrategy:
+    rollingUpdate:
+      partition: 0
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - apiVersion: v1
+    kind: PersistentVolumeClaim
+    metadata:
+      creationTimestamp: null
+      name: mnt
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      resources:
+        requests:
+          storage: 20Ti
+      storageClassName: gp2
+      volumeMode: Filesystem
+    status:
+      phase: Pending
