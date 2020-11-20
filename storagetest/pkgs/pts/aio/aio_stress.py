@@ -38,9 +38,9 @@ class AioStress(PkgBase):
         aio_bin = os.path.join(bin_path, 'aio_stress')
         cmd_list = [
             ("Write", "cd {0}; {1} -s 2g -r 64k -t 3 -o 0"),
-            ("Read", "{1} -s 2g -r 64k -t 3 -o 1"),
-            ("Random Write", "{1} -s 2g -r 64k -t 3 -o 2"),
-            ("Random Read", "{1} -s 2g -r 64k -t 3 -o 3"),
+            ("Read", "cd {0}; {1} -s 2g -r 64k -t 3 -o 1"),
+            ("Random Write", "cd {0}; {1} -s 2g -r 64k -t 3 -o 2"),
+            ("Random Read", "cd {0}; {1} -s 2g -r 64k -t 3 -o 3"),
         ]
 
         tests = []
@@ -51,7 +51,7 @@ class AioStress(PkgBase):
                 desc=desc,
                 test_path=self.test_path,
                 bin_path=bin_path,
-                command=cmd.format(aio_bin, self.test_path))
+                command=cmd.format(self.test_path, aio_bin))
             tests.append(test)
         return tests
 
