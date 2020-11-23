@@ -24,7 +24,7 @@ loadfiles_path = os.path.join(cur_dir, 'loadfiles')
 class Dbench(PkgBase):
     """
     dbench
-    https://openbenchmarking.org/test/pts/aio-stress
+    https://openbenchmarking.org/test/pts/dbench
     =============
     A loadtester for various protocols such as iSCSI, NFS, SCSI, SMB.
 
