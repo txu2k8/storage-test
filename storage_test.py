@@ -154,23 +154,14 @@ def run_with_stress_runner(args):
     title = const.get_value('log_title')
 
     # run with StressRunner -- report html
-    from stressrunner import StressRunner, MailInfo
-    mail_info = MailInfo(
-        m_from=MAIL_COUNT['m_from'],
-        m_to=args.mail_to,
-        host=MAIL_COUNT['host'],
-        user=MAIL_COUNT['user'],
-        password=MAIL_COUNT['password'],
-        port=MAIL_COUNT['port'],
-        tls=MAIL_COUNT['tls'],
-    )
-    runner = StressRunner(report_path=log_path.replace('.log', '.html'),
-                          logger=logger, iteration=args.loops,
-                          tc_elapsed_limit=None, save_last_result=False,
-                          test_title=title, mail_info=mail_info)
+    from stressrunner import StressRunner
+    MAIL_COUNT['m_to'] = args.mail_to
+    runner = StressRunner(log_path.replace('.log', '.html'), logger, args.loops,
+                          report_title=title)
     # get unittest test suite and then run unittest case
     test_suite, _ = args.func(args)
     runner.run(test_suite)
+    runner.send_mail(**MAIL_COUNT)
 
 
 # Pytest

@@ -52,7 +52,7 @@ def _find_packages():
 setup(
     name='storagetest',
     python_requires='>=3.4.0',
-    version='1.1.6',
+    version='1.1.7',
     description="Storage Test tools/scripts.",
     long_description=read_file('README.md'),
     long_description_content_type="text/markdown",
