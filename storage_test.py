@@ -70,6 +70,10 @@ def storage_test_parser_args():
     from storagetest.tests.raw.argument import add_raw_subparsers
     add_raw_subparsers(action)
 
+    # smb
+    from storagetest.tests.smb.argument import add_smb_subparsers
+    add_smb_subparsers(action)
+
     # cloud
     from storagetest.tests.cloud.argument import add_cloud_subparsers
     add_cloud_subparsers(action)

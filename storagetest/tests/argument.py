@@ -76,6 +76,24 @@ def exclude_case():
     return arg_parser
 
 
+def smb_parser():
+    """smb related parser"""
+    arg_parser = argparse.ArgumentParser(add_help=False)
+    aws_group = arg_parser.add_argument_group('SMB arguments')
+    aws_group.add_argument("--smb_server",
+                           action="store", dest="smb_server",
+                           default="",
+                           help="smb server,default:")
+    aws_group.add_argument("--smb_user",
+                           action="store", dest="smb_user",
+                           default="",
+                           help="smb user,default:")
+    aws_group.add_argument("--smb_pwd", action="store",
+                           dest="smb_pwd", default='',
+                           help="smb password,default:")
+    return arg_parser
+
+
 class MntParser(object):
     """mnt related parser"""
 
