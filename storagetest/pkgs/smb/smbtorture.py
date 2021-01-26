@@ -61,7 +61,7 @@ class SMBTorture(PkgBase):
         for line in lines:
             if not line or line == '\r' or "The default test is ALL" in line:
                 continue
-            match_suite = re.findall(pattern_suite, str(line))
+            match_suite = re.findall(pattern_suite, line)
             if match_suite:
                 suite = match_suite[0]
             elif suite:
@@ -79,8 +79,8 @@ class SMBTorture(PkgBase):
         default_tests = self.get_default_tests()
         idx = 0
         tests = []
-        for suite in default_tests.items():
-            for tc in suite:
+        for suite in default_tests.keys():
+            for tc in default_tests[suite]:
                 test_name = "smbtorture_{0}_{1}".format(idx + 1, to_safe_name(tc))
                 cmd = "smbtorture //{0}/{1} -U{2}%{3} {4}"
                 test = TestProfile(
