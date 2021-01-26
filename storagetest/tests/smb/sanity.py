@@ -36,8 +36,8 @@ class SanityTC(CustomTestCase):
         self.smb_pwd = self.args[0].smb_pwd
         self.case_filter = self.args[0].case_filter
 
-    # ==== LTP ====
-    # @unittest.skipUnless(posix_ready(), "Not supported platform")
+    # ==== smbtorture ====
+    @unittest.skipUnless(posix_ready(), "Not supported platform")
     def test_smbtorture(self):
         """Samba torture test suite"""
         from storagetest.pkgs.smb.smbtorture import SMBTorture

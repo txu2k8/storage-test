@@ -39,7 +39,7 @@ class SMBTorture(PkgBase):
         self.password = password
         self.case_filter = case_filter
 
-    def verify1(self):
+    def verify(self):
         if os.name != "posix":
             raise PlatformError("smbtorture just support for linux machine!")
         if not os.path.isdir(self.top_path):
