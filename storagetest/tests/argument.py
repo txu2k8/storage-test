@@ -79,18 +79,21 @@ def exclude_case():
 def smb_parser():
     """smb related parser"""
     arg_parser = argparse.ArgumentParser(add_help=False)
-    aws_group = arg_parser.add_argument_group('SMB arguments')
-    aws_group.add_argument("--smb_server",
+    smb_group = arg_parser.add_argument_group('SMB arguments')
+    smb_group.add_argument("--smb_server",
                            action="store", dest="smb_server",
                            default="",
                            help="smb server,default:")
-    aws_group.add_argument("--smb_user",
+    smb_group.add_argument("--smb_user",
                            action="store", dest="smb_user",
                            default="",
                            help="smb user,default:")
-    aws_group.add_argument("--smb_pwd", action="store",
+    smb_group.add_argument("--smb_pwd", action="store",
                            dest="smb_pwd", default='',
                            help="smb password,default:")
+    smb_group.add_argument("--case_filter", action="store",
+                           dest="case_filter", default='',
+                           help="smb test case filter, startswith(),default:")
     return arg_parser
 
 

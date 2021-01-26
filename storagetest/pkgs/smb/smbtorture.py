@@ -31,12 +31,13 @@ class SMBTorture(PkgBase):
     It is not Samba specific
     """
 
-    def __init__(self, top_path, server, user, password):
+    def __init__(self, top_path, server, user, password, case_filter=''):
         super(SMBTorture, self).__init__(top_path)
         self.test_path = os.path.join(top_path, "smb_torture")
         self.server = server
         self.user = user
         self.password = password
+        self.case_filter = case_filter
 
     def verify1(self):
         if os.name != "posix":
@@ -81,13 +82,15 @@ class SMBTorture(PkgBase):
         tests = []
         for suite in default_tests.keys():
             for tc in default_tests[suite]:
+                if not str(tc).startswith(self.case_filter):
+                    continue
                 test_name = "smbtorture_{0}_{1}".format(idx + 1, to_safe_name(tc))
                 cmd = "smbtorture //{0}/{1} -U{2}%{3} {4}"
                 test = TestProfile(
                     name=test_name,
                     desc=tc,
                     test_path=self.test_path,
-                    bin_path=bin_path,
+                    bin_path='',
                     command=cmd.format(self.server, self.test_path, self.user, self.password, tc))
                 tests.append(test)
         return tests
