@@ -198,7 +198,7 @@ class SMBTorture(PkgBase):
 class UnitTestCase(unittest.TestCase):
 
     def setUp(self) -> None:
-        self.smb_torture = SMBTorture("/mnt/test")
+        self.smb_torture = SMBTorture("/mnt/test", '', '', '')
 
     def test_benchmark(self):
         self.smb_torture.sanity()
