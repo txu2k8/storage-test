@@ -171,6 +171,19 @@ def to_safe_int_list(s):
     return [int(i) for i in re.findall(r'-?[1-9]\d*', s)]
 
 
+def get_list_difference(list_a, list_b):
+    """
+    Get the difference set between list_a and list_b
+    :param list_a:
+    :param list_b:
+    :return:(list) list_difference
+    """
+
+    assert isinstance(list_a, list)
+    assert isinstance(list_b, list)
+    return list(set(list_a).symmetric_difference(set(list_b)))
+
+
 if __name__ == '__main__':
     print(to_int_list("1,2,3", 4))
     print(to_safe_int_list("1,2,3"))

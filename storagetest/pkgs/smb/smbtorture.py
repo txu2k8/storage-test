@@ -11,6 +11,7 @@ import os
 import re
 import unittest
 from collections import defaultdict
+from prettytable import PrettyTable
 
 from storagetest.libs import utils
 from storagetest.libs.log import log
@@ -31,13 +32,14 @@ class SMBTorture(PkgBase):
     It is not Samba specific
     """
 
-    def __init__(self, top_path, server, user, password, case_filter=''):
+    def __init__(self, top_path, server, user, password, case_filter='', expect_failures=None):
         super(SMBTorture, self).__init__(top_path)
         self.test_path = os.path.join(top_path, "smb_torture")
         self.server = server
         self.user = user
         self.password = password
         self.case_filter = case_filter
+        self.expect_failures = expect_failures
 
     def verify(self):
         if os.name != "posix":
@@ -94,6 +96,94 @@ class SMBTorture(PkgBase):
                     command=cmd.format(self.server, self.test_path, self.user, self.password, tc))
                 tests.append(test)
         return tests
+
+    @staticmethod
+    def result_analyze(test, result, expect_failure_list=None):
+        """
+        Compare result with the expect_failure_list
+        :param test:
+        :param result:
+        :param expect_failure_list:
+        :return: True | False
+        """
+        if expect_failure_list is None:
+            expect_failure_list = []
+        actual_failure_list = []
+        # find all failures in result
+        pattern_success = re.compile(r'(success):\s+(.+)')
+        pattern_failure = re.compile(r'(failure):\s+(.+\b)\s+(\[\s\S+.+\s\S)')
+        pattern_skip = re.compile(r'(skip):\s+(.+\b)\s+(\[\s\S+.+\s\S)')
+        success_info = pattern_success.findall(result)
+        failure_info = pattern_failure.findall(result)
+        skip_info = pattern_skip.findall(result)
+
+        for success in success_info:
+            logger.info("%s: %s" % (success[0], success[1]))
+
+        for failure in failure_info:
+            if failure[1] in expect_failure_list:
+                logger.warning("%s: %s %s" % (failure[0], failure[1], failure[2]))
+            else:
+                logger.error("%s: %s %s" % (failure[0], failure[1], failure[2]))
+                actual_failure_list.append(failure[1])
+
+        for skip in skip_info:
+            logger.warning("%s: %s %s" % (skip[0], skip[1], skip[2]))
+
+        diff_acturl_expect = utils.get_list_difference(actual_failure_list, expect_failure_list)
+        pass_flag = False if diff_acturl_expect else True
+
+        expect_failure_len = len(expect_failure_list)
+        actual_failure_len = len(actual_failure_list)
+        diff_failure_len = len(diff_acturl_expect)
+        column_len = max(expect_failure_len, actual_failure_len,
+                         diff_failure_len)
+        table = PrettyTable()
+        table.add_column('Test', [test] * column_len)
+        table.add_column('Expect_Failure', expect_failure_list + [''] * (
+                column_len - expect_failure_len))
+        table.add_column('Actual_Failure', actual_failure_list + [''] * (
+                column_len - actual_failure_len))
+        table.add_column('Diff_Acturl_Expect', diff_acturl_expect + [''] * (
+                column_len - diff_failure_len))
+        if pass_flag:
+            logger.info('PASS: %s \n%s' % (test, table.get_string(align="l")))
+        else:
+            logger.error('FAIL: %s \n%s' % (test, table.get_string(align="l")))
+
+        return pass_flag
+
+    def run(self, test):
+        logger.info(test.desc)
+        self.verify()
+        test_name = test.name
+        test_path = test.test_path
+        binary_path = test.bin_path
+        fail_flag = test.fail_flag
+        test_log = os.path.join(self.top_path, '{0}.log'.format(test_name))
+        test_cmd = "{0} | tee -a {1}".format(test.command, test_log)
+        utils.mkdir_path(test_path)
+
+        try:
+            if binary_path:
+                os.system('chmod +x {0}/*'.format(binary_path))
+            rc, output = utils.run_cmd(test_cmd, timeout=72000)
+            logger.info(output)
+            if fail_flag and fail_flag in output:
+                raise Exception("FAIL: Run {0} on {1}".format(test_name, test_path))
+            pass_flag = self.result_analyze(test, output, self.expect_failures)
+            if pass_flag:
+                logger.info("PASS: Run {0} on {1}".format(test_name, test_path))
+            else:
+                logger.info("FAIL: Run {0} on {1}".format(test_name, test_path))
+                return pass_flag
+        except Exception as e:
+            logger.info("FAIL: Run {0} on {1}".format(test_name, test_path))
+            raise e
+        finally:
+            pass
+
+        return True
 
     def sanity(self):
         return self.run_tests(self.tests_generator())

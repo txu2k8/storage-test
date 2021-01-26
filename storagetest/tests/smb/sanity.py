@@ -35,13 +35,15 @@ class SanityTC(CustomTestCase):
         self.smb_user = self.args[0].smb_user
         self.smb_pwd = self.args[0].smb_pwd
         self.case_filter = self.args[0].case_filter
+        self.expect_failures = []
 
     # ==== smbtorture ====
     @unittest.skipUnless(posix_ready(), "Not supported platform")
     def test_smbtorture(self):
         """Samba torture test suite"""
         from storagetest.pkgs.smb.smbtorture import SMBTorture
-        smb = SMBTorture(self.test_path, self.smb_server, self.smb_user, self.smb_pwd, self.case_filter)
+        smb = SMBTorture(self.test_path, self.smb_server, self.smb_user, self.smb_pwd,
+                         self.case_filter, self.expect_failures)
         logger.info(smb.__doc__)
         self.assertTrue(smb.sanity())
 

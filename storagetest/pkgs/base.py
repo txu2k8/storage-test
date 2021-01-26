@@ -104,8 +104,8 @@ class PkgBase(object):
             start_time = datetime.now()
             self.print_phase()
             try:
-                self.run(test)
-                self.phase_list[-1][1] = "PASS"
+                ret = self.run(test)
+                self.phase_list[-1][1] = "PASS" if ret else "FAIL"
             except Exception as e:
                 self.phase_list[-1][1] = "FAIL"
                 raise e
