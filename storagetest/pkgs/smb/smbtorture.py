@@ -61,7 +61,7 @@ class SMBTorture(PkgBase):
         for line in lines:
             if not line or line == '\r' or "The default test is ALL" in line:
                 continue
-            match_suite = re.findall(pattern_suite, line)
+            match_suite = re.findall(pattern_suite, str(line))
             if match_suite:
                 suite = match_suite[0]
             elif suite:
