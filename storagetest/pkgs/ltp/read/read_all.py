@@ -77,13 +77,11 @@ class ReadAll(object):
 
     def sanity(self):
         self.verify()
-        test_path = os.path.join(self.top_path, "read_all")
-        return self.run(test_path, 5, 10)
+        return self.run(self.top_path, 5, 10)
 
     def stress(self):
         self.verify()
-        test_path = os.path.join(self.top_path, "read_all")
-        return self.run(test_path, 10, 60)
+        return self.run(self.top_path, 10, 60)
 
 
 class UnitTestCase(unittest.TestCase):

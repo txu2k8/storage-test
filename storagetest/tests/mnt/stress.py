@@ -26,10 +26,10 @@ class StressTC(CustomTestCase):
         self.phase_list.append([self.id().split('.')[-1], "Start", '', self.shortDescription()])
         self.start_time = datetime.now()
         self.print_phase()
-        fs_path = self.args[0].test_path
-        if not os.path.isdir(fs_path):
-            raise NoSuchDir(fs_path)
-        self.test_path = os.path.join(fs_path, "stress_{0}_{1}".format(self.str_time, self.tc_loop[self.id()]))
+        self.fs_path = self.args[0].test_path
+        if not os.path.isdir(self.fs_path):
+            raise NoSuchDir(self.fs_path)
+        self.test_path = os.path.join(self.fs_path, "stress_{0}_{1}".format(self.str_time, self.tc_loop[self.id()]))
         utils.mkdir_path(self.test_path)
 
     # ==== LTP ====
@@ -86,7 +86,7 @@ class StressTC(CustomTestCase):
     def test_readall(self):
         """Perform a small read on every file in a directory tree."""
         from storagetest.pkgs.ltp.read import ReadAll
-        readall = ReadAll(self.test_path)
+        readall = ReadAll(self.fs_path)
         logger.info(readall.__doc__)
         self.assertTrue(readall.stress())
 
