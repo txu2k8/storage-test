@@ -24,6 +24,23 @@ STR_TIME = str(time.strftime("%Y%m%d%H%M%S", time.localtime()))
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
+# --- args parser
+def pytest_parser():
+    """pytest args parser"""
+    parser = argparse.ArgumentParser(add_help=False)
+    pytest_group = parser.add_argument_group("--runner pytest 's arguments")
+    pytest_group.add_argument("--repeat-scope", action="store", dest="repeat_scope", default="session",
+                              choices=['function', 'class', 'module', 'session'],
+                              help="pytest-repeat,default:session")
+    pytest_group.add_argument("--seconds", action="store", dest="seconds", default=0, type=int,
+                              help="pytest-stress:Loop tests for user-defined time(seconds), default:0 --TODO")
+    pytest_group.add_argument("--html", action="store", dest="html_path", default=None,
+                              help="html path,default:None,will use the same as log path")
+    pytest_group.add_argument("--junit-xml", action="store", dest="junit_xml_path", default=None,
+                              help="junit-xml path,default:None,will use the same as log path")
+    return parser
+
+
 def base_parser():
     """
     Set base argument
@@ -31,7 +48,7 @@ def base_parser():
     """
 
     # Parent parser
-    parser = argparse.ArgumentParser(description='Storage Test Project')
+    parser = argparse.ArgumentParser(description='Storage Test Project', parents=[pytest_parser()])
     parser.add_argument("--debug", action="store_true", dest="debug",
                         default=False, help="debug mode")
     parser.add_argument("--duration", action="store", dest="duration",
@@ -160,8 +177,9 @@ def run_with_stress_runner(args):
     # run with StressRunner -- report html
     from stressrunner import StressRunner
     MAIL_COUNT['m_to'] = args.mail_to
-    runner = StressRunner(log_path.replace('.log', '.html'), logger, args.loops,
-                          report_title=title)
+    html_path = args.html_path or log_path.replace('.log', '.html')
+    junit_xml_path = args.junit_xml_path or log_path.replace('.log', '.xml')
+    runner = StressRunner(html_path, junit_xml_path, logger, args.loops, report_title=title)
     # get unittest test suite and then run unittest case
     test_suite, _ = args.func(args)
     runner.run(test_suite)
